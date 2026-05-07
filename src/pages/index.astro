@@ -1,4 +1,10 @@
 ---
+import { Icon } from "astro-icon/components";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+const currentYear = new Date().getFullYear();
+const codingStartYear = 1998;
+const yearsExperience = currentYear - codingStartYear;
 
 ---
 
@@ -8,10 +14,390 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
+		<link rel="stylesheet" href="/universal.css" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>Stone Dragon Media | Web Design Agency</title>
+		<meta
+			name="description"
+			content="Stone Dragon Media builds high-performance web solutions and conversion-focused digital experiences for ambitious brands."
+		/>
+		<style>
+			.page {
+				max-width: 1280px;
+				margin: 0 auto;
+				padding: 2.1rem clamp(1.1rem, 2.5vw, 2.4rem) 4.5rem;
+			}
+
+			.site-nav {
+				margin-right: 0.45rem;
+			}
+
+			.brand-logo {
+				width: min(100%, 380px);
+				height: auto;
+				display: block;
+				filter: contrast(1.15) brightness(1.07);
+			}
+
+			.hero {
+				margin-top: clamp(1.5rem, 4vw, 2.8rem);
+				display: block;
+				position: relative;
+				padding: clamp(1rem, 3vw, 2rem);
+				border-radius: 1.1rem;
+				overflow: hidden;
+				border: 1px solid rgba(255, 255, 255, 0.18);
+				background:
+					linear-gradient(125deg, rgba(12, 27, 43, 0.54), rgba(20, 45, 69, 0.16)),
+					url('/header-bg.png') center 30% / cover no-repeat;
+				min-height: clamp(420px, 56vw, 620px);
+				box-shadow: 0 22px 42px rgba(16, 38, 59, 0.25);
+			}
+
+			.hero > * {
+				position: relative;
+				z-index: 1;
+			}
+
+			.hero-content {
+				max-width: 56ch;
+			}
+
+			.snapshot-section {
+				margin-top: 1rem;
+				display: block;
+			}
+
+			.snapshot-section .panel {
+				max-width: none;
+				width: 100%;
+			}
+
+			h1 {
+				font-family: "Sora", sans-serif;
+				font-size: clamp(2.1rem, 5vw, 4.2rem);
+				line-height: 1.03;
+				margin: 0 0 1rem;
+				max-width: 13ch;
+				color: #f2f8ff;
+			}
+
+			.hero p {
+				margin: 0;
+				color: rgba(233, 244, 255, 0.92);
+				font-size: clamp(1.02rem, 1.45vw, 1.18rem);
+				max-width: 52ch;
+			}
+
+			.cta {
+				margin-top: 1.5rem;
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.8rem;
+			}
+
+			.button {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				padding: 0.72rem 1.12rem;
+				border-radius: 0.82rem;
+				border: 1px solid transparent;
+				font-weight: 600;
+				text-decoration: none;
+				font-family: "Sora", sans-serif;
+				transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+			}
+
+			.button .icon {
+				width: 1rem;
+				height: 1rem;
+				margin-right: 0.45rem;
+				flex-shrink: 0;
+			}
+
+			.button:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 8px 18px rgba(14, 46, 73, 0.2);
+			}
+
+			.button-primary {
+				background: linear-gradient(125deg, #1f5a89, #2f709f);
+				color: #edf6ff;
+			}
+
+			.button-secondary {
+				border-color: rgba(43, 90, 124, 0.4);
+				color: var(--brand-strong);
+				background: rgba(239, 247, 253, 0.86);
+			}
+
+			.hero .button-secondary {
+				border-color: rgba(191, 224, 248, 0.45);
+				color: #e6f2ff;
+				background: rgba(17, 44, 68, 0.45);
+			}
+
+			.panel,
+			.services article,
+			.metric {
+				border: 1px solid var(--line);
+				background: var(--surface);
+				box-shadow:
+					0 16px 30px rgba(18, 45, 69, 0.12),
+					inset 0 1px 0 rgba(255, 255, 255, 0.5);
+ 			}
+
+			.panel {
+				border-radius: 1rem;
+				padding: 1.2rem;
+				animation: rise 700ms ease both 140ms;
+				background: rgba(233, 241, 248, 0.9);
+			}
+
+			.panel p {
+				color: var(--ink-soft);
+			}
+
+			.metrics {
+				display: grid;
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+				gap: 0.9rem;
+				margin-top: 2rem;
+			}
+
+			.metric {
+				border-radius: 0.8rem;
+				padding: 0.95rem;
+			}
+
+			.metric .icon {
+				width: 1rem;
+				height: 1rem;
+				color: var(--brand);
+				margin-bottom: 0.35rem;
+			}
+
+			.metric strong {
+				display: block;
+				font-size: 1.2rem;
+				color: var(--brand-strong);
+			}
+
+			.metric span {
+				font-size: 0.93rem;
+				color: var(--ink-soft);
+			}
+
+			section {
+				margin-top: 2.6rem;
+			}
+
+			.site-footer {
+				margin-top: 2.2rem;
+				padding-top: 1.25rem;
+			}
+
+			.services {
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 1rem;
+			}
+
+			.services article {
+				padding: 1rem;
+				border-radius: 0.9rem;
+			}
+
+			.service-title {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.service-title .icon {
+				width: 1.05rem;
+				height: 1.05rem;
+				color: var(--brand);
+				flex-shrink: 0;
+			}
+
+			h2 {
+				margin: 0 0 1rem;
+				font-size: clamp(1.4rem, 2vw, 1.8rem);
+				font-family: "Sora", sans-serif;
+				color: var(--brand-strong);
+			}
+
+			h3 {
+				margin: 0 0 0.45rem;
+				font-size: 1.04rem;
+				color: var(--brand-strong);
+			}
+
+			.services p {
+				margin: 0;
+				color: var(--ink-soft);
+				font-size: 0.96rem;
+			}
+
+			.kicker {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.45rem;
+				font-size: 0.82rem;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				font-weight: 600;
+				color: #d2e9ff;
+				margin-bottom: 1rem;
+			}
+
+			.kicker::before {
+				content: "";
+				display: block;
+				width: 1.6rem;
+				height: 1px;
+				background: rgba(186, 219, 247, 0.9);
+			}
+
+			@keyframes rise {
+				from {
+					opacity: 0;
+					transform: translateY(14px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			@media (max-width: 920px) {
+				.site-nav {
+					margin-right: 0;
+				}
+
+				.brand-logo {
+					width: min(100%, 330px);
+				}
+
+				.services {
+					grid-template-columns: 1fr;
+				}
+
+				.hero {
+					min-height: clamp(470px, 86vw, 640px);
+					background:
+						linear-gradient(125deg, rgba(12, 27, 43, 0.58), rgba(20, 45, 69, 0.2)),
+						url('/header-bg.png') 68% 24% / cover no-repeat;
+				}
+
+				.snapshot-section {
+					justify-content: stretch;
+				}
+
+				.snapshot-section .panel {
+					max-width: none;
+					width: 100%;
+				}
+
+				.metrics {
+					grid-template-columns: 1fr;
+				}
+
+				.site-footer {
+					padding-top: 1.2rem;
+				}
+			}
+		</style>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<SiteHeader active="home" showCta={true} />
+
+		<div class="page">
+			<main class="hero">
+				<div class="hero-content">
+					<div class="kicker">Digital Strategy and Solutions</div>
+					<h1>Premium web solutions for growing brands.</h1>
+					<p>
+						Stone Dragon Media delivers custom web solutions, application development,
+						reliable hosting, and practical consulting to help businesses scale online. Backed by
+						{yearsExperience} years of IT and development experience.
+					</p>
+					<div class="cta">
+						<a class="button button-primary" href="/contact">
+							<Icon class="icon" name="lucide:calendar-check-2" aria-hidden="true" />
+							Book Discovery Call
+						</a>
+						<a class="button button-secondary" href="/services">
+							<Icon class="icon" name="lucide:sparkles" aria-hidden="true" />
+							View Services
+						</a>
+					</div>
+				</div>
+			</main>
+
+			<section id="services">
+				<h2>Services</h2>
+				<div class="services">
+					<article>
+						<div class="service-title">
+							<Icon class="icon" name="lucide:layout-template" aria-hidden="true" />
+							<h3>Custom Web Solutions</h3>
+						</div>
+						<p>
+							eCommerce and informational websites, custom business solutions, and integrations built to stay lightning fast.
+						</p>
+					</article>
+					<article>
+						<div class="service-title">
+							<Icon class="icon" name="lucide:cpu" aria-hidden="true" />
+							<h3>Custom Application Development</h3>
+						</div>
+						<p>
+							Purpose-built web applications that solve operational problems and create new revenue paths.
+						</p>
+					</article>
+					<article>
+						<div class="service-title">
+							<Icon class="icon" name="lucide:server" aria-hidden="true" />
+							<h3>Hosting</h3>
+						</div>
+						<p>
+							Domain registration, hosting troubleshooting, and server setup with reliable support.
+						</p>
+					</article>
+					<article>
+						<div class="service-title">
+							<Icon class="icon" name="lucide:megaphone" aria-hidden="true" />
+							<h3>Marketing</h3>
+						</div>
+						<p>
+							SEO, PPC management, social media marketing, and text message marketing campaigns.
+						</p>
+					</article>
+					<article>
+						<div class="service-title">
+							<Icon class="icon" name="lucide:palette" aria-hidden="true" />
+							<h3>Branding</h3>
+						</div>
+						<p>
+							Logo design and brand consultation to sharpen your identity and positioning.
+						</p>
+					</article>
+					<article>
+						<div class="service-title">
+							<Icon class="icon" name="lucide:compass" aria-hidden="true" />
+							<h3>Consulting</h3>
+						</div>
+						<p>
+							Technology and software consulting, data migration planning, and software consultation.
+						</p>
+					</article>
+				</div>
+			</section>
+
+			<SiteFooter />
+		</div>
 	</body>
 </html>

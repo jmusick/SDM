@@ -1,0 +1,31 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+	active?: "home" | "about" | "services" | "products" | "contact";
+	showCta?: boolean;
+}
+
+const { active = "home", showCta = false } = Astro.props;
+---
+
+<header class="site-head">
+	<div class="site-head-inner">
+		<a href="/">
+			<img class="brand-logo" src="/logo-cropped.png" alt="Stone Dragon Media logo" loading="eager" decoding="async" />
+		</a>
+		<nav class="site-nav" aria-label="Primary">
+			<a class={active === "home" ? "active" : undefined} href="/">Home</a>
+			<a class={active === "about" ? "active" : undefined} href="/about">About</a>
+			<a class={active === "services" ? "active" : undefined} href="/services">Services</a>
+			<a class={active === "products" ? "active" : undefined} href="/products">Products</a>
+			<a class={active === "contact" ? "active" : undefined} href="/contact">Contact</a>
+		</nav>
+		{showCta && (
+			<a class="button button-secondary" href="/contact">
+				<Icon class="icon" name="lucide:send" aria-hidden="true" />
+				Start a Project
+			</a>
+		)}
+	</div>
+</header>

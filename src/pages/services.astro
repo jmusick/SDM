@@ -1,0 +1,90 @@
+---
+import { Icon } from "astro-icon/components";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="stylesheet" href="/universal.css" />
+		<title>Services | Stone Dragon Media</title>
+		<style>
+			.page { max-width:1280px; margin:0 auto; padding:2rem clamp(1.1rem,2.5vw,2.4rem) 4rem; }
+			h1 { font-family:"Sora",sans-serif; color:var(--brand-strong); margin:0 0 1rem; }
+			.lead { color:var(--ink-soft); max-width:70ch; }
+			.grid { margin-top:1.2rem; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+			.card { border:1px solid var(--line); background:var(--surface); border-radius:.95rem; padding:1rem; }
+			.card .icon { width:1.1rem; height:1.1rem; color:var(--brand-strong); margin-bottom:.35rem; }
+			.card h2 { margin:0 0 .45rem; font-size:1.06rem; color:var(--brand-strong); font-family:"Sora",sans-serif; }
+			.card p { margin:0; color:var(--ink-soft); line-height:1.55; }
+			.card ul { margin:.55rem 0 0 1rem; padding:0; color:var(--ink-soft); }
+			.card li { margin:0 0 .3rem; }
+			.site-footer { margin-top:2rem; }
+			@media (max-width:920px){ .grid{grid-template-columns:1fr;} }
+		</style>
+	</head>
+	<body>
+		<SiteHeader active="services" />
+		<div class="page">
+			<h1>Services</h1>
+			<p class="lead">Stone Dragon Media offers end-to-end digital services from strategy through launch and long-term support, including website solutions built for speed and reliability.</p>
+			<div class="grid">
+				<article class="card">
+					<Icon class="icon" name="lucide:layout-template" aria-hidden="true" />
+					<h2>Custom Web Solutions</h2>
+					<p>Custom website and web solution systems built to communicate value, drive action, and stay lightning fast.</p>
+					<ul>
+						<li>eCommerce websites</li>
+						<li>Informational websites</li>
+						<li>Custom business solutions</li>
+						<li>Platform and third-party integrations</li>
+					</ul>
+				</article>
+				<article class="card">
+					<Icon class="icon" name="lucide:cpu" aria-hidden="true" />
+					<h2>Custom Application Development</h2>
+					<p>Tailored software solutions for internal tools, customer portals, and process automation.</p>
+				</article>
+				<article class="card">
+					<Icon class="icon" name="lucide:megaphone" aria-hidden="true" />
+					<h2>Marketing</h2>
+					<ul>
+						<li>Search Engine Optimization</li>
+						<li>Pay Per Click Management</li>
+						<li>Social Media Marketing</li>
+						<li>Text Message Marketing</li>
+					</ul>
+				</article>
+				<article class="card">
+					<Icon class="icon" name="lucide:server" aria-hidden="true" />
+					<h2>Hosting</h2>
+					<ul>
+						<li>Domain Registration</li>
+						<li>Hosting Troubleshooting</li>
+						<li>Server Setup</li>
+					</ul>
+				</article>
+				<article class="card">
+					<Icon class="icon" name="lucide:palette" aria-hidden="true" />
+					<h2>Branding</h2>
+					<ul>
+						<li>Logo Design</li>
+						<li>Brand Consultation</li>
+					</ul>
+				</article>
+				<article class="card">
+					<Icon class="icon" name="lucide:compass" aria-hidden="true" />
+					<h2>Consulting</h2>
+					<ul>
+						<li>Technology and software consulting</li>
+						<li>Data migration and planning</li>
+						<li>Software consultation</li>
+					</ul>
+				</article>
+			</div>
+			<SiteFooter />
+		</div>
+	</body>
+</html>

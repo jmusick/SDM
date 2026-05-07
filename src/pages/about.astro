@@ -1,0 +1,64 @@
+---
+import { Icon } from "astro-icon/components";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+const currentYear = new Date().getFullYear();
+const codingStartYear = 1998;
+const yearsExperience = currentYear - codingStartYear;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="stylesheet" href="/universal.css" />
+		<title>About | Stone Dragon Media</title>
+		<style>
+			.page { max-width: 1280px; margin: 0 auto; padding: 2rem clamp(1.1rem, 2.5vw, 2.4rem) 4rem; }
+			h1 { font-family: "Sora", sans-serif; color: var(--brand-strong); margin: 0 0 1rem; }
+			p { color: var(--ink-soft); line-height: 1.6; }
+			.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 1.4rem; }
+			.card {
+				border: 1px solid var(--line);
+				background: var(--surface);
+				border-radius: 0.9rem;
+				padding: 1rem;
+			}
+			.card .icon { width: 1.05rem; height: 1.05rem; color: var(--brand-strong); margin-bottom: 0.35rem; }
+			.card h3 { margin: 0 0 0.45rem; color: var(--brand-strong); font-family: "Sora", sans-serif; font-size: 1rem; }
+			.site-footer { margin-top: 2rem; }
+			@media (max-width: 920px) {
+				.grid { grid-template-columns: 1fr; }
+			}
+		</style>
+	</head>
+	<body>
+		<SiteHeader active="about" />
+		<div class="page">
+			<h1>About Stone Dragon Media</h1>
+			<p>
+				Stone Dragon Media is a Sandusky, Ohio-based technology agency focused on clean design,
+				solid engineering, and practical digital strategy. With {yearsExperience} years of IT and development
+				experience, we help organizations launch web solutions and applications that are built to last.
+			</p>
+			<div class="grid">
+				<div class="card">
+					<Icon class="icon" name="lucide:map-pin" aria-hidden="true" />
+					<h3>Based in Sandusky, OH</h3>
+					<p>Local roots with remote delivery for clients across industries and the country.</p>
+				</div>
+				<div class="card">
+					<Icon class="icon" name="lucide:history" aria-hidden="true" />
+					<h3>{yearsExperience} Years of Experience</h3>
+					<p>Deep background across infrastructure, industries, and modern web stacks.</p>
+				</div>
+				<div class="card">
+					<Icon class="icon" name="lucide:target" aria-hidden="true" />
+					<h3>Business-First Delivery</h3>
+					<p>Every engagement is aligned to measurable outcomes, not vanity output.</p>
+				</div>
+			</div>
+			<SiteFooter />
+		</div>
+	</body>
+</html>

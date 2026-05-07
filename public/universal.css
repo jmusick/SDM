@@ -1,0 +1,182 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap");
+
+:root {
+	--ink: #10263b;
+	--ink-soft: #3e5b73;
+	--surface: rgba(233, 241, 248, 0.84);
+	--surface-strong: rgba(243, 248, 253, 0.94);
+	--line: rgba(90, 128, 156, 0.28);
+	--brand: #1f4f77;
+	--brand-strong: #143755;
+	--highlight: #86d2ff;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	min-height: 100%;
+}
+
+body {
+	margin: 0;
+	font-family: "Outfit", sans-serif;
+	color: var(--ink);
+	background:
+		radial-gradient(circle at 0% 15%, rgba(121, 193, 236, 0.45), transparent 42%),
+		radial-gradient(circle at 92% 88%, rgba(255, 216, 163, 0.28), transparent 36%),
+		linear-gradient(160deg, #dbe8f2 0%, #adc6d8 44%, #7b9ab2 100%);
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-attachment: fixed;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	body {
+		animation: page-enter 260ms ease-out;
+	}
+}
+
+@keyframes page-enter {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.site-head {
+	width: 100%;
+	border-bottom: 1px solid var(--line);
+	background: rgba(238, 245, 251, 0.72);
+	backdrop-filter: blur(8px);
+}
+
+.site-head-inner {
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: 0.9rem clamp(1.1rem, 2.5vw, 2.4rem);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+}
+
+.brand-logo {
+	width: min(100%, 320px);
+	height: auto;
+	display: block;
+}
+
+.site-nav {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	margin-left: auto;
+}
+
+.site-nav a {
+	text-decoration: none;
+	color: var(--brand-strong);
+	font-family: "Sora", sans-serif;
+	font-size: 0.88rem;
+	padding: 0.45rem 0.65rem;
+	border-radius: 0.65rem;
+}
+
+.site-nav a.active,
+.site-nav a:hover {
+	background: rgba(239, 247, 253, 0.86);
+}
+
+.button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.72rem 1.12rem;
+	border-radius: 0.82rem;
+	border: 1px solid transparent;
+	font-weight: 600;
+	text-decoration: none;
+	font-family: "Sora", sans-serif;
+	transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.button .icon {
+	width: 1rem;
+	height: 1rem;
+	margin-right: 0.45rem;
+	flex-shrink: 0;
+}
+
+.button:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 18px rgba(14, 46, 73, 0.2);
+}
+
+.button-primary {
+	background: linear-gradient(125deg, #1f5a89, #2f709f);
+	color: #edf6ff;
+}
+
+.button-secondary {
+	border-color: rgba(43, 90, 124, 0.4);
+	color: var(--brand-strong);
+	background: rgba(239, 247, 253, 0.86);
+}
+
+.site-head .button {
+	white-space: nowrap;
+}
+
+.site-footer {
+	margin-top: 2rem;
+	padding-top: 1.2rem;
+	border-top: 1px solid var(--line);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+	color: var(--ink-soft);
+	font-size: 0.93rem;
+}
+
+.site-footer a {
+	color: var(--brand-strong);
+	text-decoration: none;
+	font-weight: 600;
+}
+
+.site-footer a:hover {
+	text-decoration: underline;
+}
+
+@media (max-width: 920px) {
+	body {
+		background-attachment: scroll;
+	}
+
+	.site-head-inner {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.site-nav {
+		margin: 0;
+		justify-content: flex-start;
+		flex-wrap: wrap;
+	}
+
+	.site-head-inner .button {
+		width: fit-content;
+		align-self: flex-end;
+	}
+
+	.site-footer {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
