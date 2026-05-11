@@ -10,7 +10,7 @@ export default defineConfig({
 	},
 	vite: {
 		server: {
-			allowedHosts: ["ark-prime", "localhost"],
+			allowedHosts: [".ark-prime", "localhost"],
 		},
 	},
 	integrations: [icon()],

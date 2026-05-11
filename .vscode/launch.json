@@ -9,8 +9,18 @@
       "serverReadyAction": {
         "action": "openExternally",
         "pattern": "(https?://(?:localhost|ark-prime):4321)",
-        "uriFormat": "http://ark-prime:4321"
+        "uriFormat": "%s"
       }
+    },
+    {
+      "name": "Firefox Debug",
+      "type": "firefox",
+      "request": "launch",
+      "reAttach": true,
+      "url": "http://ark-prime:4321",
+      "webRoot": "${workspaceFolder}",
+      "firefoxExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+      "preLaunchTask": "dev-server"
     }
   ]
 }
