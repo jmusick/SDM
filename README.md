@@ -1,43 +1,112 @@
-# Astro Starter Kit: Minimal
+# Stone Dragon Media
 
-```sh
-npm create astro@latest -- --template minimal
+Official website for Stone Dragon Media, built with [Astro](https://astro.build).
+
+## 📖 About
+
+A modern, fast, and accessible website showcasing Stone Dragon Media's services, products, and company information. Built with Astro for optimal performance and static site generation.
+
+## ✨ Features
+
+- ⚡ **Lightning-fast performance** - Static site generation with Astro
+- 🎨 **Icon integration** - Lucide icons via astro-icon
+- 📱 **Fully responsive** - Mobile-first design
+- ♿ **Accessible** - WCAG compliant component structure
+- 🔧 **TypeScript** - Full type safety
+- 🎯 **SEO optimized** - Built-in Astro optimizations
+
+## 📄 Pages
+
+- **Home** (`/`) - Landing page
+- **About** (`/about`) - Company information
+- **Services** (`/services`) - Service offerings
+- **Products** (`/products`) - Product catalog
+- **Contact** (`/contact`) - Contact form and information
+- **Privacy Policy** (`/privacy-policy`) - Privacy terms
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js ≥ 22.12.0
+- npm or yarn
+
+### Installation
+
+```bash
+npm install
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+### Development
 
-## 🚀 Project Structure
+Start the local development server:
 
-Inside of your Astro project, you'll see the following folders and files:
+```bash
+npm run dev
+```
 
-```text
+The site will be available at `http://localhost:4321` (or `http://ark-prime:4321` on the local network).
+
+### Build
+
+Build for production:
+
+```bash
+npm run build
+```
+
+The compiled site will be in the `./dist/` directory.
+
+### Preview
+
+Preview the production build locally:
+
+```bash
+npm run preview
+```
+
+## 🏗️ Project Structure
+
+```
 /
 ├── public/
+│   └── universal.css      # Global styles
 ├── src/
+│   ├── components/
+│   │   ├── SiteHeader.astro
+│   │   └── SiteFooter.astro
 │   └── pages/
-│       └── index.astro
-└── package.json
+│       ├── index.astro
+│       ├── about.astro
+│       ├── contact.astro
+│       ├── privacy-policy.astro
+│       ├── products.astro
+│       └── services.astro
+├── astro.config.mjs       # Astro configuration
+├── tsconfig.json          # TypeScript configuration
+└── package.json           # Project metadata and dependencies
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## 📦 Dependencies
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+- **astro** - Web framework
+- **astro-icon** - Icon component system
+- **@iconify-json/lucide** - Lucide icon set
 
-Any static assets, like images, can be placed in the `public/` directory.
+## 🛠️ Configuration
 
-## 🧞 Commands
+### Debug Mode
 
-All commands are run from the root of the project, from a terminal:
+To debug in Firefox from VS Code:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+1. Install the "Debugger for Firefox" extension
+2. Select "Firefox Debug" from the Run and Debug view
+3. Press **F5** to launch with debugging enabled
 
-## 👀 Want to learn more?
+## 📝 License
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+[Add your license information here]
+
+## 📧 Contact
+
+For inquiries, visit our [contact page](/contact).

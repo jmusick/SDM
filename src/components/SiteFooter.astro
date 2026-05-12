@@ -1,8 +1,12 @@
 ---
+import packageJson from "../../package.json";
+
 const currentYear = new Date().getFullYear();
+const siteVersion = packageJson.version;
 ---
 
 <footer class="site-footer">
-	<div>Copyright {currentYear} Stone Dragon Media. All rights reserved.</div>
-	<a href="/privacy-policy">Privacy Policy</a>
+	<div class="footer-copy">Copyright {currentYear} Stone Dragon Media. All rights reserved.</div>
+	<div class="footer-version" aria-label="Site version">v{siteVersion}</div>
+	<a class="footer-link" href="/privacy-policy">Privacy Policy</a>
 </footer>
