@@ -2,172 +2,209 @@
 import { Icon } from "astro-icon/components";
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
 const currentYear = new Date().getFullYear();
 const codingStartYear = 1998;
 const yearsExperience = currentYear - codingStartYear;
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" href="/favicon.ico" sizes="32x32" />
-		<link rel="icon" type="image/png" href="/favicon.png" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="canonical" href="https://stonedragonmedia.com/about/" />
-		<link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
-		<link rel="stylesheet" href="/universal.css" />
-		<title>About | Stone Dragon Media</title>
-		<meta name="description" content="Learn about Stone Dragon Media — a Sandusky, Ohio web design and technology agency with over 25 years of IT and development experience." />
-		<meta property="og:type" content="website" />
-		<meta property="og:url" content="https://stonedragonmedia.com/about/" />
-		<meta property="og:title" content="About | Stone Dragon Media" />
-		<meta property="og:description" content="Learn about Stone Dragon Media — a Sandusky, Ohio web design and technology agency with over 25 years of IT and development experience." />
-		<meta property="og:image" content="https://stonedragonmedia.com/logo.png" />
-		<meta name="twitter:card" content="summary_large_image" />
-		<meta name="twitter:title" content="About | Stone Dragon Media" />
-		<meta name="twitter:description" content="Learn about Stone Dragon Media — a Sandusky, Ohio web design and technology agency with over 25 years of IT and development experience." />
-		<style>
-			.page { max-width: 1280px; margin: 0 auto; padding: 2rem clamp(1.1rem, 2.5vw, 2.4rem) 4rem; }
-			.header-hero {
-				position: relative;
-				width: 100vw;
-				left: 50%;
-				right: 50%;
-				margin-left: -50vw;
-				margin-right: -50vw;
-				height: 520px;
-				max-width: 100vw;
-				border-radius: 0;
-				overflow: hidden;
-				box-shadow: none;
-				margin-bottom: 2rem;
-				background: #122238;
-			}
-			.header-hero img {
-				width: 100%;
-				height: 100%;
-				object-fit: cover;
-				display: block;
-				object-position: center 70%;
-			}
-			.header-overlay {
-				position: absolute;
-				top: 0;
-				left: 0;
-				width: 100vw;
-				height: 100%;
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				align-items: flex-start;
-				padding: 3.5rem 3.5rem 3.5rem 8vw;
-				color: #fff;
-				background: linear-gradient(90deg, rgba(18,34,56,0.82) 0%, rgba(18,34,56,0.32) 60%, rgba(18,34,56,0.00) 100%);
-				font-family: "Sora", sans-serif;
-				pointer-events: none;
-				box-sizing: border-box;
-			}
-			.header-overlay .about-label {
-				font-size: 1.1rem;
-				font-weight: 600;
-				letter-spacing: 0.13em;
-				margin-bottom: 0.7rem;
-				opacity: 0.92;
-				border-bottom: 3px solid #7fa6d9;
-				display: inline-block;
-				padding-bottom: 0.2rem;
-			}
-			.header-overlay .hero-title {
-				font-size: 2.8rem;
-				font-weight: 800;
-				margin-bottom: 1.2rem;
-				line-height: 1.1;
-				text-shadow: 0 2px 16px rgba(0,0,0,0.18);
-			}
-			.header-overlay .hero-desc {
-				font-size: 1.25rem;
-				font-weight: 400;
-				max-width: 32rem;
-				line-height: 1.5;
-				text-shadow: 0 2px 16px rgba(0,0,0,0.18);
-			}
-			h1 { font-family: "Sora", sans-serif; color: var(--brand-strong); margin: 0 0 1rem; }
-			p { color: var(--ink-soft); line-height: 1.6; }
-			.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 1.4rem; }
-			.card {
-				border: 1px solid var(--line);
-				background: var(--surface);
-				border-radius: 0.9rem;
-				padding: 1rem;
-			}
-			.card .icon { width: 1.05rem; height: 1.05rem; color: var(--brand-strong); margin-bottom: 0.35rem; }
-			.card h3 { margin: 0 0 0.45rem; color: var(--brand-strong); font-family: "Sora", sans-serif; font-size: 1rem; }
-			.site-footer { margin-top: 2rem; }
-			@media (max-width: 920px) {
-				.grid { grid-template-columns: 1fr; }
-				.header-overlay {
-					padding: 2rem 1.2rem 2rem 1.2rem;
-					align-items: flex-start;
-				}
-				.header-overlay .hero-title {
-					font-size: 2rem;
-				}
-				.header-overlay .hero-desc {
-					font-size: 1rem;
-				}
-			}
-		</style>
-	</head>
-	<body>
-		<SiteHeader active="about" />
-			<div class="header-hero">
-				<img src="/about-header.png" alt="About Stone Dragon Media" />
-				<div class="header-overlay">
-					<span class="about-label">ABOUT</span>
-					<span class="hero-title">Stone Dragon Media</span>
-					<span class="hero-desc">
-						We combine clean design, solid engineering, and practical digital strategy to help organizations launch web solutions and applications that are built to last.
-					</span>
-				</div>
-			</div>
-		<div class="page">
-			<h1>About Stone Dragon Media</h1>
-			<p>
-				Founded in Sandusky, Ohio, Stone Dragon Media is dedicated to helping organizations thrive in a digital-first world. With over {yearsExperience} years of IT and development experience, we bring a rare blend of technical depth, creative vision, and business acumen to every project.
-			</p>
-			<p>
-				Our philosophy is simple: build solutions that are clean, robust, and genuinely useful. We believe that great design is more than aesthetics—it’s about clarity, accessibility, and making technology work for people. Our engineering approach is grounded in best practices, modern web stacks, and a relentless focus on reliability and performance.
-			</p>
-			<p>
-				Stone Dragon Media partners with clients of all sizes, from local businesses to national organizations. We offer:
-				<ul>
-					<li><strong>Custom web design & development</strong> — From concept to launch, we create sites and applications tailored to your goals.</li>
-					<li><strong>Digital strategy & consulting</strong> — Guidance on technology choices, process improvement, and digital transformation.</li>
-					<li><strong>Ongoing support & optimization</strong> — We don’t just launch and leave; we help you grow and adapt over time.</li>
-				</ul>
-			</p>
-			<p>
-				Every engagement is driven by measurable outcomes, transparent communication, and a commitment to long-term value. Let’s build something remarkable together.
-			</p>
-			<div class="grid">
-				<div class="card">
-					<Icon class="icon" name="lucide:map-pin" aria-hidden="true" />
-					<h3>Based in Sandusky, OH</h3>
-					<p>Local roots with remote delivery for clients across industries and the country.</p>
-				</div>
-				<div class="card">
-					<Icon class="icon" name="lucide:history" aria-hidden="true" />
-					<h3>{yearsExperience} Years of Experience</h3>
-					<p>Deep background across infrastructure, industries, and modern web stacks.</p>
-				</div>
-				<div class="card">
-					<Icon class="icon" name="lucide:target" aria-hidden="true" />
-					<h3>Business-First Delivery</h3>
-					<p>Every engagement is aligned to measurable outcomes, not vanity output.</p>
-				</div>
-			</div>
-			<SiteFooter />
-		</div>
-	</body>
-</html>
+<BaseLayout
+  title="About | Stone Dragon Media"
+  description="Learn about Stone Dragon Media - a Sandusky, Ohio web design and technology agency with over 25 years of IT and development experience."
+  canonical="https://stonedragonmedia.com/about/"
+  ogUrl="https://stonedragonmedia.com/about/"
+>
+  <Fragment slot="head">
+    <style>
+      .page {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 2rem clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
+      }
+
+      .header-hero {
+        position: relative;
+        width: 100vw;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        height: 520px;
+        max-width: 100vw;
+        border-radius: 0;
+        overflow: hidden;
+        box-shadow: none;
+        margin-bottom: 2rem;
+        background: #122238;
+      }
+
+      .header-hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        object-position: center 70%;
+      }
+
+      .header-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 3.5rem 3.5rem 3.5rem 8vw;
+        color: #fff;
+        background: linear-gradient(90deg, rgba(18, 34, 56, 0.82) 0%, rgba(18, 34, 56, 0.32) 60%, rgba(18, 34, 56, 0) 100%);
+        font-family: "Sora", sans-serif;
+        pointer-events: none;
+        box-sizing: border-box;
+      }
+
+      .header-overlay .about-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: 0.13em;
+        margin-bottom: 0.7rem;
+        opacity: 0.92;
+        border-bottom: 3px solid #7fa6d9;
+        display: inline-block;
+        padding-bottom: 0.2rem;
+      }
+
+      .header-overlay .hero-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin-bottom: 1.2rem;
+        line-height: 1.1;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
+      }
+
+      .header-overlay .hero-desc {
+        font-size: 1.25rem;
+        font-weight: 400;
+        max-width: 32rem;
+        line-height: 1.5;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
+      }
+
+      h1 {
+        font-family: "Sora", sans-serif;
+        color: var(--brand-strong);
+        margin: 0 0 1rem;
+      }
+
+      p {
+        color: var(--ink-soft);
+        line-height: 1.6;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+        margin-top: 1.4rem;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: 0.9rem;
+        padding: 1rem;
+      }
+
+      .card .icon {
+        width: 1.05rem;
+        height: 1.05rem;
+        color: var(--brand-strong);
+        margin-bottom: 0.35rem;
+      }
+
+      .card h3 {
+        margin: 0 0 0.45rem;
+        color: var(--brand-strong);
+        font-family: "Sora", sans-serif;
+        font-size: 1rem;
+      }
+
+      .site-footer {
+        margin-top: 2rem;
+      }
+
+      @media (max-width: 920px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .header-overlay {
+          padding: 2rem 1.2rem 2rem 1.2rem;
+          align-items: flex-start;
+        }
+
+        .header-overlay .hero-title {
+          font-size: 2rem;
+        }
+
+        .header-overlay .hero-desc {
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </Fragment>
+
+  <SiteHeader active="about" />
+
+  <div class="header-hero">
+    <img src="/about-header.png" alt="About Stone Dragon Media" />
+    <div class="header-overlay">
+      <span class="about-label">ABOUT</span>
+      <span class="hero-title">Stone Dragon Media</span>
+      <span class="hero-desc">
+        We combine clean design, solid engineering, and practical digital strategy to help organizations launch web solutions and applications that are built to last.
+      </span>
+    </div>
+  </div>
+
+  <div class="page">
+    <h1>About Stone Dragon Media</h1>
+    <p>
+      Founded in Sandusky, Ohio, Stone Dragon Media is dedicated to helping organizations thrive in a digital-first world. With over {yearsExperience} years of IT and development experience, we bring a rare blend of technical depth, creative vision, and business acumen to every project.
+    </p>
+    <p>
+      Our philosophy is simple: build solutions that are clean, robust, and genuinely useful. We believe that great design is more than aesthetics - it is about clarity, accessibility, and making technology work for people. Our engineering approach is grounded in best practices, modern web stacks, and a relentless focus on reliability and performance.
+    </p>
+    <p>
+      Stone Dragon Media partners with clients of all sizes, from local businesses to national organizations. We offer:
+    </p>
+    <ul>
+      <li><strong>Custom web design & development</strong> - From concept to launch, we create sites and applications tailored to your goals.</li>
+      <li><strong>Digital strategy & consulting</strong> - Guidance on technology choices, process improvement, and digital transformation.</li>
+      <li><strong>Ongoing support & optimization</strong> - We don't just launch and leave; we help you grow and adapt over time.</li>
+    </ul>
+    <p>
+      Every engagement is driven by measurable outcomes, transparent communication, and a commitment to long-term value. Let's build something remarkable together.
+    </p>
+    <div class="grid">
+      <div class="card">
+        <Icon class="icon" name="lucide:map-pin" aria-hidden="true" />
+        <h3>Based in Sandusky, OH</h3>
+        <p>Local roots with remote delivery for clients across industries and the country.</p>
+      </div>
+      <div class="card">
+        <Icon class="icon" name="lucide:history" aria-hidden="true" />
+        <h3>{yearsExperience} Years of Experience</h3>
+        <p>Deep background across infrastructure, industries, and modern web stacks.</p>
+      </div>
+      <div class="card">
+        <Icon class="icon" name="lucide:target" aria-hidden="true" />
+        <h3>Business-First Delivery</h3>
+        <p>Every engagement is aligned to measurable outcomes, not vanity output.</p>
+      </div>
+    </div>
+    <SiteFooter />
+  </div>
+</BaseLayout>

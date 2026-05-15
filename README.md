@@ -1,112 +1,116 @@
-# Stone Dragon Media
+# Stone Dragon Media Website
 
-Official website for Stone Dragon Media, built with [Astro](https://astro.build).
+Official website for Stone Dragon Media, built with Astro.
 
-## 📖 About
+## Overview
 
-A modern, fast, and accessible website showcasing Stone Dragon Media's services, products, and company information. Built with Astro for optimal performance and static site generation.
+This repository powers the public-facing Stone Dragon Media site, including:
 
-## ✨ Features
+- Marketing homepage
+- About page
+- Services and products pages
+- Contact form workflow
+- Privacy policy
 
-- ⚡ **Lightning-fast performance** - Static site generation with Astro
-- 🎨 **Icon integration** - Lucide icons via astro-icon
-- 📱 **Fully responsive** - Mobile-first design
-- ♿ **Accessible** - WCAG compliant component structure
-- 🔧 **TypeScript** - Full type safety
-- 🎯 **SEO optimized** - Built-in Astro optimizations
+The site uses Astro static generation, shared layout-based head metadata, and per-page styling.
 
-## 📄 Pages
+## Current Stack
 
-- **Home** (`/`) - Landing page
-- **About** (`/about`) - Company information
-- **Services** (`/services`) - Service offerings
-- **Products** (`/products`) - Product catalog
-- **Contact** (`/contact`) - Contact form and information
-- **Privacy Policy** (`/privacy-policy`) - Privacy terms
+- Astro 6
+- astro-icon with Lucide icon set
+- TypeScript
 
-## 🚀 Getting Started
+## Site Pages
+
+- `/` - Home
+- `/about` - About
+- `/services` - Services
+- `/products` - Products
+- `/contact` - Contact
+- `/privacy-policy` - Privacy policy
+
+## Key Implementation Notes
+
+- Shared head/template: `src/layouts/BaseLayout.astro`
+- Shared navigation/footer components: `src/components/SiteHeader.astro`, `src/components/SiteFooter.astro`
+- Global favicon source: `public/favicon.png`
+- Global stylesheet: `public/universal.css`
+- Contact form currently posts to Web3Forms and includes hCaptcha integration in `src/pages/contact.astro`
+
+## Development
 
 ### Prerequisites
 
-- Node.js ≥ 22.12.0
-- npm or yarn
+- Node.js `>=22.12.0`
+- npm
 
-### Installation
+### Install
 
 ```bash
 npm install
 ```
 
-### Development
-
-Start the local development server:
+### Run Dev Server
 
 ```bash
 npm run dev
 ```
 
-The site will be available at `http://localhost:4321` (or `http://ark-prime:4321` on the local network).
+Astro defaults to `http://localhost:4321`.
 
 ### Build
-
-Build for production:
 
 ```bash
 npm run build
 ```
 
-The compiled site will be in the `./dist/` directory.
-
-### Preview
-
-Preview the production build locally:
+### Preview Build
 
 ```bash
 npm run preview
 ```
 
-## 🏗️ Project Structure
+## Project Structure
 
-```
-/
+```text
+.
 ├── public/
-│   └── universal.css      # Global styles
+│   ├── favicon.png
+│   ├── universal.css
+│   ├── header-bg.png
+│   ├── about-header.png
+│   ├── contact-bg.png
+│   └── ...
 ├── src/
 │   ├── components/
 │   │   ├── SiteHeader.astro
 │   │   └── SiteFooter.astro
+│   ├── layouts/
+│   │   └── BaseLayout.astro
 │   └── pages/
 │       ├── index.astro
 │       ├── about.astro
 │       ├── contact.astro
-│       ├── privacy-policy.astro
+│       ├── services.astro
 │       ├── products.astro
-│       └── services.astro
-├── astro.config.mjs       # Astro configuration
-├── tsconfig.json          # TypeScript configuration
-└── package.json           # Project metadata and dependencies
+│       └── privacy-policy.astro
+├── astro.config.mjs
+├── tsconfig.json
+├── package.json
+└── README.md
 ```
 
-## 📦 Dependencies
+## Scripts
 
-- **astro** - Web framework
-- **astro-icon** - Icon component system
-- **@iconify-json/lucide** - Lucide icon set
+- `npm run dev` - Start local dev server
+- `npm run build` - Create production build
+- `npm run preview` - Preview production build locally
 
-## 🛠️ Configuration
+## Content and SEO
 
-### Debug Mode
+- Canonical URLs, Open Graph, and Twitter meta tags are managed per page through `BaseLayout` props.
+- Favicon and shared head links are centralized in `BaseLayout`.
 
-To debug in Firefox from VS Code:
+## Contact Form Security Notes
 
-1. Install the "Debugger for Firefox" extension
-2. Select "Firefox Debug" from the Run and Debug view
-3. Press **F5** to launch with debugging enabled
-
-## 📝 License
-
-[Add your license information here]
-
-## 📧 Contact
-
-For inquiries, visit our [contact page](/contact).
+The contact page currently includes Web3Forms `access_key` and hCaptcha `sitekey` directly in the page source. If needed, move these to environment-driven values for tighter key management.

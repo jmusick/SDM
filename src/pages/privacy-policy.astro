@@ -1,84 +1,79 @@
 ---
+import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" href="/favicon.ico" sizes="32x32" />
-		<link rel="icon" type="image/png" href="/favicon.png" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="canonical" href="https://stonedragonmedia.com/privacy-policy/" />
-		<link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
-		<link rel="stylesheet" href="/universal.css" />
-		<title>Privacy Policy | Stone Dragon Media</title>
-		<meta name="description" content="Read the Stone Dragon Media privacy policy to understand how we collect, use, and protect your personal information." />
-		<meta name="robots" content="noindex, follow" />
-		<style>
-			:root {
-				--surface: rgba(243, 248, 253, 0.95);
-			}
+<BaseLayout
+  title="Privacy Policy | Stone Dragon Media"
+  description="Read the Stone Dragon Media privacy policy to understand how we collect, use, and protect your personal information."
+  canonical="https://stonedragonmedia.com/privacy-policy/"
+  ogUrl="https://stonedragonmedia.com/privacy-policy/"
+  robots="noindex, follow"
+>
+  <Fragment slot="head">
+    <style>
+      :root {
+        --surface: rgba(243, 248, 253, 0.95);
+      }
 
-			.wrapper {
-				max-width: 980px;
-				margin: 0 auto;
-				padding: 2rem clamp(1.1rem, 2.5vw, 2.4rem) 3rem;
-			}
+      .wrapper {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 2rem clamp(1.1rem, 2.5vw, 2.4rem) 3rem;
+      }
 
-			.card {
-				background: var(--surface);
-				border: 1px solid var(--line);
-				border-radius: 1rem;
-				padding: 1.4rem;
-				box-shadow: 0 16px 30px rgba(18, 45, 69, 0.12);
-			}
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+        padding: 1.4rem;
+        box-shadow: 0 16px 30px rgba(18, 45, 69, 0.12);
+      }
 
-			h1,
-			h2 {
-				font-family: "Sora", sans-serif;
-				color: var(--brand-strong);
-			}
+      h1,
+      h2 {
+        font-family: "Sora", sans-serif;
+        color: var(--brand-strong);
+      }
 
-			p,
-			li {
-				color: var(--ink-soft);
-				line-height: 1.6;
-			}
+      p,
+      li {
+        color: var(--ink-soft);
+        line-height: 1.6;
+      }
 
-			a {
-				color: var(--brand-strong);
-			}
-		</style>
-	</head>
-	<body>
-		<div class="wrapper">
-			<div class="card">
-				<h1>Privacy Policy</h1>
-				<p>
-					Stone Dragon Media values your privacy. This page explains what information may be
-					collected when you contact us and how we use it.
-				</p>
+      a {
+        color: var(--brand-strong);
+      }
+    </style>
+  </Fragment>
 
-				<h2>Information We Collect</h2>
-				<ul>
-					<li>Contact information you provide (name, email, phone, company details).</li>
-					<li>Project-related information shared in forms or consultations.</li>
-					<li>Basic analytics data used to improve website performance and usability.</li>
-				</ul>
+  <div class="wrapper">
+    <div class="card">
+      <h1>Privacy Policy</h1>
+      <p>
+        Stone Dragon Media values your privacy. This page explains what information may be
+        collected when you contact us and how we use it.
+      </p>
 
-				<h2>How We Use Information</h2>
-				<ul>
-					<li>Responding to inquiries and project requests.</li>
-					<li>Delivering services and communicating project updates.</li>
-					<li>Improving our website and user experience.</li>
-				</ul>
+      <h2>Information We Collect</h2>
+      <ul>
+        <li>Contact information you provide (name, email, phone, company details).</li>
+        <li>Project-related information shared in forms or consultations.</li>
+        <li>Basic analytics data used to improve website performance and usability.</li>
+      </ul>
 
-				<h2>Contact</h2>
-				<p>
-					If you have privacy questions, please use our
-					<a href="/contact">contact form</a>.
-				</p>
-			</div>
-		</div>
-	</body>
-</html>
+      <h2>How We Use Information</h2>
+      <ul>
+        <li>Responding to inquiries and project requests.</li>
+        <li>Delivering services and communicating project updates.</li>
+        <li>Improving our website and user experience.</li>
+      </ul>
+
+      <h2>Contact</h2>
+      <p>
+        If you have privacy questions, please use our
+        <a href="/contact">contact form</a>.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

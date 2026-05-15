@@ -1,0 +1,70 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  canonical?: string;
+  ogType?: string;
+  ogUrl?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  twitterCard?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  robots?: string;
+  includeGenerator?: boolean;
+}
+
+const {
+  title,
+  description,
+  canonical,
+  ogType = "website",
+  ogUrl,
+  ogTitle,
+  ogDescription,
+  ogImage = "https://stonedragonmedia.com/logo.png",
+  twitterCard = "summary_large_image",
+  twitterTitle,
+  twitterDescription,
+  robots,
+  includeGenerator = false,
+} = Astro.props;
+
+const resolvedOgUrl = ogUrl ?? canonical;
+const resolvedOgTitle = ogTitle ?? title;
+const resolvedOgDescription = ogDescription ?? description;
+const resolvedTwitterTitle = twitterTitle ?? title;
+const resolvedTwitterDescription = twitterDescription ?? description;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+    <link rel="stylesheet" href="/universal.css" />
+    {includeGenerator && <meta name="generator" content={Astro.generator} />}
+
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    {robots && <meta name="robots" content={robots} />}
+
+    <meta property="og:type" content={ogType} />
+    {resolvedOgUrl && <meta property="og:url" content={resolvedOgUrl} />}
+    <meta property="og:title" content={resolvedOgTitle} />
+    {resolvedOgDescription && <meta property="og:description" content={resolvedOgDescription} />}
+    <meta property="og:image" content={ogImage} />
+
+    <meta name="twitter:card" content={twitterCard} />
+    <meta name="twitter:title" content={resolvedTwitterTitle} />
+    {resolvedTwitterDescription && <meta name="twitter:description" content={resolvedTwitterDescription} />}
+
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

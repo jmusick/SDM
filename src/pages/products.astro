@@ -2,78 +2,138 @@
 import { Icon } from "astro-icon/components";
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" href="/favicon.ico" sizes="32x32" />
-		<link rel="icon" type="image/png" href="/favicon.png" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="canonical" href="https://stonedragonmedia.com/products/" />
-		<link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
-		<link rel="stylesheet" href="/universal.css" />
-		<title>Products | Stone Dragon Media</title>
-		<meta name="description" content="Explore products by Stone Dragon Media, including Tagsta.sh — a modern bookmarking and resource organization tool built for productivity." />
-		<meta property="og:type" content="website" />
-		<meta property="og:url" content="https://stonedragonmedia.com/products/" />
-		<meta property="og:title" content="Products | Stone Dragon Media" />
-		<meta property="og:description" content="Explore products by Stone Dragon Media, including Tagsta.sh — a modern bookmarking and resource organization tool built for productivity." />
-		<meta property="og:image" content="https://stonedragonmedia.com/logo.png" />
-		<meta name="twitter:card" content="summary_large_image" />
-		<meta name="twitter:title" content="Products | Stone Dragon Media" />
-		<meta name="twitter:description" content="Explore products by Stone Dragon Media, including Tagsta.sh — a modern bookmarking and resource organization tool built for productivity." />
-		<style>
-			.page { max-width:1280px; margin:0 auto; padding:2rem clamp(1.1rem,2.5vw,2.4rem) 4rem; }
-			h1 { font-family:"Sora",sans-serif; color:var(--brand-strong); margin:0 0 1rem; }
-			.lead { color:var(--ink-soft); max-width:70ch; }
-			.product {
-				margin-top:1.2rem;
-				border:1px solid var(--line);
-				background:var(--surface);
-				border-radius:1rem;
-				padding:1.2rem;
-			}
-			.badge { display:inline-flex; align-items:center; gap:.4rem; background:rgba(239,247,253,.9); color:var(--brand-strong); border:1px solid var(--line); border-radius:999px; font-size:.82rem; font-weight:600; padding:.35rem .65rem; }
-			.badge .icon { width:.92rem; height:.92rem; }
-			h2 { margin:.85rem 0 .45rem; color:var(--brand-strong); font-family:"Sora",sans-serif; }
-			.product p { color:var(--ink-soft); line-height:1.6; margin:0; }
-			.actions { margin-top:1rem; display:flex; flex-wrap:wrap; gap:.7rem; }
-			.button { display:inline-flex; align-items:center; text-decoration:none; font-family:"Sora",sans-serif; padding:.65rem 1rem; border-radius:.75rem; font-weight:600; border:1px solid transparent; }
-			.button .icon { width:1rem; height:1rem; margin-right:.4rem; }
-			.button-primary { color:#edf6ff; background:linear-gradient(125deg,#1f5a89,#2f709f); }
-			.button-secondary { color:var(--brand-strong); background:rgba(239,247,253,.86); border-color:rgba(43,90,124,.4); }
-			.site-footer { margin-top:2rem; }
-		</style>
-	</head>
-	<body>
-		<SiteHeader active="products" />
-		<div class="page">
-			<h1>Products</h1>
-			<p class="lead">Stone Dragon Media builds practical products that solve real workflow problems.</p>
-			<section class="product" aria-label="Featured product">
-				<div class="badge">
-					<Icon class="icon" name="lucide:star" aria-hidden="true" />
-					Featured Product
-				</div>
-				<h2>Tagsta.sh</h2>
-				<p>
-					Tagsta.sh is a modern bookmarking and reference organization tool designed to make it easy
-					to capture, tag, and retrieve important links and resources fast.
-				</p>
-				<div class="actions">
-					<a class="button button-primary" href="https://tagsta.sh/" target="_blank" rel="noreferrer noopener">
-						<Icon class="icon" name="lucide:external-link" aria-hidden="true" />
-						Visit Tagsta.sh
-					</a>
-					<a class="button button-secondary" href="/contact">
-						<Icon class="icon" name="lucide:messages-square" aria-hidden="true" />
-						Ask About Product Development
-					</a>
-				</div>
-			</section>
-			<SiteFooter />
-		</div>
-	</body>
-</html>
+<BaseLayout
+  title="Products | Stone Dragon Media"
+  description="Explore products by Stone Dragon Media, including Tagsta.sh - a modern bookmarking and resource organization tool built for productivity."
+  canonical="https://stonedragonmedia.com/products/"
+  ogUrl="https://stonedragonmedia.com/products/"
+>
+  <Fragment slot="head">
+    <style>
+      .page {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 2rem clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
+      }
+
+      h1 {
+        font-family: "Sora", sans-serif;
+        color: var(--brand-strong);
+        margin: 0 0 1rem;
+      }
+
+      .lead {
+        color: var(--ink-soft);
+        max-width: 70ch;
+      }
+
+      .product {
+        margin-top: 1.2rem;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: 1rem;
+        padding: 1.2rem;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(239, 247, 253, 0.9);
+        color: var(--brand-strong);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 0.35rem 0.65rem;
+      }
+
+      .badge .icon {
+        width: 0.92rem;
+        height: 0.92rem;
+      }
+
+      h2 {
+        margin: 0.85rem 0 0.45rem;
+        color: var(--brand-strong);
+        font-family: "Sora", sans-serif;
+      }
+
+      .product p {
+        color: var(--ink-soft);
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      .actions {
+        margin-top: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.7rem;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        font-family: "Sora", sans-serif;
+        padding: 0.65rem 1rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        border: 1px solid transparent;
+      }
+
+      .button .icon {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.4rem;
+      }
+
+      .button-primary {
+        color: #edf6ff;
+        background: linear-gradient(125deg, #1f5a89, #2f709f);
+      }
+
+      .button-secondary {
+        color: var(--brand-strong);
+        background: rgba(239, 247, 253, 0.86);
+        border-color: rgba(43, 90, 124, 0.4);
+      }
+
+      .site-footer {
+        margin-top: 2rem;
+      }
+    </style>
+  </Fragment>
+
+  <SiteHeader active="products" />
+  <div class="page">
+    <h1>Products</h1>
+    <p class="lead">Stone Dragon Media builds practical products that solve real workflow problems.</p>
+    <section class="product" aria-label="Featured product">
+      <div class="badge">
+        <Icon class="icon" name="lucide:star" aria-hidden="true" />
+        Featured Product
+      </div>
+      <h2>Tagsta.sh</h2>
+      <p>
+        Tagsta.sh is a modern bookmarking and reference organization tool designed to make it easy
+        to capture, tag, and retrieve important links and resources fast.
+      </p>
+      <div class="actions">
+        <a class="button button-primary" href="https://tagsta.sh/" target="_blank" rel="noreferrer noopener">
+          <Icon class="icon" name="lucide:external-link" aria-hidden="true" />
+          Visit Tagsta.sh
+        </a>
+        <a class="button button-secondary" href="/contact">
+          <Icon class="icon" name="lucide:messages-square" aria-hidden="true" />
+          Ask About Product Development
+        </a>
+      </div>
+    </section>
+    <SiteFooter />
+  </div>
+</BaseLayout>
