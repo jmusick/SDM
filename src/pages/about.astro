@@ -11,7 +11,7 @@ const yearsExperience = currentYear - codingStartYear;
 
 <BaseLayout
   title="About | Stone Dragon Media"
-  description="Learn about Stone Dragon Media - a Sandusky, Ohio web design and technology agency with over 25 years of IT and development experience."
+  description="Stone Dragon Media is a Sandusky, Ohio web design and digital strategy agency specializing in custom web solutions, application development, and digital marketing."
   canonical="https://stonedragonmedia.com/about/"
   ogUrl="https://stonedragonmedia.com/about/"
 >
@@ -20,7 +20,7 @@ const yearsExperience = currentYear - codingStartYear;
       .page {
         max-width: 1280px;
         margin: 0 auto;
-        padding: 2rem clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
+        padding: 1rem clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
       }
 
       .header-hero {
@@ -35,7 +35,7 @@ const yearsExperience = currentYear - codingStartYear;
         border-radius: 0;
         overflow: hidden;
         box-shadow: none;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         background: #122238;
       }
 
@@ -135,6 +135,40 @@ const yearsExperience = currentYear - codingStartYear;
         margin-top: 2rem;
       }
 
+      .about-cta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin: 1.4rem 0 1.8rem;
+      }
+
+      .about-cta-link {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.65rem 1.1rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-family: "Sora", sans-serif;
+        text-decoration: none;
+        transition: transform 160ms ease, box-shadow 160ms ease;
+      }
+
+      .about-cta-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(14, 46, 73, 0.2);
+      }
+
+      .about-cta-primary {
+        background: linear-gradient(125deg, #1f5a89, #2f709f);
+        color: #edf6ff;
+      }
+
+      .about-cta-secondary {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--brand-strong);
+      }
+
       @media (max-width: 920px) {
         .grid {
           grid-template-columns: 1fr;
@@ -188,6 +222,10 @@ const yearsExperience = currentYear - codingStartYear;
     <p>
       Every engagement is driven by measurable outcomes, transparent communication, and a commitment to long-term value. Let's build something remarkable together.
     </p>
+    <div class="about-cta">
+      <a class="about-cta-link about-cta-primary" href="/services">Explore Our Services</a>
+      <a class="about-cta-link about-cta-secondary" href="/contact">Start a Project</a>
+    </div>
     <div class="grid">
       <div class="card">
         <Icon class="icon" name="lucide:map-pin" aria-hidden="true" />

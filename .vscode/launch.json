@@ -2,24 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "command": "npm run dev -- --host --port 4321",
-      "name": "Stone Dragon Media - Dev Server",
-      "request": "launch",
-      "type": "node-terminal",
-      "serverReadyAction": {
-        "action": "openExternally",
-        "pattern": "(https?://(?:localhost|ark-prime):4321)",
-        "uriFormat": "%s"
-      }
-    },
-    {
-      "name": "Firefox Debug",
+      "name": "Local Dev",
       "type": "firefox",
       "request": "launch",
-      "reAttach": true,
-      "url": "http://ark-prime:4321",
-      "webRoot": "${workspaceFolder}",
-      "firefoxExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+      "url": "http://localhost:4321",
+      "webRoot": "${workspaceFolder}/src",
+      "pathMapping": {
+        "/": "${workspaceFolder}/"
+      },
       "preLaunchTask": "dev-server"
     }
   ]

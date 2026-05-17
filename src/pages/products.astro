@@ -16,7 +16,76 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       .page {
         max-width: 1280px;
         margin: 0 auto;
-        padding: 2rem clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
+        padding: 1rem clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
+      }
+
+      .header-hero {
+        position: relative;
+        width: 100vw;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        height: 520px;
+        max-width: 100vw;
+        border-radius: 0;
+        overflow: hidden;
+        box-shadow: none;
+        margin-bottom: 1rem;
+        background: #122238;
+      }
+
+      .header-hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        object-position: center 70%;
+      }
+
+      .header-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 3.5rem 3.5rem 3.5rem 8vw;
+        color: #fff;
+        background: linear-gradient(90deg, rgba(18, 34, 56, 0.82) 0%, rgba(18, 34, 56, 0.32) 60%, rgba(18, 34, 56, 0) 100%);
+        font-family: "Sora", sans-serif;
+        pointer-events: none;
+        box-sizing: border-box;
+      }
+
+      .header-overlay .about-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: 0.13em;
+        margin-bottom: 0.7rem;
+        opacity: 0.92;
+        border-bottom: 3px solid #7fa6d9;
+        display: inline-block;
+        padding-bottom: 0.2rem;
+      }
+
+      .header-overlay .hero-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin-bottom: 1.2rem;
+        line-height: 1.1;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
+      }
+
+      .header-overlay .hero-desc {
+        font-size: 1.25rem;
+        font-weight: 400;
+        max-width: 32rem;
+        line-height: 1.5;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
       }
 
       h1 {
@@ -106,10 +175,37 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       .site-footer {
         margin-top: 2rem;
       }
+
+      @media (max-width: 920px) {
+        .header-overlay {
+          padding: 2rem 1.2rem 2rem 1.2rem;
+          align-items: flex-start;
+        }
+
+        .header-overlay .hero-title {
+          font-size: 2rem;
+        }
+
+        .header-overlay .hero-desc {
+          font-size: 1rem;
+        }
+      }
     </style>
   </Fragment>
 
   <SiteHeader active="products" />
+
+  <div class="header-hero">
+    <img src="/products-header.png" alt="Stone Dragon Media products – practical tools for productivity and workflow" />
+    <div class="header-overlay">
+      <span class="about-label">PRODUCTS</span>
+      <span class="hero-title">Our Products</span>
+      <span class="hero-desc">
+        Practical tools designed to solve real workflow problems and boost productivity.
+      </span>
+    </div>
+  </div>
+
   <div class="page">
     <h1>Products</h1>
     <p class="lead">Stone Dragon Media builds practical products that solve real workflow problems.</p>

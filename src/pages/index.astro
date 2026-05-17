@@ -17,11 +17,28 @@ const yearsExperience = currentYear - codingStartYear;
   includeGenerator={true}
 >
   <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": ["Organization", "LocalBusiness"],
+      "name": "Stone Dragon Media",
+      "url": "https://stonedragonmedia.com",
+      "logo": "https://stonedragonmedia.com/logo.png",
+      "image": "https://stonedragonmedia.com/logo.png",
+      "description": "Stone Dragon Media builds custom web solutions, application development, digital marketing, and consulting services for growing businesses.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Sandusky",
+        "addressRegion": "OH",
+        "addressCountry": "US"
+      },
+      "areaServed": "US",
+      "sameAs": []
+    })} />
     <style>
       .page {
         max-width: 1280px;
         margin: 0 auto;
-        padding: 2.1rem clamp(1.1rem, 2.5vw, 2.4rem) 4.5rem;
+        padding: 1rem clamp(1.1rem, 2.5vw, 2.4rem) 4.5rem;
       }
 
       .site-nav {
@@ -47,7 +64,7 @@ const yearsExperience = currentYear - codingStartYear;
         border-radius: 0;
         overflow: hidden;
         box-shadow: none;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         background: #122238;
       }
 
@@ -92,7 +109,7 @@ const yearsExperience = currentYear - codingStartYear;
       .header-overlay .hero-title {
         font-size: 2.8rem;
         font-weight: 800;
-        margin-bottom: 1.2rem;
+        margin: 0 0 1.2rem;
         line-height: 1.1;
         text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
       }
@@ -194,6 +211,10 @@ const yearsExperience = currentYear - codingStartYear;
         margin-top: 1.1rem;
       }
 
+      section:first-child {
+        margin-top: 0;
+      }
+
       .site-footer {
         margin-top: 2.2rem;
         padding-top: 1.25rem;
@@ -290,10 +311,10 @@ const yearsExperience = currentYear - codingStartYear;
   <SiteHeader active="home" showCta={true} />
 
   <div class="header-hero">
-    <img src="/header-bg.png" alt="Stone Dragon Media" />
+    <img src="/header-bg.png" alt="Stone Dragon Media – custom web design and digital strategy agency based in Sandusky, Ohio" />
     <div class="header-overlay">
       <span class="about-label">DIGITAL STRATEGY &amp; SOLUTIONS</span>
-      <span class="hero-title">Premium web solutions for growing brands</span>
+      <h1 class="hero-title">Premium web solutions for growing brands</h1>
       <span class="hero-desc">
         Stone Dragon Media delivers custom web solutions, application development, reliable hosting,
         and practical consulting to help businesses scale online.
@@ -314,7 +335,7 @@ const yearsExperience = currentYear - codingStartYear;
 
   <div class="page">
     <section id="services">
-      <h2>Services</h2>
+      <h2>What We Do</h2>
       <div class="services">
         <article>
           <div class="service-title">
@@ -322,7 +343,7 @@ const yearsExperience = currentYear - codingStartYear;
             <h3>Custom Web Solutions</h3>
           </div>
           <p>
-            eCommerce and informational websites, custom business solutions, and integrations built to stay lightning fast.
+            eCommerce sites, informational websites, landing pages, and custom business solutions built fast and built to last.
           </p>
         </article>
         <article>
@@ -331,16 +352,7 @@ const yearsExperience = currentYear - codingStartYear;
             <h3>Custom Application Development</h3>
           </div>
           <p>
-            Purpose-built web applications that solve operational problems and create new revenue paths.
-          </p>
-        </article>
-        <article>
-          <div class="service-title">
-            <Icon class="icon" name="lucide:server" aria-hidden="true" />
-            <h3>Hosting</h3>
-          </div>
-          <p>
-            Domain registration, hosting troubleshooting, and server setup with reliable support.
+            Internal tools, customer portals, workflow automation, and API integrations tailored to your operations.
           </p>
         </article>
         <article>
@@ -349,25 +361,52 @@ const yearsExperience = currentYear - codingStartYear;
             <h3>Marketing</h3>
           </div>
           <p>
-            Search, social, and content strategies that drive qualified traffic and measurable growth.
+            SEO, PPC, social media, email, and content strategies that drive qualified traffic and measurable growth.
+          </p>
+        </article>
+        <article>
+          <div class="service-title">
+            <Icon class="icon" name="lucide:bar-chart-2" aria-hidden="true" />
+            <h3>Analytics &amp; Reporting</h3>
+          </div>
+          <p>
+            GA4 setup, conversion tracking, custom dashboards, and performance audits to turn data into decisions.
+          </p>
+        </article>
+        <article>
+          <div class="service-title">
+            <Icon class="icon" name="lucide:server" aria-hidden="true" />
+            <h3>Hosting &amp; Infrastructure</h3>
+          </div>
+          <p>
+            Domain management, cloud and VPS server setup, SSL, performance optimization, and backup planning.
+          </p>
+        </article>
+        <article>
+          <div class="service-title">
+            <Icon class="icon" name="lucide:shield" aria-hidden="true" />
+            <h3>Security &amp; Maintenance</h3>
+          </div>
+          <p>
+            Ongoing site care including security hardening, updates, uptime monitoring, and vulnerability assessments.
           </p>
         </article>
         <article>
           <div class="service-title">
             <Icon class="icon" name="lucide:palette" aria-hidden="true" />
-            <h3>Branding</h3>
+            <h3>Branding &amp; Design</h3>
           </div>
           <p>
-            Logo design and brand consultation to sharpen your identity and positioning.
+            Logo design, brand style guides, color and typography systems, and print and digital asset creation.
           </p>
         </article>
         <article>
           <div class="service-title">
             <Icon class="icon" name="lucide:compass" aria-hidden="true" />
-            <h3>Consulting</h3>
+            <h3>Consulting &amp; Strategy</h3>
           </div>
           <p>
-            Technology and software consulting, data migration planning, and software consultation.
+            Technology selection, digital transformation planning, data migration, and project roadmapping.
           </p>
         </article>
       </div>

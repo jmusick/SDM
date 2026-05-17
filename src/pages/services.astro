@@ -16,7 +16,76 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       .page {
         max-width: 1280px;
         margin: 0 auto;
-        padding: 2rem clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
+        padding: 1rem clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
+      }
+
+      .header-hero {
+        position: relative;
+        width: 100vw;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        height: 520px;
+        max-width: 100vw;
+        border-radius: 0;
+        overflow: hidden;
+        box-shadow: none;
+        margin-bottom: 1rem;
+        background: #122238;
+      }
+
+      .header-hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        object-position: center 70%;
+      }
+
+      .header-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 3.5rem 3.5rem 3.5rem 8vw;
+        color: #fff;
+        background: linear-gradient(90deg, rgba(18, 34, 56, 0.82) 0%, rgba(18, 34, 56, 0.32) 60%, rgba(18, 34, 56, 0) 100%);
+        font-family: "Sora", sans-serif;
+        pointer-events: none;
+        box-sizing: border-box;
+      }
+
+      .header-overlay .about-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: 0.13em;
+        margin-bottom: 0.7rem;
+        opacity: 0.92;
+        border-bottom: 3px solid #7fa6d9;
+        display: inline-block;
+        padding-bottom: 0.2rem;
+      }
+
+      .header-overlay .hero-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin-bottom: 1.2rem;
+        line-height: 1.1;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
+      }
+
+      .header-overlay .hero-desc {
+        font-size: 1.25rem;
+        font-weight: 400;
+        max-width: 32rem;
+        line-height: 1.5;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
       }
 
       h1 {
@@ -74,6 +143,62 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         margin: 0 0 0.3rem;
       }
 
+      .cta-banner {
+        position: relative;
+        width: 100vw;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        margin-top: 3rem;
+        padding: 4rem 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1.2rem;
+        background: linear-gradient(120deg, #0e2133 0%, #1a3d5c 60%, #0e2133 100%);
+        color: #fff;
+      }
+
+      .cta-banner h2 {
+        margin: 0;
+        font-family: "Sora", sans-serif;
+        font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -0.01em;
+      }
+
+      .cta-banner p {
+        margin: 0;
+        color: rgba(220, 237, 255, 0.85);
+        max-width: 54ch;
+        line-height: 1.65;
+        font-size: 1.05rem;
+      }
+
+      .cta-banner .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.8rem 1.5rem;
+        border-radius: 0.75rem;
+        font-family: "Sora", sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+        text-decoration: none;
+        background: #fff;
+        color: #1a3d5c;
+        border: none;
+        margin-top: 0.4rem;
+      }
+
+      .cta-banner .button .icon {
+        width: 1rem;
+        height: 1rem;
+      }
+
       .site-footer {
         margin-top: 2rem;
       }
@@ -82,11 +207,36 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         .grid {
           grid-template-columns: 1fr;
         }
+
+        .header-overlay {
+          padding: 2rem 1.2rem 2rem 1.2rem;
+          align-items: flex-start;
+        }
+
+        .header-overlay .hero-title {
+          font-size: 2rem;
+        }
+
+        .header-overlay .hero-desc {
+          font-size: 1rem;
+        }
       }
     </style>
   </Fragment>
 
   <SiteHeader active="services" />
+
+  <div class="header-hero">
+    <img src="/services-header.png" alt="Stone Dragon Media digital services – web design, development, marketing, and consulting" />
+    <div class="header-overlay">
+      <span class="about-label">SERVICES</span>
+      <span class="hero-title">Our Solutions</span>
+      <span class="hero-desc">
+        End-to-end digital services including web design, application development, marketing, hosting, branding, and consulting.
+      </span>
+    </div>
+  </div>
+
   <div class="page">
     <h1>Services</h1>
     <p class="lead">Stone Dragon Media offers end-to-end digital services from strategy through launch and long-term support, including website solutions built for speed and reliability.</p>
@@ -94,55 +244,109 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       <article class="card">
         <Icon class="icon" name="lucide:layout-template" aria-hidden="true" />
         <h2>Custom Web Solutions</h2>
-        <p>Custom website and web solution systems built to communicate value, drive action, and stay lightning fast.</p>
+        <p>Custom websites and web systems built to communicate value, drive action, and stay lightning fast.</p>
         <ul>
           <li>eCommerce websites</li>
           <li>Informational websites</li>
+          <li>Landing pages and microsites</li>
           <li>Custom business solutions</li>
           <li>Platform and third-party integrations</li>
+          <li>Website redesigns and migrations</li>
         </ul>
       </article>
       <article class="card">
         <Icon class="icon" name="lucide:cpu" aria-hidden="true" />
         <h2>Custom Application Development</h2>
-        <p>Tailored software solutions for internal tools, customer portals, and process automation.</p>
+        <p>Tailored software solutions built around your workflow, not the other way around.</p>
+        <ul>
+          <li>Internal tools and dashboards</li>
+          <li>Customer and client portals</li>
+          <li>Process and workflow automation</li>
+          <li>API development and integrations</li>
+          <li>Database design and management</li>
+        </ul>
       </article>
       <article class="card">
         <Icon class="icon" name="lucide:megaphone" aria-hidden="true" />
         <h2>Marketing</h2>
+        <p>Data-driven campaigns that put your business in front of the right audience at the right time.</p>
         <ul>
-          <li>Search Engine Optimization</li>
-          <li>Pay Per Click Management</li>
+          <li>Search Engine Optimization (SEO)</li>
+          <li>Pay Per Click (PPC) Management</li>
           <li>Social Media Marketing</li>
+          <li>Email Marketing Campaigns</li>
           <li>Text Message Marketing</li>
+          <li>Content Strategy and Copywriting</li>
+        </ul>
+      </article>
+      <article class="card">
+        <Icon class="icon" name="lucide:bar-chart-2" aria-hidden="true" />
+        <h2>Analytics &amp; Reporting</h2>
+        <p>Turn your data into decisions with clear, actionable insight into how your digital presence is performing.</p>
+        <ul>
+          <li>Google Analytics setup and configuration</li>
+          <li>Conversion tracking and goal setup</li>
+          <li>Custom reporting dashboards</li>
+          <li>Performance audits</li>
         </ul>
       </article>
       <article class="card">
         <Icon class="icon" name="lucide:server" aria-hidden="true" />
-        <h2>Hosting</h2>
+        <h2>Hosting &amp; Infrastructure</h2>
+        <p>Reliable, secure hosting environments configured for performance and peace of mind.</p>
         <ul>
-          <li>Domain Registration</li>
-          <li>Hosting Troubleshooting</li>
-          <li>Server Setup</li>
+          <li>Domain registration and management</li>
+          <li>Cloud and VPS server setup</li>
+          <li>SSL certificate management</li>
+          <li>Performance optimization</li>
+          <li>Hosting troubleshooting and migration</li>
+          <li>Backup and disaster recovery planning</li>
+        </ul>
+      </article>
+      <article class="card">
+        <Icon class="icon" name="lucide:shield" aria-hidden="true" />
+        <h2>Security &amp; Maintenance</h2>
+        <p>Proactive care to keep your site secure, up to date, and running smoothly long after launch.</p>
+        <ul>
+          <li>Security hardening and monitoring</li>
+          <li>Software and plugin updates</li>
+          <li>Uptime monitoring</li>
+          <li>Vulnerability assessments</li>
+          <li>Ongoing site maintenance plans</li>
         </ul>
       </article>
       <article class="card">
         <Icon class="icon" name="lucide:palette" aria-hidden="true" />
-        <h2>Branding</h2>
+        <h2>Branding &amp; Design</h2>
+        <p>A cohesive visual identity that communicates who you are and builds trust with your audience.</p>
         <ul>
-          <li>Logo Design</li>
-          <li>Brand Consultation</li>
+          <li>Logo design and brand mark creation</li>
+          <li>Brand style guide development</li>
+          <li>Color palette and typography systems</li>
+          <li>Brand consultation and strategy</li>
+          <li>Print and digital asset design</li>
         </ul>
       </article>
       <article class="card">
         <Icon class="icon" name="lucide:compass" aria-hidden="true" />
-        <h2>Consulting</h2>
+        <h2>Consulting &amp; Strategy</h2>
+        <p>Expert guidance to help you make confident decisions about technology, process, and digital growth.</p>
         <ul>
-          <li>Technology and software consulting</li>
-          <li>Data migration and planning</li>
-          <li>Software consultation</li>
+          <li>Technology and platform selection</li>
+          <li>Digital transformation planning</li>
+          <li>Data migration and architecture</li>
+          <li>IT process improvement</li>
+          <li>Project scoping and roadmapping</li>
         </ul>
       </article>
+    </div>
+    <div class="cta-banner">
+      <h2>Ready to start your next project?</h2>
+      <p>Whether you need a new website, a custom application, or a full digital strategy, we are here to help. Let us talk through your goals and build something great together.</p>
+      <a class="button" href="/contact">
+        <Icon class="icon" name="lucide:send" aria-hidden="true" />
+        Get in Touch
+      </a>
     </div>
     <SiteFooter />
   </div>
