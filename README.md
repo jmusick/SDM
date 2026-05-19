@@ -1,41 +1,53 @@
 # Stone Dragon Media Website
 
-Official website for Stone Dragon Media, built with Astro.
+Official website for Stone Dragon Media — a web design and digital strategy agency based in Sandusky, OH. Built with Astro and deployed via Cloudflare.
 
 ## Overview
 
-This repository powers the public-facing Stone Dragon Media site, including:
+This repository powers the public-facing Stone Dragon Media site at [stonedragonmedia.com](https://stonedragonmedia.com), including:
 
-- Marketing homepage
+- Marketing homepage with hero, services summary, and metrics
 - About page
 - Services and products pages
-- Contact form workflow
+- Contact form with hCaptcha and Web3Forms submission
 - Privacy policy
+- Auto-generated sitemap and direct `/sitemap.xml` endpoint
 
-The site uses Astro static generation, shared layout-based head metadata, and per-page styling.
+## Stack
 
-## Current Stack
-
-- Astro 6
-- astro-icon with Lucide icon set
-- TypeScript
+| Layer | Technology |
+|---|---|
+| Framework | Astro 6 (static output) |
+| Icons | astro-icon + Lucide icon set |
+| Language | TypeScript |
+| Sitemap | @astrojs/sitemap + custom `sitemap.xml` route |
+| Analytics | Google Analytics 4 (GA4) — `G-GBG97CSL2Z` via gtag.js |
+| Contact form | Web3Forms API |
+| CAPTCHA | hCaptcha |
+| CDN / proxy | Cloudflare |
 
 ## Site Pages
 
-- `/` - Home
-- `/about` - About
-- `/services` - Services
-- `/products` - Products
-- `/contact` - Contact
-- `/privacy-policy` - Privacy policy
+| Route | Page |
+|---|---|
+| `/` | Home |
+| `/about` | About |
+| `/services` | Services |
+| `/products` | Products |
+| `/contact` | Contact |
+| `/privacy-policy` | Privacy Policy (noindex) |
+| `/sitemap.xml` | Direct sitemap (submitted to Search Console) |
+| `/sitemap-index.xml` | Astro-generated sitemap index |
+| `/robots.txt` | Crawl rules + sitemap reference |
 
 ## Key Implementation Notes
 
-- Shared head/template: `src/layouts/BaseLayout.astro`
-- Shared navigation/footer components: `src/components/SiteHeader.astro`, `src/components/SiteFooter.astro`
-- Global favicon source: `public/favicon.png`
-- Global stylesheet: `public/universal.css`
-- Contact form currently posts to Web3Forms and includes hCaptcha integration in `src/pages/contact.astro`
+- **Shared layout** — `src/layouts/BaseLayout.astro` manages all `<head>` metadata: canonical URLs, Open Graph, Twitter cards, robots meta, GA4 gtag snippet, and the sitemap `<link>`.
+- **Navigation/footer** — `src/components/SiteHeader.astro`, `src/components/SiteFooter.astro`. The footer reads the version from `package.json` at build time.
+- **Global stylesheet** — `public/universal.css` (design tokens, typography, resets).
+- **Sitemap** — `src/pages/sitemap.xml.ts` emits a plain XML sitemap at `/sitemap.xml`. This is what is submitted to Google Search Console. The Astro integration also generates `sitemap-index.xml` / `sitemap-0.xml` as a secondary reference.
+- **Analytics** — GA4 gtag snippet is injected globally in `BaseLayout.astro` immediately after `<meta charset>`.
+- **Contact form** — Posts to `https://api.web3forms.com/submit` via fetch; hCaptcha response is validated before submission. Keys (`access_key`, hCaptcha `sitekey`) are currently inlined in `contact.astro`.
 
 ## Development
 
@@ -53,10 +65,8 @@ npm install
 ### Run Dev Server
 
 ```bash
-npm run dev
+npm run dev -- --host --port 4321
 ```
-
-Astro defaults to `http://localhost:4321`.
 
 ### Build
 
@@ -77,10 +87,8 @@ npm run preview
 ├── public/
 │   ├── favicon.png
 │   ├── universal.css
-│   ├── header-bg.png
-│   ├── about-header.png
-│   ├── contact-bg.png
-│   └── ...
+│   ├── robots.txt
+│   └── (page background images)
 ├── src/
 │   ├── components/
 │   │   ├── SiteHeader.astro
@@ -93,24 +101,11 @@ npm run preview
 │       ├── contact.astro
 │       ├── services.astro
 │       ├── products.astro
-│       └── privacy-policy.astro
+│       ├── privacy-policy.astro
+│       ├── 404.astro
+│       └── sitemap.xml.ts
 ├── astro.config.mjs
 ├── tsconfig.json
 ├── package.json
 └── README.md
 ```
-
-## Scripts
-
-- `npm run dev` - Start local dev server
-- `npm run build` - Create production build
-- `npm run preview` - Preview production build locally
-
-## Content and SEO
-
-- Canonical URLs, Open Graph, and Twitter meta tags are managed per page through `BaseLayout` props.
-- Favicon and shared head links are centralized in `BaseLayout`.
-
-## Contact Form Security Notes
-
-The contact page currently includes Web3Forms `access_key` and hCaptcha `sitekey` directly in the page source. If needed, move these to environment-driven values for tighter key management.
