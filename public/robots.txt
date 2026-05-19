@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://stonedragonmedia.com/sitemap-index.xml
+Sitemap: https://stonedragonmedia.com/sitemap.xml
