@@ -1,0 +1,67 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="404 | Stone Dragon Media"
+  description="The page you requested could not be found."
+  canonical="https://stonedragonmedia.com/404"
+  ogUrl="https://stonedragonmedia.com/404"
+  robots="noindex, nofollow"
+>
+  <Fragment slot="head">
+    <style>
+      .wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 5rem 1.25rem;
+        text-align: center;
+      }
+
+      h1 {
+        margin: 0;
+        font-family: "Sora", sans-serif;
+        font-size: clamp(2rem, 5vw, 3rem);
+        color: var(--brand-strong);
+      }
+
+      p {
+        margin: 0.8rem auto 0;
+        max-width: 42ch;
+        color: var(--ink-soft);
+        line-height: 1.6;
+      }
+
+      .actions {
+        margin-top: 1.3rem;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-family: "Sora", sans-serif;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        padding: 0.72rem 1rem;
+        border: 1px solid transparent;
+      }
+
+      .button-primary {
+        color: #edf6ff;
+        background: linear-gradient(125deg, #1f5a89, #2f709f);
+      }
+    </style>
+  </Fragment>
+
+  <main class="wrapper">
+    <h1>Page Not Found</h1>
+    <p>
+      The URL you requested does not exist. Please return to the homepage or use the main navigation.
+    </p>
+    <div class="actions">
+      <a class="button button-primary" href="/">Go to Homepage</a>
+    </div>
+  </main>
+</BaseLayout>
