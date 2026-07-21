@@ -11,21 +11,55 @@ const { active = "home", showCta = false } = Astro.props;
 
 <header class="site-head">
 	<div class="site-head-inner">
-		<a href="/">
-			<img class="brand-logo" src="/logo-cropped.png" alt="Stone Dragon Media logo" loading="eager" decoding="async" />
-		</a>
-		<nav class="site-nav" aria-label="Primary">
-			<a class={active === "home" ? "active" : undefined} href="/">Home</a>
-			<a class={active === "about" ? "active" : undefined} href="/about/">About</a>
-			<a class={active === "services" ? "active" : undefined} href="/services/">Services</a>
-			<a class={active === "products" ? "active" : undefined} href="/products/">Products</a>
-			<a class={active === "contact" ? "active" : undefined} href="/contact/">Contact</a>
-		</nav>
-		{showCta && (
-			<a class="button button-secondary" href="/contact/">
-				<Icon class="icon" name="lucide:send" aria-hidden="true" />
-				Start a Project
+		<div class="site-head-bar">
+			<a class="site-brand" href="/">
+				<img class="brand-logo" src="/logo-cropped.png" alt="Stone Dragon Media logo" loading="eager" decoding="async" />
 			</a>
-		)}
+			<button
+				class="nav-toggle"
+				type="button"
+				aria-expanded="false"
+				aria-controls="site-nav-panel"
+				aria-label="Toggle navigation menu"
+			>
+				<Icon class="icon icon-open" name="lucide:menu" aria-hidden="true" />
+				<Icon class="icon icon-close" name="lucide:x" aria-hidden="true" />
+			</button>
+		</div>
+		<div class="site-nav-panel" id="site-nav-panel">
+			<nav class="site-nav" aria-label="Primary">
+				<a class={active === "home" ? "active" : undefined} href="/">Home</a>
+				<a class={active === "about" ? "active" : undefined} href="/about/">About</a>
+				<a class={active === "services" ? "active" : undefined} href="/services/">Services</a>
+				<a class={active === "products" ? "active" : undefined} href="/products/">Products</a>
+				<a class={active === "contact" ? "active" : undefined} href="/contact/">Contact</a>
+			</nav>
+			{showCta && (
+				<a class="button button-secondary" href="/contact/">
+					<Icon class="icon" name="lucide:send" aria-hidden="true" />
+					Start a Project
+				</a>
+			)}
+		</div>
 	</div>
 </header>
+
+<script>
+	const toggle = document.querySelector<HTMLButtonElement>(".nav-toggle");
+	const panel = document.querySelector<HTMLElement>(".site-nav-panel");
+
+	if (toggle && panel) {
+		toggle.addEventListener("click", () => {
+			const isOpen = toggle.getAttribute("aria-expanded") === "true";
+			toggle.setAttribute("aria-expanded", String(!isOpen));
+			panel.classList.toggle("is-open", !isOpen);
+		});
+
+		panel.querySelectorAll("a").forEach((link) => {
+			link.addEventListener("click", () => {
+				toggle.setAttribute("aria-expanded", "false");
+				panel.classList.remove("is-open");
+			});
+		});
+	}
+</script>
