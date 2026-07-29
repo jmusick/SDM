@@ -453,9 +453,8 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
         const result = await response.json();
         if (result.success) {
-          setStatus("success", "Message sent successfully. We will get back to you soon.");
-          form.reset();
-          hcaptcha?.reset();
+          window.location.href = "/thank-you/";
+          return;
         } else {
           setStatus("error", result.message || "Failed to send message. Please try again.");
         }

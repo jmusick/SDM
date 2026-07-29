@@ -15,5 +15,10 @@ export default defineConfig({
 			allowedHosts: [".ark-prime", "localhost"],
 		},
 	},
-	integrations: [icon(), sitemap()],
+	integrations: [
+		icon(),
+		sitemap({
+			filter: (page) => !page.includes("/thank-you"),
+		}),
+	],
 });

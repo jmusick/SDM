@@ -1,0 +1,131 @@
+---
+import { Icon } from "astro-icon/components";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Thank You | Stone Dragon Media"
+  description="Thanks for reaching out to Stone Dragon Media. We'll follow up within one business day."
+  canonical="https://stonedragonmedia.com/thank-you/"
+  ogUrl="https://stonedragonmedia.com/thank-you/"
+  robots="noindex, nofollow"
+>
+  <Fragment slot="head">
+    <style>
+      .wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 5rem 1.25rem;
+        text-align: center;
+      }
+
+      .icon-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 3.4rem;
+        height: 3.4rem;
+        border-radius: 999px;
+        background: rgba(12, 117, 58, 0.12);
+        border: 1px solid rgba(12, 117, 58, 0.28);
+        margin-bottom: 1.2rem;
+      }
+
+      .icon-badge .icon {
+        width: 1.7rem;
+        height: 1.7rem;
+        color: #0b5f33;
+      }
+
+      h1 {
+        margin: 0;
+        font-family: "Sora", sans-serif;
+        font-size: clamp(2rem, 5vw, 3rem);
+        color: var(--brand-strong);
+      }
+
+      p {
+        margin: 0.8rem auto 0;
+        max-width: 46ch;
+        color: var(--ink-soft);
+        line-height: 1.6;
+      }
+
+      .actions {
+        margin-top: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-family: "Sora", sans-serif;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        padding: 0.72rem 1.1rem;
+        border: 1px solid transparent;
+      }
+
+      .button .icon {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.4rem;
+      }
+
+      .button-primary {
+        color: #edf6ff;
+        background: linear-gradient(125deg, #1f5a89, #2f709f);
+      }
+
+      .button-secondary {
+        color: var(--brand-strong);
+        background: rgba(239, 247, 253, 0.86);
+        border-color: rgba(43, 90, 124, 0.4);
+      }
+
+      .footer-wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 clamp(1.1rem, 2.5vw, 2.4rem) 2rem;
+      }
+
+      .site-footer {
+        margin-top: 1.6rem;
+      }
+    </style>
+  </Fragment>
+
+  <SiteHeader active="contact" />
+
+  <main class="wrapper">
+    <div class="icon-badge">
+      <Icon class="icon" name="lucide:check" aria-hidden="true" />
+    </div>
+    <h1>Message Sent</h1>
+    <p>
+      Thanks for reaching out to Stone Dragon Media. We&rsquo;ve received your message and will
+      follow up within one business day to talk through your project.
+    </p>
+    <div class="actions">
+      <a class="button button-primary" href="/">
+        <Icon class="icon" name="lucide:home" aria-hidden="true" />
+        Back to Homepage
+      </a>
+      <a class="button button-secondary" href="/work/">
+        <Icon class="icon" name="lucide:sparkles" aria-hidden="true" />
+        See Our Work
+      </a>
+    </div>
+  </main>
+
+  <div class="footer-wrap">
+    <SiteFooter />
+  </div>
+</BaseLayout>
