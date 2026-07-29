@@ -1,0 +1,274 @@
+---
+import { Icon } from "astro-icon/components";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Our Work | Stone Dragon Media"
+  description="See web design and development work from Stone Dragon Media, including the Pneumaris band site and our own Tagsta.sh bookmarking tool."
+  canonical="https://stonedragonmedia.com/work/"
+  ogUrl="https://stonedragonmedia.com/work/"
+>
+  <Fragment slot="head">
+    <style>
+      .page {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 1rem clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
+      }
+
+      .header-hero {
+        position: relative;
+        width: 100vw;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        height: 520px;
+        max-width: 100vw;
+        border-radius: 0;
+        overflow: hidden;
+        box-shadow: none;
+        margin-bottom: 1rem;
+        background: #122238;
+      }
+
+      .header-hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        object-position: center 35%;
+      }
+
+      .header-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 3.5rem 3.5rem 3.5rem max(8vw, calc((100vw - 1280px) / 2 + clamp(1.1rem, 2.5vw, 2.4rem)));
+        color: #fff;
+        background: linear-gradient(90deg, rgba(18, 34, 56, 0.82) 0%, rgba(18, 34, 56, 0.32) 60%, rgba(18, 34, 56, 0) 100%);
+        font-family: "Sora", sans-serif;
+        pointer-events: none;
+        box-sizing: border-box;
+      }
+
+      .header-overlay .about-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: 0.13em;
+        margin-bottom: 0.7rem;
+        opacity: 0.92;
+        border-bottom: 3px solid #7fa6d9;
+        display: inline-block;
+        padding-bottom: 0.2rem;
+      }
+
+      .header-overlay .hero-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin-bottom: 1.2rem;
+        line-height: 1.1;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
+      }
+
+      .header-overlay .hero-desc {
+        font-size: 1.25rem;
+        font-weight: 400;
+        max-width: 32rem;
+        line-height: 1.5;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
+      }
+
+      h1 {
+        font-family: "Sora", sans-serif;
+        color: var(--brand-strong);
+        margin: 0 0 1rem;
+      }
+
+      .lead {
+        color: var(--ink-soft);
+        max-width: 70ch;
+        margin: 0 0 1.4rem;
+      }
+
+      .work-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .work-card {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 16px 30px rgba(18, 45, 69, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      }
+
+      .work-thumb {
+        aspect-ratio: 1180 / 615;
+        overflow: hidden;
+        background: #122238;
+      }
+
+      .work-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top;
+        display: block;
+      }
+
+      .work-body {
+        padding: 1.2rem;
+      }
+
+      .work-body h2 {
+        margin: 0 0 0.5rem;
+        color: var(--brand-strong);
+        font-family: "Sora", sans-serif;
+      }
+
+      .work-body p {
+        margin: 0 0 0.85rem;
+        color: var(--ink-soft);
+        line-height: 1.6;
+      }
+
+      .work-body ul {
+        margin: 0 0 1rem;
+        padding-left: 1.1rem;
+        color: var(--ink-soft);
+      }
+
+      .work-body li {
+        margin: 0 0 0.3rem;
+        line-height: 1.5;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        font-family: "Sora", sans-serif;
+        padding: 0.65rem 1rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        border: 1px solid transparent;
+      }
+
+      .button .icon {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.4rem;
+      }
+
+      .button-secondary {
+        color: var(--brand-strong);
+        background: rgba(239, 247, 253, 0.86);
+        border-color: rgba(43, 90, 124, 0.4);
+      }
+
+      .site-footer {
+        margin-top: 2rem;
+      }
+
+      @media (max-width: 920px) {
+        .header-overlay {
+          padding: 2rem 1.2rem 2rem 1.2rem;
+          align-items: flex-start;
+        }
+
+        .header-overlay .hero-title {
+          font-size: 2rem;
+        }
+
+        .header-overlay .hero-desc {
+          font-size: 1rem;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .work-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </Fragment>
+
+  <SiteHeader active="work" />
+
+  <div class="header-hero">
+    <img src="/our-work-header.webp" alt="Stone Dragon Media portfolio – web design and development work" />
+    <div class="header-overlay">
+      <span class="about-label">OUR WORK</span>
+      <span class="hero-title">Recent Projects</span>
+      <span class="hero-desc">
+        A look at sites and products we've designed and built.
+      </span>
+    </div>
+  </div>
+
+  <div class="page">
+    <h1>Our Work</h1>
+    <p class="lead">A sample of recent projects, from client sites to our own products.</p>
+    <div class="work-grid">
+      <article class="work-card">
+        <div class="work-thumb">
+          <img src="/work/pneumaris.webp" alt="Pneumaris band website" loading="lazy" width="1180" height="615" />
+        </div>
+        <div class="work-body">
+          <h2>Pneumaris</h2>
+          <p>
+            A brooding, atmospheric artist site for the metal project Pneumaris &mdash; immersive
+            dark visuals, streaming links, and a home base for their sound.
+          </p>
+          <ul>
+            <li>Fast, modern site built to load quickly and look great on any device</li>
+            <li>Dedicated music page with album art, track listings, and built-in streaming players</li>
+            <li>Contact form with automatic spam blocking</li>
+            <li>One-click links out to all their music and social platforms, with accounts managed by our team</li>
+            <li>Built-in visitor analytics to track traffic and engagement</li>
+          </ul>
+          <a class="button button-secondary" href="https://pneumarisband.com/" target="_blank" rel="noreferrer noopener">
+            <Icon class="icon" name="lucide:external-link" aria-hidden="true" />
+            Visit Site
+          </a>
+        </div>
+      </article>
+      <article class="work-card">
+        <div class="work-thumb">
+          <img src="/work/tagstash.webp" alt="Tagsta.sh bookmarking tool" loading="lazy" width="1180" height="615" />
+        </div>
+        <div class="work-body">
+          <h2>Tagsta.sh</h2>
+          <p>
+            Our own tag-first bookmarking and resource-organization tool, built to capture, tag, and
+            retrieve important links fast &mdash; no folder trees required.
+          </p>
+          <ul>
+            <li>Clean, easy-to-use interface for organizing and finding saved links</li>
+            <li>Free and paid plans with secure online payments</li>
+            <li>Secure account sign-up with email verification</li>
+            <li>Custom-built Chrome and Firefox extensions for saving pages in a single click</li>
+            <li>Shareable public pages so users can showcase their saved links</li>
+          </ul>
+          <a class="button button-secondary" href="https://tagsta.sh/" target="_blank" rel="noreferrer noopener">
+            <Icon class="icon" name="lucide:external-link" aria-hidden="true" />
+            Visit Site
+          </a>
+        </div>
+      </article>
+    </div>
+    <SiteFooter />
+  </div>
+</BaseLayout>

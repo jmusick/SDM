@@ -10,8 +10,8 @@ const yearsExperience = currentYear - codingStartYear;
 ---
 
 <BaseLayout
-  title="Stone Dragon Media | Web Design Agency"
-  description="Stone Dragon Media builds high-performance web solutions and conversion-focused digital experiences for ambitious brands."
+  title="Web Design in Sandusky, Ohio | Stone Dragon Media"
+  description="Stone Dragon Media is a Sandusky, Ohio web design agency serving Erie County and the surrounding area — and remote clients anywhere. Custom web solutions, development, and digital marketing."
   canonical="https://stonedragonmedia.com/"
   ogUrl="https://stonedragonmedia.com/"
   includeGenerator={true}
@@ -25,13 +25,50 @@ const yearsExperience = currentYear - codingStartYear;
       "logo": "https://stonedragonmedia.com/logo.png",
       "image": "https://stonedragonmedia.com/logo.png",
       "description": "Stone Dragon Media builds custom web solutions, application development, digital marketing, and consulting services for growing businesses.",
+      "telephone": "+1-419-357-8135",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Sandusky",
         "addressRegion": "OH",
         "addressCountry": "US"
       },
-      "areaServed": "US",
+      "areaServed": [
+        "Sandusky, OH",
+        "Columbus, OH",
+        "Cleveland, OH",
+        "Toledo, OH",
+        "Akron, OH",
+        "Parma, OH",
+        "Canton, OH",
+        "Lorain, OH",
+        "Elyria, OH",
+        "Lakewood, OH",
+        "Euclid, OH",
+        "Mansfield, OH",
+        "Mentor, OH",
+        "Strongsville, OH",
+        "Delaware, OH",
+        "Cleveland Heights, OH",
+        "Findlay, OH",
+        "North Ridgeville, OH",
+        "Marion, OH",
+        "Brunswick, OH",
+        "Lima, OH",
+        "Huron, OH",
+        "Castalia, OH",
+        "Milan, OH",
+        "Berlin Heights, OH",
+        "Bellevue, OH",
+        "Vermilion, OH",
+        "Norwalk, OH",
+        "Clyde, OH",
+        "Monroeville, OH",
+        "Port Clinton, OH",
+        "Kelleys Island, OH",
+        "Put-in-Bay, OH",
+        "Erie County, OH",
+        "US"
+      ],
       "sameAs": []
     })} />
     <style>
@@ -184,6 +221,26 @@ const yearsExperience = currentYear - codingStartYear;
         color: var(--ink-soft);
       }
 
+      .areas-list {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 0.4rem 1rem;
+        margin: 0.9rem 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .areas-list li {
+        color: var(--ink-soft);
+        font-weight: 600;
+      }
+
+      @media (max-width: 640px) {
+        .areas-list {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
       .metric {
         border-radius: 0.8rem;
         padding: 0.95rem;
@@ -311,14 +368,13 @@ const yearsExperience = currentYear - codingStartYear;
   <SiteHeader active="home" showCta={true} />
 
   <div class="header-hero">
-    <img src="/header-bg.png" alt="Stone Dragon Media – custom web design and digital strategy agency based in Sandusky, Ohio" />
+    <img src="/header-bg.webp" alt="Stone Dragon Media – custom web design and digital strategy agency based in Sandusky, Ohio" />
     <div class="header-overlay">
-      <span class="about-label">DIGITAL STRATEGY &amp; SOLUTIONS</span>
-      <h1 class="hero-title">Premium web solutions for growing brands</h1>
+      <span class="about-label">SANDUSKY, OHIO WEB DESIGN &amp; DIGITAL STRATEGY</span>
+      <h1 class="hero-title">Sandusky, Ohio web design for growing brands</h1>
       <span class="hero-desc">
-        Stone Dragon Media delivers custom web solutions, application development, reliable hosting,
-        and practical consulting to help businesses scale online.
-        Backed by {yearsExperience} years of IT and development experience.
+        Custom web solutions, application development, hosting, and consulting to help businesses
+        scale online. Based in Sandusky, Ohio, with {yearsExperience} years of IT and development experience.
       </span>
       <div class="cta">
         <a class="button button-primary" href="/contact/">
@@ -409,6 +465,45 @@ const yearsExperience = currentYear - codingStartYear;
             Technology selection, digital transformation planning, data migration, and project roadmapping.
           </p>
         </article>
+      </div>
+    </section>
+
+    <section id="areas-served">
+      <h2>Areas We Serve</h2>
+      <div class="panel">
+        <p>
+          Stone Dragon Media is centrally located in Sandusky, Ohio &mdash; putting us within reach of
+          Toledo to the west, Cleveland to the east, and Columbus to the south. That means we work in
+          person with businesses across the region, including Ohio's largest cities:
+        </p>
+        <ul class="areas-list">
+          <li>Columbus</li>
+          <li>Cleveland</li>
+          <li>Toledo</li>
+          <li>Akron</li>
+          <li>Parma</li>
+          <li>Canton</li>
+          <li>Lorain</li>
+          <li>Elyria</li>
+          <li>Lakewood</li>
+          <li>Euclid</li>
+          <li>Mansfield</li>
+          <li>Mentor</li>
+          <li>Strongsville</li>
+          <li>Delaware</li>
+          <li>Cleveland Heights</li>
+          <li>Findlay</li>
+          <li>North Ridgeville</li>
+          <li>Marion</li>
+          <li>Brunswick</li>
+          <li>Lima</li>
+        </ul>
+        <p>
+          We also serve Sandusky and the surrounding Erie County communities &mdash; Huron, Castalia,
+          Milan, Berlin Heights, Bellevue, Vermilion, Norwalk, Clyde, Monroeville, Port Clinton, Kelleys
+          Island, and Put-in-Bay &mdash; and for clients further out, we work remotely with businesses
+          anywhere.
+        </p>
       </div>
     </section>
 

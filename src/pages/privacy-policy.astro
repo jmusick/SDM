@@ -1,4 +1,6 @@
 ---
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
@@ -43,8 +45,14 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       a {
         color: var(--brand-strong);
       }
+
+      .site-footer {
+        margin-top: 1.6rem;
+      }
     </style>
   </Fragment>
+
+  <SiteHeader />
 
   <div class="wrapper">
     <div class="card">
@@ -134,5 +142,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         <a href="/contact/">contact form</a>.
       </p>
     </div>
+    <SiteFooter />
   </div>
 </BaseLayout>

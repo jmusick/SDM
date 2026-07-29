@@ -2,7 +2,7 @@
 import { Icon } from "astro-icon/components";
 
 interface Props {
-	active?: "home" | "about" | "services" | "products" | "contact";
+	active?: "home" | "about" | "services" | "work" | "products" | "contact";
 	showCta?: boolean;
 }
 
@@ -31,6 +31,7 @@ const { active = "home", showCta = false } = Astro.props;
 				<a class={active === "home" ? "active" : undefined} href="/">Home</a>
 				<a class={active === "about" ? "active" : undefined} href="/about/">About</a>
 				<a class={active === "services" ? "active" : undefined} href="/services/">Services</a>
+				<a class={active === "work" ? "active" : undefined} href="/work/">Our Work</a>
 				<a class={active === "products" ? "active" : undefined} href="/products/">Products</a>
 				<a class={active === "contact" ? "active" : undefined} href="/contact/">Contact</a>
 			</nav>

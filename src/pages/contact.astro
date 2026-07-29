@@ -134,6 +134,15 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         color: var(--brand-strong);
       }
 
+      .info-item h3 a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .info-item h3 a:hover {
+        text-decoration: underline;
+      }
+
       .info-item p {
         margin: 0;
         color: var(--ink-soft);
@@ -290,7 +299,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
   <SiteHeader active="contact" />
   <div class="header-hero">
-    <img src="/contact-bg.png" alt="Contact Stone Dragon Media – start a project or ask about our services" />
+    <img src="/contact-bg.webp" alt="Contact Stone Dragon Media – start a project or ask about our services" />
     <div class="header-overlay">
       <span class="about-label">CONTACT</span>
       <span class="hero-title">Get in Touch</span>
@@ -352,8 +361,15 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         <div class="info-item">
           <Icon class="info-icon" name="lucide:map-pin" aria-hidden="true" />
           <div>
-            <h3>Based in Sandusky, OH</h3>
-            <p>Local roots with remote delivery for clients across the country.</p>
+            <h3>Sandusky, OH</h3>
+            <p>Serving Sandusky, Erie County, and the surrounding area in person, plus remote clients anywhere.</p>
+          </div>
+        </div>
+        <div class="info-item">
+          <Icon class="info-icon" name="lucide:phone" aria-hidden="true" />
+          <div>
+            <h3><a href="tel:+14193578135">(419) 357-8135</a></h3>
+            <p>Call or text to talk through your project.</p>
           </div>
         </div>
         <div class="info-item">

@@ -1,4 +1,6 @@
 ---
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
@@ -52,8 +54,20 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         color: #edf6ff;
         background: linear-gradient(125deg, #1f5a89, #2f709f);
       }
+
+      .footer-wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 clamp(1.1rem, 2.5vw, 2.4rem) 2rem;
+      }
+
+      .site-footer {
+        margin-top: 1.6rem;
+      }
     </style>
   </Fragment>
+
+  <SiteHeader />
 
   <main class="wrapper">
     <h1>Page Not Found</h1>
@@ -64,4 +78,8 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       <a class="button button-primary" href="/">Go to Homepage</a>
     </div>
   </main>
+
+  <div class="footer-wrap">
+    <SiteFooter />
+  </div>
 </BaseLayout>

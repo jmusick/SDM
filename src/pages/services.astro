@@ -94,6 +94,13 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         margin: 0 0 1rem;
       }
 
+      .pricing > h2 {
+        font-family: "Sora", sans-serif;
+        color: var(--brand-strong);
+        font-size: clamp(1.4rem, 2vw, 1.8rem);
+        margin: 0 0 1rem;
+      }
+
       .lead {
         color: var(--ink-soft);
         max-width: 70ch;
@@ -141,6 +148,33 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
       .card li {
         margin: 0 0 0.3rem;
+      }
+
+      .pricing {
+        margin-top: 3rem;
+      }
+
+      .pricing .lead {
+        margin-bottom: 0;
+      }
+
+      .pricing-grid {
+        margin-top: 1.2rem;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .pricing-note {
+        margin-top: 1.2rem;
+        color: var(--ink-soft);
+        max-width: 70ch;
+      }
+
+      @media (max-width: 920px) {
+        .pricing-grid {
+          grid-template-columns: 1fr;
+        }
       }
 
       .cta-banner {
@@ -227,7 +261,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <SiteHeader active="services" />
 
   <div class="header-hero">
-    <img src="/services-header.png" alt="Stone Dragon Media digital services – web design, development, marketing, and consulting" />
+    <img src="/services-header.webp" alt="Stone Dragon Media digital services – web design, development, marketing, and consulting" />
     <div class="header-overlay">
       <span class="about-label">SERVICES</span>
       <span class="hero-title">Our Solutions</span>
@@ -239,7 +273,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
   <div class="page">
     <h1>Services</h1>
-    <p class="lead">Stone Dragon Media offers end-to-end digital services from strategy through launch and long-term support, including website solutions built for speed and reliability.</p>
+    <p class="lead">Stone Dragon Media offers end-to-end digital services from strategy through launch and long-term support, including website solutions built for speed and reliability. Based in Sandusky, Ohio, we work in person across Erie County and the surrounding area, throughout Ohio including Toledo, Cleveland, and Columbus, and remotely with clients anywhere.</p>
     <div class="grid">
       <article class="card">
         <Icon class="icon" name="lucide:layout-template" aria-hidden="true" />
@@ -340,6 +374,48 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         </ul>
       </article>
     </div>
+
+    <section class="pricing">
+      <h2>How Much Does It Cost?</h2>
+      <p class="lead">
+        Every business is different, so we don&rsquo;t work off a fixed price sheet. We build custom
+        pricing and payment arrangements around your budget, timeline, and goals &mdash; not the
+        other way around.
+      </p>
+      <div class="pricing-grid">
+        <article class="card">
+          <Icon class="icon" name="lucide:badge-dollar-sign" aria-hidden="true" />
+          <h2>One-Time Development</h2>
+          <p>
+            Pay a single project cost, and once it&rsquo;s settled the code is fully yours &mdash; a
+            complete license transfer with no ongoing fees, subscriptions, or dependency on us to
+            keep running.
+          </p>
+        </article>
+        <article class="card">
+          <Icon class="icon" name="lucide:calendar-clock" aria-hidden="true" />
+          <h2>Managed, Low Upfront</h2>
+          <p>
+            Get a professionally built and fully managed site or application with little to no
+            money down, with the cost split into affordable monthly or yearly payments instead.
+          </p>
+        </article>
+        <article class="card">
+          <Icon class="icon" name="lucide:puzzle" aria-hidden="true" />
+          <h2>Custom Arrangements</h2>
+          <p>
+            Need a mix of both? We&rsquo;ll structure a plan that blends ownership, hosting, and
+            ongoing support in whatever combination makes the most sense for your business.
+          </p>
+        </article>
+      </div>
+      <p class="pricing-note">
+        Whatever your budget and business needs look like, we&rsquo;ll work with you to find a
+        pricing and payment structure that fits &mdash; not the other way around. Reach out for a
+        free, no-obligation quote.
+      </p>
+    </section>
+
     <div class="cta-banner">
       <h2>Ready to start your next project?</h2>
       <p>Whether you need a new website, a custom application, or a full digital strategy, we are here to help. Let us talk through your goals and build something great together.</p>

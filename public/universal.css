@@ -121,16 +121,17 @@ body {
 .site-nav {
 	display: flex;
 	align-items: center;
-	gap: 0.35rem;
+	gap: 0.15rem;
 }
 
 .site-nav a {
 	text-decoration: none;
 	color: var(--brand-strong);
 	font-family: "Sora", sans-serif;
-	font-size: 0.88rem;
-	padding: 0.45rem 0.65rem;
+	font-size: 0.86rem;
+	padding: 0.45rem 0.55rem;
 	border-radius: 0.65rem;
+	white-space: nowrap;
 }
 
 .site-nav a.active,
@@ -192,6 +193,11 @@ body {
 
 .footer-copy {
 	flex-shrink: 0;
+}
+
+.footer-nap {
+	margin-top: 0.25rem;
+	font-size: 0.87rem;
 }
 
 .footer-right {
