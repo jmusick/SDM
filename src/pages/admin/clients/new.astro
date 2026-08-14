@@ -1,0 +1,42 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { ensureRole } from "../../../lib/http";
+
+export const prerender = false;
+
+const guard = ensureRole(Astro, ["admin"]);
+if (guard instanceof Response) return guard;
+
+const errorParam = Astro.url.searchParams.get("error");
+const errorMessage = errorParam === "invalid" ? "Company name and a valid email are required." : errorParam === "duplicate" ? "A client with that email already exists." : null;
+---
+
+<AdminLayout title="Add Client">
+  <div class="card" style="max-width: 560px;">
+    {errorMessage && <div class="notice notice-error">{errorMessage}</div>}
+    <form method="post" action="/api/clients/save">
+      <div class="form-grid">
+        <div class="field full">
+          <label for="companyName">Company Name</label>
+          <input id="companyName" name="companyName" type="text" required />
+        </div>
+        <div class="field">
+          <label for="contactName">Contact Name</label>
+          <input id="contactName" name="contactName" type="text" />
+        </div>
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input id="phone" name="phone" type="text" />
+        </div>
+        <div class="field full">
+          <label for="email">Login Email</label>
+          <input id="email" name="email" type="email" required />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Create Client</button>
+        <a class="btn btn-secondary" href="/admin/clients">Cancel</a>
+      </div>
+    </form>
+  </div>
+</AdminLayout>

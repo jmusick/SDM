@@ -1,0 +1,64 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { ensureRole } from "../../../lib/http";
+import { listAllTickets } from "../../../lib/tickets";
+
+export const prerender = false;
+
+const guard = ensureRole(Astro, ["admin"]);
+if (guard instanceof Response) return guard;
+
+const statusFilter = Astro.url.searchParams.get("status");
+let tickets = await listAllTickets(Astro.locals);
+if (statusFilter) {
+  tickets = tickets.filter((ticket) => ticket.status === statusFilter);
+}
+
+const statusBadge: Record<string, string> = {
+  open: "badge-warning",
+  in_progress: "badge-warning",
+  waiting_on_client: "badge-neutral",
+  resolved: "badge-success",
+  closed: "badge-neutral",
+};
+
+const statuses = ["open", "in_progress", "waiting_on_client", "resolved", "closed"];
+---
+
+<AdminLayout title="Tickets">
+  <div class="header-actions" style="margin-bottom: 1rem; gap: 0.4rem;">
+    <a class={`btn ${!statusFilter ? "btn-primary" : "btn-secondary"}`} href="/admin/tickets">All</a>
+    {statuses.map((status) => (
+      <a class={`btn ${statusFilter === status ? "btn-primary" : "btn-secondary"}`} href={`/admin/tickets?status=${status}`}>
+        {status.replace(/_/g, " ")}
+      </a>
+    ))}
+  </div>
+
+  {tickets.length === 0 ? (
+    <div class="card empty-state">No tickets{statusFilter ? ` with status "${statusFilter.replace(/_/g, " ")}"` : ""}.</div>
+  ) : (
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Client</th>
+            <th>Priority</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tickets.map((ticket) => (
+            <tr>
+              <td><a href={`/admin/tickets/${ticket.id}`}>{ticket.subject}</a></td>
+              <td>{ticket.companyName}</td>
+              <td style="text-transform: capitalize;">{ticket.priority}</td>
+              <td><span class={`badge ${statusBadge[ticket.status]}`}>{ticket.status.replace(/_/g, " ")}</span></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</AdminLayout>

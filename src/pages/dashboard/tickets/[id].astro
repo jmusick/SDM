@@ -1,0 +1,54 @@
+---
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import { ensureClientContext } from "../../../lib/http";
+import { getTicketById, listMessages } from "../../../lib/tickets";
+
+export const prerender = false;
+
+const clientResult = await ensureClientContext(Astro);
+if (clientResult instanceof Response) return clientResult;
+const client = clientResult;
+const isImpersonating = Boolean(Astro.locals.impersonatedClient);
+
+const { id } = Astro.params;
+const ticket = id ? await getTicketById(Astro.locals, id) : null;
+if (!ticket || ticket.clientId !== client.id) {
+  return Astro.redirect("/dashboard/tickets");
+}
+
+const messages = await listMessages(Astro.locals, ticket.id);
+const formatDate = (ms: number) => new Date(ms).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+---
+
+<DashboardLayout title={ticket.subject}>
+  <p style="margin: 0 0 1rem; color: var(--ink-soft);">
+    Status: <span style="text-transform: capitalize;">{ticket.status.replace(/_/g, " ")}</span>
+  </p>
+
+  <div class="thread">
+    {messages.map((message) => (
+      <div class={`thread-message ${message.authorRole === "admin" ? "from-admin" : ""}`}>
+        <div class="thread-meta">
+          <span>{message.authorRole === "admin" ? "Stone Dragon Media" : "You"}</span>
+          <span>{formatDate(message.createdAt)}</span>
+        </div>
+        <div class="thread-body">{message.body}</div>
+      </div>
+    ))}
+  </div>
+
+  {!isImpersonating && (
+    <div class="card">
+      <form method="post" action="/api/tickets/reply">
+        <input type="hidden" name="ticketId" value={ticket.id} />
+        <div class="field">
+          <label for="body">Reply</label>
+          <textarea id="body" name="body" required></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Send Reply</button>
+        </div>
+      </form>
+    </div>
+  )}
+</DashboardLayout>

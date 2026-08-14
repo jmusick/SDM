@@ -1,0 +1,55 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import { ensureClientContext } from "../../lib/http";
+import { listProjectsByClient } from "../../lib/projects";
+
+export const prerender = false;
+
+const clientResult = await ensureClientContext(Astro);
+if (clientResult instanceof Response) return clientResult;
+const client = clientResult;
+
+const projects = await listProjectsByClient(Astro.locals, client.id);
+
+const statusBadge: Record<string, string> = {
+  planning: "badge-neutral",
+  in_progress: "badge-warning",
+  review: "badge-warning",
+  completed: "badge-success",
+  on_hold: "badge-danger",
+};
+
+const formatDate = (ms: number | null) => (ms ? new Date(ms).toLocaleDateString("en-US", { dateStyle: "medium" }) : "—");
+---
+
+<DashboardLayout title="Projects">
+  {projects.length === 0 ? (
+    <div class="card empty-state">No projects yet.</div>
+  ) : (
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Project</th>
+            <th>Status</th>
+            <th>Start</th>
+            <th>Target</th>
+          </tr>
+        </thead>
+        <tbody>
+          {projects.map((project) => (
+            <tr>
+              <td>
+                <strong>{project.name}</strong>
+                {project.description && <div style="color: var(--ink-soft); font-size: 0.85rem; margin-top: 0.2rem;">{project.description}</div>}
+              </td>
+              <td><span class={`badge ${statusBadge[project.status]}`}>{project.status.replace(/_/g, " ")}</span></td>
+              <td>{formatDate(project.startDate)}</td>
+              <td>{formatDate(project.targetDate)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</DashboardLayout>

@@ -1,0 +1,13 @@
+name = "sdm"
+compatibility_date = "2026-08-13"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sdm-db"
+database_id = "028a86b5-617f-4faf-9e9b-6778d89cb442"
+migrations_dir = "migrations"

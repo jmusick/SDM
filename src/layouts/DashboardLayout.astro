@@ -1,0 +1,338 @@
+---
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const { user, impersonatedClient } = Astro.locals;
+
+const currentPath = new URL(Astro.request.url).pathname;
+const isActive = (prefix: string) => currentPath === prefix || currentPath.startsWith(`${prefix}/`);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} | Stone Dragon Media</title>
+    <link rel="stylesheet" href="/universal.css" />
+    <style is:global>
+      body {
+        margin: 0;
+        background: var(--surface-strong);
+      }
+
+      .impersonation-banner {
+        background: #7d5a12;
+        color: #fff5e0;
+        padding: 0.6rem 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .impersonation-banner button {
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.32);
+        color: inherit;
+        border-radius: 0.5rem;
+        padding: 0.3rem 0.7rem;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .dash-shell {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        min-height: 100vh;
+      }
+
+      .dash-sidebar {
+        background: var(--brand-strong);
+        color: #edf6ff;
+        padding: 1.4rem 1rem;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .dash-brand {
+        font-family: "Sora", sans-serif;
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: 1.6rem;
+        color: #fff;
+        text-decoration: none;
+      }
+
+      .dash-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        flex: 1;
+      }
+
+      .dash-nav a {
+        color: rgba(237, 246, 255, 0.82);
+        text-decoration: none;
+        padding: 0.55rem 0.7rem;
+        border-radius: 0.55rem;
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+
+      .dash-nav a:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .dash-nav a.active {
+        background: rgba(255, 255, 255, 0.14);
+        color: #fff;
+      }
+
+      .dash-logout {
+        margin-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.14);
+        padding-top: 1rem;
+      }
+
+      .dash-logout button {
+        width: 100%;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        color: rgba(237, 246, 255, 0.9);
+        border-radius: 0.55rem;
+        padding: 0.5rem 0.7rem;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .dash-main {
+        padding: 1.6rem clamp(1.2rem, 3vw, 2.4rem);
+      }
+
+      .dash-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.4rem;
+      }
+
+      .dash-header h1 {
+        margin: 0;
+        font-family: "Sora", sans-serif;
+        color: var(--brand-strong);
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: 0.95rem;
+        padding: 1.1rem;
+      }
+
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+      }
+
+      .data-table th,
+      .data-table td {
+        text-align: left;
+        padding: 0.6rem 0.7rem;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .data-table th {
+        color: var(--brand-strong);
+        font-family: "Sora", sans-serif;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .data-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .data-table a {
+        color: var(--brand-strong);
+        font-weight: 600;
+      }
+
+      .empty-state {
+        color: var(--ink-soft);
+        padding: 1.5rem 0;
+        text-align: center;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: capitalize;
+      }
+
+      .badge-neutral {
+        background: rgba(90, 128, 156, 0.16);
+        color: var(--ink-soft);
+      }
+
+      .badge-success {
+        background: rgba(12, 117, 58, 0.12);
+        color: #0b5f33;
+      }
+
+      .badge-warning {
+        background: rgba(173, 129, 12, 0.14);
+        color: #7d5a12;
+      }
+
+      .badge-danger {
+        background: rgba(173, 38, 38, 0.12);
+        color: #7d2121;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-bottom: 0.85rem;
+      }
+
+      .field label {
+        font-size: 0.83rem;
+        font-weight: 600;
+        color: var(--brand-strong);
+      }
+
+      .field input,
+      .field select,
+      .field textarea {
+        width: 100%;
+        border: 1px solid rgba(108, 153, 188, 0.38);
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 0.62rem;
+        padding: 0.6rem 0.7rem;
+        font: inherit;
+        color: var(--ink);
+      }
+
+      .field textarea {
+        min-height: 90px;
+        resize: vertical;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.6rem 1rem;
+        border-radius: 0.65rem;
+        border: 1px solid transparent;
+        font-weight: 600;
+        font-family: "Sora", sans-serif;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .btn-primary {
+        background: linear-gradient(125deg, #1f5a89, #2f709f);
+        color: #edf6ff;
+      }
+
+      .btn-secondary {
+        background: rgba(239, 247, 253, 0.86);
+        border-color: rgba(43, 90, 124, 0.4);
+        color: var(--brand-strong);
+      }
+
+      .btn[disabled] {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .section-gap {
+        margin-top: 1.6rem;
+      }
+
+      .thread {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        margin-bottom: 1.2rem;
+      }
+
+      .thread-message {
+        border: 1px solid var(--line);
+        border-radius: 0.85rem;
+        padding: 0.8rem 0.95rem;
+        background: var(--surface);
+      }
+
+      .thread-message.from-admin {
+        background: rgba(31, 90, 137, 0.08);
+      }
+
+      .thread-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.78rem;
+        color: var(--ink-soft);
+        margin-bottom: 0.35rem;
+      }
+
+      .thread-body {
+        white-space: pre-wrap;
+        line-height: 1.5;
+      }
+    </style>
+    <slot name="head" />
+  </head>
+  <body>
+    {impersonatedClient && (
+      <div class="impersonation-banner">
+        <span>Viewing as {impersonatedClient.companyName}</span>
+        <form method="post" action="/api/admin/impersonate/stop">
+          <button type="submit">Exit</button>
+        </form>
+      </div>
+    )}
+    <div class="dash-shell">
+      <aside class="dash-sidebar">
+        <a class="dash-brand" href="/dashboard">Stone Dragon Media</a>
+        <nav class="dash-nav">
+          <a href="/dashboard" class={isActive("/dashboard") && currentPath === "/dashboard" ? "active" : undefined}>Overview</a>
+          <a href="/dashboard/projects" class={isActive("/dashboard/projects") ? "active" : undefined}>Projects</a>
+          <a href="/dashboard/billing" class={isActive("/dashboard/billing") ? "active" : undefined}>Billing</a>
+          <a href="/dashboard/tickets" class={isActive("/dashboard/tickets") ? "active" : undefined}>Tickets</a>
+        </nav>
+        {!impersonatedClient && user && (
+          <div class="dash-logout">
+            <form method="post" action="/api/auth/logout">
+              <button type="submit">Log Out</button>
+            </form>
+          </div>
+        )}
+      </aside>
+      <main class="dash-main">
+        <div class="dash-header">
+          <h1>{title}</h1>
+        </div>
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>

@@ -4,6 +4,8 @@ import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
+export const prerender = true;
+
 const currentYear = new Date().getFullYear();
 const codingStartYear = 1998;
 const yearsExperience = currentYear - codingStartYear;

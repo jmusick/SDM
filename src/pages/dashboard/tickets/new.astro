@@ -1,0 +1,44 @@
+---
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import { ensureClientContext } from "../../../lib/http";
+
+export const prerender = false;
+
+const clientResult = await ensureClientContext(Astro);
+if (clientResult instanceof Response) return clientResult;
+
+if (Astro.locals.impersonatedClient) {
+  return Astro.redirect("/dashboard/tickets");
+}
+
+const errorParam = Astro.url.searchParams.get("error");
+const errorMessage = errorParam === "invalid" ? "A subject and description are required." : null;
+---
+
+<DashboardLayout title="Open New Ticket">
+  <div class="card" style="max-width: 620px;">
+    {errorMessage && <div class="notice notice-error">{errorMessage}</div>}
+    <form method="post" action="/api/tickets/create">
+      <div class="field">
+        <label for="subject">Subject</label>
+        <input id="subject" name="subject" type="text" required />
+      </div>
+      <div class="field">
+        <label for="priority">Priority</label>
+        <select id="priority" name="priority">
+          <option value="normal" selected>Normal</option>
+          <option value="low">Low</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="body">Describe the issue</label>
+        <textarea id="body" name="body" required></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Submit Ticket</button>
+        <a class="btn btn-secondary" href="/dashboard/tickets">Cancel</a>
+      </div>
+    </form>
+  </div>
+</DashboardLayout>

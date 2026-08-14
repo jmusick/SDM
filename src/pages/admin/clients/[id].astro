@@ -1,0 +1,123 @@
+---
+import { Icon } from "astro-icon/components";
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { ensureRole } from "../../../lib/http";
+import { getClientWithAccountById } from "../../../lib/clients";
+import { listProjectsByClient } from "../../../lib/projects";
+import { listInvoicesByClient } from "../../../lib/invoices";
+import { listTicketsByClient } from "../../../lib/tickets";
+
+export const prerender = false;
+
+const guard = ensureRole(Astro, ["admin"]);
+if (guard instanceof Response) return guard;
+
+const { id } = Astro.params;
+const client = id ? await getClientWithAccountById(Astro.locals, id) : null;
+if (!client) {
+  return Astro.redirect("/admin/clients");
+}
+
+const [projects, invoices, tickets] = await Promise.all([
+  listProjectsByClient(Astro.locals, client.id),
+  listInvoicesByClient(Astro.locals, client.id),
+  listTicketsByClient(Astro.locals, client.id),
+]);
+
+const tempPassword = Astro.url.searchParams.get("tempPassword");
+const errorParam = Astro.url.searchParams.get("error");
+const errorMessage =
+  errorParam === "invalid" ? "Company name is required." : errorParam === "password" ? "Incorrect password. Client was not deleted." : null;
+
+const deleteWarning = `DANGER: Permanently delete ${client.companyName}? This will also delete their login, ${projects.length} project(s), ${invoices.length} invoice(s), and ${tickets.length} ticket(s). This cannot be undone.`;
+---
+
+<AdminLayout title={client.companyName}>
+  {tempPassword && (
+    <div class="notice notice-success">
+      Temporary password for {client.email}: <strong>{tempPassword}</strong> — relay this to the client. It won't be shown again.
+    </div>
+  )}
+  {errorMessage && <div class="notice notice-error">{errorMessage}</div>}
+
+  <div class="card" style="max-width: 560px; margin-bottom: 1.2rem;">
+    <form method="post" action="/api/clients/save">
+      <input type="hidden" name="clientId" value={client.id} />
+      <div class="form-grid">
+        <div class="field full">
+          <label for="companyName">Company Name</label>
+          <input id="companyName" name="companyName" type="text" required value={client.companyName} />
+        </div>
+        <div class="field">
+          <label for="contactName">Contact Name</label>
+          <input id="contactName" name="contactName" type="text" value={client.contactName ?? ""} />
+        </div>
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input id="phone" name="phone" type="text" value={client.phone ?? ""} />
+        </div>
+        <div class="field full">
+          <label>Login Email</label>
+          <input type="email" value={client.email} disabled />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card" style="max-width: 560px;">
+    <p style="margin: 0 0 0.8rem; color: var(--ink-soft);">
+      Status: <span class={`badge ${client.isActive ? "badge-success" : "badge-neutral"}`}>{client.isActive ? "Active" : "Archived"}</span>
+    </p>
+    <p style="margin: 0 0 0.8rem; color: var(--ink-soft); font-size: 0.88rem;">
+      {projects.length} project(s) · {invoices.length} invoice(s) · {tickets.length} ticket(s)
+    </p>
+    <div class="form-actions">
+      <form method="post" action="/api/admin/impersonate/start">
+        <input type="hidden" name="clientId" value={client.id} />
+        <button class="btn btn-secondary" type="submit">
+          <Icon class="icon" name="lucide:eye" aria-hidden="true" />
+          View as client
+        </button>
+      </form>
+      <form method="post" action="/api/clients/reset-password">
+        <input type="hidden" name="clientId" value={client.id} />
+        <button class="btn btn-secondary" type="submit">
+          <Icon class="icon" name="lucide:key" aria-hidden="true" />
+          Reset Password
+        </button>
+      </form>
+      <form method="post" action="/api/clients/set-active">
+        <input type="hidden" name="clientId" value={client.id} />
+        <input type="hidden" name="isActive" value={client.isActive ? "0" : "1"} />
+        <button class={`btn ${client.isActive ? "btn-danger" : "btn-secondary"}`} type="submit">
+          <Icon class="icon" name={client.isActive ? "lucide:archive" : "lucide:archive-restore"} aria-hidden="true" />
+          {client.isActive ? "Archive" : "Reactivate"}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card card-danger section-gap" style="max-width: 560px;">
+    <p class="danger-label">
+      <Icon class="icon" name="lucide:triangle-alert" aria-hidden="true" />
+      Danger Zone
+    </p>
+    <p style="margin: 0 0 0.8rem; color: var(--ink-soft); font-size: 0.88rem;">
+      Deleting a client permanently removes their login and all of their projects, invoices, tickets, and ticket messages. Archiving is reversible — deleting is not.
+    </p>
+    <form method="post" action="/api/clients/delete" onsubmit={`return confirm(${JSON.stringify(deleteWarning)});`}>
+      <input type="hidden" name="clientId" value={client.id} />
+      <div class="field" style="max-width: 320px; margin-bottom: 0.8rem;">
+        <label for="adminPassword">Confirm your admin password</label>
+        <input id="adminPassword" name="adminPassword" type="password" required autocomplete="current-password" />
+      </div>
+      <button class="btn btn-danger" type="submit">
+        <Icon class="icon" name="lucide:trash-2" aria-hidden="true" />
+        Delete Client
+      </button>
+    </form>
+  </div>
+</AdminLayout>

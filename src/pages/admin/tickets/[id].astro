@@ -1,0 +1,69 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { ensureRole } from "../../../lib/http";
+import { getTicketById, listMessages } from "../../../lib/tickets";
+import { getClientById } from "../../../lib/clients";
+
+export const prerender = false;
+
+const guard = ensureRole(Astro, ["admin"]);
+if (guard instanceof Response) return guard;
+
+const { id } = Astro.params;
+const ticket = id ? await getTicketById(Astro.locals, id) : null;
+if (!ticket) {
+  return Astro.redirect("/admin/tickets");
+}
+
+const [client, messages] = await Promise.all([
+  getClientById(Astro.locals, ticket.clientId),
+  listMessages(Astro.locals, ticket.id),
+]);
+
+const formatDate = (ms: number) => new Date(ms).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+---
+
+<AdminLayout title={ticket.subject}>
+  <p style="margin: 0 0 1rem; color: var(--ink-soft);">
+    Client: <a href={`/admin/clients/${ticket.clientId}`}>{client?.companyName ?? "Unknown"}</a>
+    &middot; Priority: <span style="text-transform: capitalize;">{ticket.priority}</span>
+  </p>
+
+  <form method="post" action="/api/tickets/update-status" class="card" style="margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.6rem;">
+    <input type="hidden" name="ticketId" value={ticket.id} />
+    <label for="status" style="font-weight: 600; color: var(--brand-strong); font-size: 0.9rem;">Status</label>
+    <select id="status" name="status" class="filter-select" style="width: auto;">
+      <option value="open" selected={ticket.status === "open"}>Open</option>
+      <option value="in_progress" selected={ticket.status === "in_progress"}>In Progress</option>
+      <option value="waiting_on_client" selected={ticket.status === "waiting_on_client"}>Waiting on Client</option>
+      <option value="resolved" selected={ticket.status === "resolved"}>Resolved</option>
+      <option value="closed" selected={ticket.status === "closed"}>Closed</option>
+    </select>
+    <button class="btn btn-primary" type="submit">Update</button>
+  </form>
+
+  <div class="thread">
+    {messages.map((message) => (
+      <div class={`thread-message ${message.authorRole === "admin" ? "from-admin" : ""}`}>
+        <div class="thread-meta">
+          <span>{message.authorRole === "admin" ? "Stone Dragon Media" : client?.companyName ?? message.authorEmail}</span>
+          <span>{formatDate(message.createdAt)}</span>
+        </div>
+        <div class="thread-body">{message.body}</div>
+      </div>
+    ))}
+  </div>
+
+  <div class="card">
+    <form method="post" action="/api/tickets/reply">
+      <input type="hidden" name="ticketId" value={ticket.id} />
+      <div class="field">
+        <label for="body">Reply</label>
+        <textarea id="body" name="body" required></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Send Reply</button>
+      </div>
+    </form>
+  </div>
+</AdminLayout>

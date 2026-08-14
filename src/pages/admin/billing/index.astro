@@ -1,0 +1,59 @@
+---
+import { Icon } from "astro-icon/components";
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { ensureRole } from "../../../lib/http";
+import { listAllInvoices } from "../../../lib/invoices";
+
+export const prerender = false;
+
+const guard = ensureRole(Astro, ["admin"]);
+if (guard instanceof Response) return guard;
+
+const invoices = await listAllInvoices(Astro.locals);
+
+const statusBadge: Record<string, string> = {
+  draft: "badge-neutral",
+  sent: "badge-warning",
+  paid: "badge-success",
+  overdue: "badge-danger",
+  void: "badge-neutral",
+};
+
+const formatAmount = (cents: number) => (cents / 100).toLocaleString("en-US", { style: "currency", currency: "USD" });
+---
+
+<AdminLayout title="Billing">
+  <div class="header-actions" style="margin-bottom: 1rem;">
+    <a class="btn btn-primary" href="/admin/billing/new">
+      <Icon class="icon" name="lucide:plus" aria-hidden="true" />
+      Add Invoice
+    </a>
+  </div>
+
+  {invoices.length === 0 ? (
+    <div class="card empty-state">No invoices yet.</div>
+  ) : (
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Client</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {invoices.map((invoice) => (
+            <tr>
+              <td><a href={`/admin/billing/${invoice.id}`}>{invoice.description}</a></td>
+              <td>{invoice.companyName}</td>
+              <td>{formatAmount(invoice.amountCents)}</td>
+              <td><span class={`badge ${statusBadge[invoice.status]}`}>{invoice.status}</span></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</AdminLayout>

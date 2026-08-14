@@ -2,6 +2,8 @@
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+export const prerender = true;
 ---
 
 <BaseLayout
@@ -57,7 +59,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <div class="wrapper">
     <div class="card">
       <h1>Privacy Policy</h1>
-      <p><em>Effective date: May 19, 2026</em></p>
+      <p><em>Effective date: August 14, 2026</em></p>
       <p>
         Stone Dragon Media (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;) operates
         stonedragonmedia.com. This policy explains what information we collect, how we use it,
@@ -73,12 +75,30 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       </ul>
       <p><strong>Information collected automatically</strong> — When you visit our site we collect standard web analytics data through Google Analytics, including pages visited, time on site, approximate geographic location (country/region), browser type, and device type. This data is associated with a randomly assigned identifier, not your name or email.</p>
 
+      <h2>Client Portal Accounts</h2>
+      <p>
+        Active clients have an account on our client portal (<a href="/login">stonedragonmedia.com/login</a>) to
+        view their projects, invoices, and support tickets. If we set up an account for you, we collect and store:
+      </p>
+      <ul>
+        <li>Your email address and a securely hashed password (we never store your password in plain text)</li>
+        <li>Your company name, contact name, and phone number</li>
+        <li>Project details, invoice records, and support ticket messages related to work we do for you</li>
+      </ul>
+      <p>
+        This information is stored in our database (Cloudflare D1) and is only accessible to Stone Dragon Media
+        staff administering your account and, when you're signed in, to you. We use it solely to deliver and
+        communicate about the services we provide you — it is never sold or used for marketing to third parties.
+      </p>
+
       <h2>Cookies</h2>
       <p>
         Our site uses cookies set by Google Analytics to distinguish visitors and aggregate usage
         statistics, and by hCaptcha to verify that contact form submissions are not automated.
-        These cookies are set by third parties under their own privacy policies (see below). No
-        cookies are used for advertising or cross-site tracking by Stone Dragon Media.
+        These cookies are set by third parties under their own privacy policies (see below). If you
+        have a client portal account, signing in sets a first-party session cookie (<code>sdm_session</code>)
+        that keeps you logged in — this cookie is required for the portal to function and is not used for
+        tracking or analytics. No cookies are used for advertising or cross-site tracking by Stone Dragon Media.
       </p>
 
       <h2>Third-Party Services</h2>
@@ -101,8 +121,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           See <a href="https://www.hcaptcha.com/privacy" target="_blank" rel="noopener noreferrer">hcaptcha.com/privacy</a>.
         </li>
         <li>
-          <strong>Cloudflare</strong> — provides CDN, DDoS protection, and DNS services. Cloudflare
-          may process request metadata (IP address, headers) in transit.
+          <strong>Cloudflare</strong> — provides CDN, DDoS protection, DNS services, and hosts our
+          application infrastructure and database (Cloudflare Workers and Cloudflare D1), including
+          client portal account and project data. Cloudflare may process request metadata (IP address,
+          headers) in transit and data at rest in our database.
           See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">cloudflare.com/privacypolicy</a>.
         </li>
       </ul>
@@ -111,6 +133,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       <ul>
         <li>Responding to your inquiry and discussing your project</li>
         <li>Delivering agreed services and communicating project updates</li>
+        <li>Providing client portal access so you can view your projects, invoices, and support tickets, and reply to us</li>
         <li>Understanding how our site is used so we can improve it</li>
       </ul>
       <p>We do not sell your personal information. We do not share it with third parties except the service providers listed above, or as required by law.</p>
@@ -120,14 +143,18 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         Contact form submissions are retained in email for as long as the client relationship is
         active and for a reasonable period afterward for business records. Google Analytics data
         is retained for 14 months under our account settings, after which it is automatically
-        deleted.
+        deleted. Client portal account data (login, company/contact details, projects, invoices, and
+        tickets) is retained for as long as your account is active, and is permanently deleted from
+        our database if we delete your account at your request or upon the end of our business
+        relationship.
       </p>
 
       <h2>Your Choices</h2>
       <ul>
         <li>You may request access to, correction of, or deletion of personal information you have provided by contacting us.</li>
+        <li>If you have a client portal account, you may request that we delete it and all associated data at any time — this permanently removes your login and all projects, invoices, and tickets tied to your account.</li>
         <li>You may opt out of Google Analytics data collection using the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer">Google Analytics Opt-out Browser Add-on</a>.</li>
-        <li>Most browsers allow you to block or delete cookies through their settings.</li>
+        <li>Most browsers allow you to block or delete cookies through their settings — note that blocking the <code>sdm_session</code> cookie will prevent you from staying signed in to the client portal.</li>
       </ul>
 
       <h2>Changes to This Policy</h2>

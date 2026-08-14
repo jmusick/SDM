@@ -1,0 +1,76 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import { ensureClientContext } from "../../lib/http";
+import { ensureDB } from "../../lib/db";
+
+export const prerender = false;
+
+const clientResult = await ensureClientContext(Astro);
+if (clientResult instanceof Response) return clientResult;
+const client = clientResult;
+const db = ensureDB(Astro.locals);
+
+const [activeProjects, openTickets, outstanding] = await Promise.all([
+  db
+    .prepare("SELECT COUNT(*) as count FROM projects WHERE client_id = ? AND status NOT IN ('completed')")
+    .bind(client.id)
+    .first<{ count: number }>(),
+  db
+    .prepare("SELECT COUNT(*) as count FROM tickets WHERE client_id = ? AND status NOT IN ('resolved', 'closed')")
+    .bind(client.id)
+    .first<{ count: number }>(),
+  db
+    .prepare("SELECT COALESCE(SUM(amount_cents), 0) as total FROM invoices WHERE client_id = ? AND status IN ('sent', 'overdue')")
+    .bind(client.id)
+    .first<{ total: number }>(),
+]);
+
+const outstandingDollars = ((outstanding?.total ?? 0) / 100).toLocaleString("en-US", { style: "currency", currency: "USD" });
+---
+
+<DashboardLayout title={`Welcome, ${client.companyName}`}>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <span class="stat-value">{activeProjects?.count ?? 0}</span>
+      <span class="stat-label">Active Projects</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{openTickets?.count ?? 0}</span>
+      <span class="stat-label">Open Tickets</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{outstandingDollars}</span>
+      <span class="stat-label">Outstanding Balance</span>
+    </div>
+  </div>
+
+  <style>
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-card {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 0.95rem;
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .stat-value {
+      font-family: "Sora", sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--brand-strong);
+    }
+
+    .stat-label {
+      color: var(--ink-soft);
+      font-size: 0.9rem;
+    }
+  </style>
+</DashboardLayout>

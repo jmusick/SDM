@@ -1,0 +1,129 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getUserCount } from "../../lib/users";
+
+export const prerender = false;
+
+const userCount = await getUserCount(Astro.locals);
+if (userCount > 0) {
+  return Astro.redirect("/login");
+}
+
+const errorParam = Astro.url.searchParams.get("error");
+const errorMessage = errorParam === "invalid" ? "Enter a valid email and a password of at least 10 characters." : null;
+---
+
+<BaseLayout title="Set Up Admin Account | Stone Dragon Media" robots="noindex, nofollow">
+  <Fragment slot="head">
+    <style>
+      body {
+        background: var(--surface-strong, #f2f7fc);
+      }
+
+      .wrapper {
+        max-width: 420px;
+        margin: 0 auto;
+        padding: 5rem 1.25rem;
+      }
+
+      h1 {
+        margin: 0 0 0.35rem;
+        font-family: "Sora", sans-serif;
+        font-size: 1.7rem;
+        color: var(--brand-strong);
+        text-align: center;
+      }
+
+      .subtitle {
+        margin: 0 0 1.3rem;
+        color: var(--ink-soft);
+        text-align: center;
+      }
+
+      .form-card {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: 0.95rem;
+        padding: 1.25rem;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-bottom: 0.85rem;
+      }
+
+      label {
+        font-size: 0.83rem;
+        font-weight: 600;
+        color: var(--brand-strong);
+      }
+
+      input {
+        width: 100%;
+        border: 1px solid rgba(108, 153, 188, 0.38);
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 0.62rem;
+        padding: 0.62rem 0.7rem;
+        font: inherit;
+        color: var(--ink);
+      }
+
+      .helper {
+        margin: 0 0 0.85rem;
+        font-size: 0.82rem;
+        color: var(--ink-soft);
+      }
+
+      .button {
+        display: inline-flex;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        padding: 0.68rem 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid transparent;
+        font-weight: 600;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+      }
+
+      .button-primary {
+        background: linear-gradient(125deg, #1f5a89, #2f709f);
+        color: #edf6ff;
+      }
+
+      .form-status.error {
+        margin: 0 0 0.85rem;
+        padding: 0.6rem 0.7rem;
+        border-radius: 0.62rem;
+        font-size: 0.9rem;
+        background: rgba(173, 38, 38, 0.12);
+        border: 1px solid rgba(173, 38, 38, 0.28);
+        color: #7d2121;
+      }
+    </style>
+  </Fragment>
+
+  <main class="wrapper">
+    <h1>Set Up Admin Account</h1>
+    <p class="subtitle">No admin account exists yet. Create the owner account to get started.</p>
+
+    <div class="form-card">
+      {errorMessage && <div class="form-status error" role="alert">{errorMessage}</div>}
+      <form method="post" action="/api/setup/create-admin">
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" required minlength="10" autocomplete="new-password" />
+        </div>
+        <p class="helper">At least 10 characters.</p>
+        <button class="button button-primary" type="submit">Create Admin Account</button>
+      </form>
+    </div>
+  </main>
+</BaseLayout>

@@ -1,0 +1,91 @@
+---
+import { Icon } from "astro-icon/components";
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { ensureRole } from "../../lib/http";
+import { ensureDB } from "../../lib/db";
+
+export const prerender = false;
+
+const guard = ensureRole(Astro, ["admin"]);
+if (guard instanceof Response) return guard;
+
+const db = ensureDB(Astro.locals);
+const [clients, openTickets, unpaidInvoices, activeProjects] = await Promise.all([
+  db.prepare("SELECT COUNT(*) as count FROM clients").first<{ count: number }>(),
+  db.prepare("SELECT COUNT(*) as count FROM tickets WHERE status NOT IN ('resolved', 'closed')").first<{ count: number }>(),
+  db.prepare("SELECT COUNT(*) as count FROM invoices WHERE status IN ('sent', 'overdue')").first<{ count: number }>(),
+  db.prepare("SELECT COUNT(*) as count FROM projects WHERE status NOT IN ('completed')").first<{ count: number }>(),
+]);
+---
+
+<AdminLayout title="Overview">
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-icon"><Icon name="lucide:users" aria-hidden="true" /></div>
+      <span class="stat-value">{clients?.count ?? 0}</span>
+      <span class="stat-label">Clients</span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><Icon name="lucide:life-buoy" aria-hidden="true" /></div>
+      <span class="stat-value">{openTickets?.count ?? 0}</span>
+      <span class="stat-label">Open Tickets</span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><Icon name="lucide:credit-card" aria-hidden="true" /></div>
+      <span class="stat-value">{unpaidInvoices?.count ?? 0}</span>
+      <span class="stat-label">Unpaid Invoices</span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><Icon name="lucide:folder-kanban" aria-hidden="true" /></div>
+      <span class="stat-value">{activeProjects?.count ?? 0}</span>
+      <span class="stat-label">Active Projects</span>
+    </div>
+  </div>
+
+  <style>
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-card {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 0.95rem;
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .stat-icon {
+      width: 2.1rem;
+      height: 2.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.65rem;
+      background: rgba(31, 90, 137, 0.1);
+      color: var(--brand-strong);
+      margin-bottom: 0.4rem;
+    }
+
+    .stat-icon :global(svg) {
+      width: 1.15rem;
+      height: 1.15rem;
+    }
+
+    .stat-value {
+      font-family: "Sora", sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--brand-strong);
+    }
+
+    .stat-label {
+      color: var(--ink-soft);
+      font-size: 0.9rem;
+    }
+  </style>
+</AdminLayout>

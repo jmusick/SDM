@@ -1,0 +1,416 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+
+const currentPath = new URL(Astro.request.url).pathname;
+const isActive = (prefix: string) => currentPath === prefix || currentPath.startsWith(`${prefix}/`);
+
+const navItems = [
+  { href: "/admin", label: "Overview", icon: "lucide:layout-dashboard", exact: true },
+  { href: "/admin/clients", label: "Clients", icon: "lucide:users", exact: false },
+  { href: "/admin/projects", label: "Projects", icon: "lucide:folder-kanban", exact: false },
+  { href: "/admin/billing", label: "Billing", icon: "lucide:credit-card", exact: false },
+  { href: "/admin/tickets", label: "Tickets", icon: "lucide:life-buoy", exact: false },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Admin | {title} | Stone Dragon Media</title>
+    <link rel="stylesheet" href="/universal.css" />
+    <style is:global>
+      body {
+        margin: 0;
+        background: var(--surface-strong);
+      }
+
+      .admin-shell {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        min-height: 100vh;
+      }
+
+      .admin-sidebar {
+        background: var(--brand-strong);
+        color: #edf6ff;
+        padding: 1.4rem 1rem;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .admin-brand {
+        font-family: "Sora", sans-serif;
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: 1.6rem;
+        color: #fff;
+        text-decoration: none;
+      }
+
+      .admin-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        flex: 1;
+      }
+
+      .admin-nav a {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        color: rgba(237, 246, 255, 0.82);
+        text-decoration: none;
+        padding: 0.55rem 0.7rem;
+        border-radius: 0.55rem;
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+
+      .admin-nav .icon {
+        width: 1.05rem;
+        height: 1.05rem;
+        flex-shrink: 0;
+      }
+
+      .admin-nav a:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .admin-nav a.active {
+        background: rgba(255, 255, 255, 0.14);
+        color: #fff;
+      }
+
+      .admin-logout {
+        margin-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.14);
+        padding-top: 1rem;
+      }
+
+      .admin-logout button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        color: rgba(237, 246, 255, 0.9);
+        border-radius: 0.55rem;
+        padding: 0.5rem 0.7rem;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .admin-logout .icon {
+        width: 1rem;
+        height: 1rem;
+        flex-shrink: 0;
+      }
+
+      .admin-main {
+        padding: 1.6rem clamp(1.2rem, 3vw, 2.4rem);
+      }
+
+      .admin-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.4rem;
+      }
+
+      .admin-header h1 {
+        margin: 0;
+        font-family: "Sora", sans-serif;
+        color: var(--brand-strong);
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 0.6rem;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: 0.95rem;
+        padding: 1.1rem;
+      }
+
+      .card-danger {
+        border-color: rgba(173, 38, 38, 0.4);
+        background: rgba(173, 38, 38, 0.04);
+      }
+
+      .danger-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin: 0 0 0.6rem;
+        font-family: "Sora", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        color: #7d2121;
+      }
+
+      .danger-label .icon {
+        width: 0.95rem;
+        height: 0.95rem;
+      }
+
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+      }
+
+      .data-table th,
+      .data-table td {
+        text-align: left;
+        padding: 0.6rem 0.7rem;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .data-table th {
+        color: var(--brand-strong);
+        font-family: "Sora", sans-serif;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .data-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .data-table a {
+        color: var(--brand-strong);
+        font-weight: 600;
+      }
+
+      .empty-state {
+        color: var(--ink-soft);
+        padding: 1.5rem 0;
+        text-align: center;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: capitalize;
+      }
+
+      .badge-neutral {
+        background: rgba(90, 128, 156, 0.16);
+        color: var(--ink-soft);
+      }
+
+      .badge-success {
+        background: rgba(12, 117, 58, 0.12);
+        color: #0b5f33;
+      }
+
+      .badge-warning {
+        background: rgba(173, 129, 12, 0.14);
+        color: #7d5a12;
+      }
+
+      .badge-danger {
+        background: rgba(173, 38, 38, 0.12);
+        color: #7d2121;
+      }
+
+      .badge-internal {
+        background: linear-gradient(125deg, #1f5a89, #2f709f);
+        color: #edf6ff;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.7rem;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .field.full {
+        grid-column: 1 / -1;
+      }
+
+      .field label {
+        font-size: 0.83rem;
+        font-weight: 600;
+        color: var(--brand-strong);
+      }
+
+      .field input,
+      .field select,
+      .field textarea,
+      .filter-select {
+        width: 100%;
+        border: 1px solid rgba(108, 153, 188, 0.38);
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 0.62rem;
+        padding: 0.6rem 0.7rem;
+        font: inherit;
+        color: var(--ink);
+      }
+
+      .field textarea {
+        min-height: 90px;
+        resize: vertical;
+      }
+
+      .form-actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.6rem;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        padding: 0.6rem 1rem;
+        border-radius: 0.65rem;
+        border: 1px solid transparent;
+        font-weight: 600;
+        font-family: "Sora", sans-serif;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .btn .icon {
+        width: 1rem;
+        height: 1rem;
+        flex-shrink: 0;
+      }
+
+      .btn-primary {
+        background: linear-gradient(125deg, #1f5a89, #2f709f);
+        color: #edf6ff;
+      }
+
+      .btn-secondary {
+        background: rgba(239, 247, 253, 0.86);
+        border-color: rgba(43, 90, 124, 0.4);
+        color: var(--brand-strong);
+      }
+
+      .btn-danger {
+        background: rgba(173, 38, 38, 0.1);
+        border-color: rgba(173, 38, 38, 0.32);
+        color: #7d2121;
+      }
+
+      .notice {
+        margin-bottom: 1rem;
+        padding: 0.7rem 0.85rem;
+        border-radius: 0.65rem;
+        font-size: 0.9rem;
+      }
+
+      .notice-success {
+        background: rgba(12, 117, 58, 0.12);
+        border: 1px solid rgba(12, 117, 58, 0.28);
+        color: #0b5f33;
+      }
+
+      .notice-error {
+        background: rgba(173, 38, 38, 0.12);
+        border: 1px solid rgba(173, 38, 38, 0.28);
+        color: #7d2121;
+      }
+
+      .section-gap {
+        margin-top: 1.6rem;
+      }
+
+      .thread {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        margin-bottom: 1.2rem;
+      }
+
+      .thread-message {
+        border: 1px solid var(--line);
+        border-radius: 0.85rem;
+        padding: 0.8rem 0.95rem;
+        background: var(--surface);
+      }
+
+      .thread-message.from-admin {
+        background: rgba(31, 90, 137, 0.08);
+      }
+
+      .thread-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.78rem;
+        color: var(--ink-soft);
+        margin-bottom: 0.35rem;
+      }
+
+      .thread-body {
+        white-space: pre-wrap;
+        line-height: 1.5;
+      }
+    </style>
+    <slot name="head" />
+  </head>
+  <body>
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <a class="admin-brand" href="/admin">Stone Dragon Media</a>
+        <nav class="admin-nav">
+          {navItems.map((item) => (
+            <a
+              href={item.href}
+              class={(item.exact ? currentPath === item.href : isActive(item.href)) ? "active" : undefined}
+            >
+              <Icon class="icon" name={item.icon} aria-hidden="true" />
+              {item.label}
+            </a>
+          ))}
+        </nav>
+        <div class="admin-logout">
+          <form method="post" action="/api/auth/logout">
+            <button type="submit">
+              <Icon class="icon" name="lucide:log-out" aria-hidden="true" />
+              Log Out
+            </button>
+          </form>
+        </div>
+      </aside>
+      <main class="admin-main">
+        <div class="admin-header">
+          <h1>{title}</h1>
+        </div>
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>

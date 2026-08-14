@@ -1,0 +1,61 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { ensureRole } from "../../../lib/http";
+import { listClients } from "../../../lib/clients";
+
+export const prerender = false;
+
+const guard = ensureRole(Astro, ["admin"]);
+if (guard instanceof Response) return guard;
+
+const clients = await listClients(Astro.locals);
+const errorParam = Astro.url.searchParams.get("error");
+const errorMessage = errorParam === "invalid" ? "Project name is required." : null;
+---
+
+<AdminLayout title="Add Project">
+  <div class="card" style="max-width: 620px;">
+    {errorMessage && <div class="notice notice-error">{errorMessage}</div>}
+    <form method="post" action="/api/projects/save">
+        <div class="form-grid">
+          <div class="field full">
+            <label for="clientId">Client</label>
+            <select id="clientId" name="clientId">
+              <option value="">Internal (no client)</option>
+              {clients.map((client) => <option value={client.id}>{client.companyName}</option>)}
+            </select>
+          </div>
+          <div class="field full">
+            <label for="name">Project Name</label>
+            <input id="name" name="name" type="text" required />
+          </div>
+          <div class="field full">
+            <label for="description">Description</label>
+            <textarea id="description" name="description"></textarea>
+          </div>
+          <div class="field">
+            <label for="status">Status</label>
+            <select id="status" name="status">
+              <option value="planning">Planning</option>
+              <option value="in_progress">In Progress</option>
+              <option value="review">Review</option>
+              <option value="on_hold">On Hold</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="startDate">Start Date</label>
+            <input id="startDate" name="startDate" type="date" />
+          </div>
+          <div class="field">
+            <label for="targetDate">Target Date</label>
+            <input id="targetDate" name="targetDate" type="date" />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Create Project</button>
+          <a class="btn btn-secondary" href="/admin/projects">Cancel</a>
+        </div>
+      </form>
+  </div>
+</AdminLayout>

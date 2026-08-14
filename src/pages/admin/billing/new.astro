@@ -1,0 +1,64 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { ensureRole } from "../../../lib/http";
+import { listClients } from "../../../lib/clients";
+
+export const prerender = false;
+
+const guard = ensureRole(Astro, ["admin"]);
+if (guard instanceof Response) return guard;
+
+const clients = await listClients(Astro.locals);
+const errorParam = Astro.url.searchParams.get("error");
+const errorMessage = errorParam === "invalid" ? "A client, description, and amount are required." : null;
+---
+
+<AdminLayout title="Add Invoice">
+  <div class="card" style="max-width: 620px;">
+    {errorMessage && <div class="notice notice-error">{errorMessage}</div>}
+    {clients.length === 0 ? (
+      <p>You need to <a href="/admin/clients/new">add a client</a> before creating an invoice.</p>
+    ) : (
+      <form method="post" action="/api/invoices/save">
+        <div class="form-grid">
+          <div class="field full">
+            <label for="clientId">Client</label>
+            <select id="clientId" name="clientId" required>
+              {clients.map((client) => <option value={client.id}>{client.companyName}</option>)}
+            </select>
+          </div>
+          <div class="field full">
+            <label for="description">Description</label>
+            <input id="description" name="description" type="text" required />
+          </div>
+          <div class="field">
+            <label for="amount">Amount (USD)</label>
+            <input id="amount" name="amount" type="number" step="0.01" min="0" required />
+          </div>
+          <div class="field">
+            <label for="status">Status</label>
+            <select id="status" name="status">
+              <option value="draft">Draft</option>
+              <option value="sent">Sent</option>
+              <option value="paid">Paid</option>
+              <option value="overdue">Overdue</option>
+              <option value="void">Void</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="issuedDate">Issued Date</label>
+            <input id="issuedDate" name="issuedDate" type="date" />
+          </div>
+          <div class="field">
+            <label for="dueDate">Due Date</label>
+            <input id="dueDate" name="dueDate" type="date" />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Create Invoice</button>
+          <a class="btn btn-secondary" href="/admin/billing">Cancel</a>
+        </div>
+      </form>
+    )}
+  </div>
+</AdminLayout>

@@ -1,0 +1,53 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import { ensureClientContext } from "../../lib/http";
+import { listInvoicesByClient } from "../../lib/invoices";
+
+export const prerender = false;
+
+const clientResult = await ensureClientContext(Astro);
+if (clientResult instanceof Response) return clientResult;
+const client = clientResult;
+
+const invoices = await listInvoicesByClient(Astro.locals, client.id);
+
+const statusBadge: Record<string, string> = {
+  draft: "badge-neutral",
+  sent: "badge-warning",
+  paid: "badge-success",
+  overdue: "badge-danger",
+  void: "badge-neutral",
+};
+
+const formatAmount = (cents: number) => (cents / 100).toLocaleString("en-US", { style: "currency", currency: "USD" });
+const formatDate = (ms: number | null) => (ms ? new Date(ms).toLocaleDateString("en-US", { dateStyle: "medium" }) : "—");
+---
+
+<DashboardLayout title="Billing">
+  {invoices.length === 0 ? (
+    <div class="card empty-state">No invoices yet.</div>
+  ) : (
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          {invoices.map((invoice) => (
+            <tr>
+              <td>{invoice.description}</td>
+              <td>{formatAmount(invoice.amountCents)}</td>
+              <td><span class={`badge ${statusBadge[invoice.status]}`}>{invoice.status}</span></td>
+              <td>{formatDate(invoice.dueDate)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</DashboardLayout>

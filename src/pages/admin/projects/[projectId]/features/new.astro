@@ -1,0 +1,50 @@
+---
+import AdminLayout from "../../../../../layouts/AdminLayout.astro";
+import { ensureRole } from "../../../../../lib/http";
+import { getProjectById } from "../../../../../lib/projects";
+
+export const prerender = false;
+
+const guard = ensureRole(Astro, ["admin"]);
+if (guard instanceof Response) return guard;
+
+const { projectId } = Astro.params;
+const project = projectId ? await getProjectById(Astro.locals, projectId) : null;
+if (!project) {
+  return Astro.redirect("/admin/projects");
+}
+
+const errorParam = Astro.url.searchParams.get("error");
+const errorMessage = errorParam === "invalid" ? "A feature title is required." : null;
+---
+
+<AdminLayout title={`Add Feature — ${project.name}`}>
+  <div class="card" style="max-width: 620px;">
+    {errorMessage && <div class="notice notice-error">{errorMessage}</div>}
+    <form method="post" action="/api/features/save">
+      <input type="hidden" name="projectId" value={project.id} />
+      <div class="form-grid">
+        <div class="field full">
+          <label for="title">Title</label>
+          <input id="title" name="title" type="text" required />
+        </div>
+        <div class="field full">
+          <label for="description">Description</label>
+          <textarea id="description" name="description"></textarea>
+        </div>
+        <div class="field">
+          <label for="status">Status</label>
+          <select id="status" name="status">
+            <option value="backlog">Backlog</option>
+            <option value="in_progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Add Feature</button>
+        <a class="btn btn-secondary" href={`/admin/projects/${project.id}`}>Cancel</a>
+      </div>
+    </form>
+  </div>
+</AdminLayout>

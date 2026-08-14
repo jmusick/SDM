@@ -14,19 +14,36 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 - Contact form with hCaptcha and Web3Forms submission
 - Privacy policy
 - Auto-generated sitemap
+- Authenticated client dashboard (`/dashboard`) and admin area (`/admin`) — projects, billing, and support tickets, backed by Cloudflare D1
 
 ## Stack
 
 | Layer | Technology |
 |---|---|
-| Framework | Astro 6 (static output) |
+| Framework | Astro 6, `output: 'server'` (marketing pages are still individually prerendered to static HTML; only `/login`, `/dashboard/*`, `/admin/*`, `/api/*` are dynamic) |
 | Icons | astro-icon + Lucide icon set |
 | Language | TypeScript |
-| Sitemap | @astrojs/sitemap (`/sitemap-index.xml`) |
+| Sitemap | @astrojs/sitemap (`/sitemap-index.xml`) — dashboard/admin/login/api routes are excluded |
 | Analytics | Google Analytics 4 (GA4) — `G-GBG97CSL2Z` via gtag.js |
 | Contact form | Web3Forms API |
 | CAPTCHA | hCaptcha |
-| CDN / proxy | Cloudflare |
+| Hosting | Cloudflare Workers (via `@astrojs/cloudflare`), static assets served from `dist/` |
+| Database | Cloudflare D1 (`sdm-db`), binding `DB` — client/project/invoice/ticket data |
+| Auth | Cookie-based sessions (`sdm_session`), PBKDF2 password hashing via Web Crypto — no external auth provider |
+
+## Client Dashboard & Admin Area
+
+A handful of clients log in at `/login` to see their own projects, invoices, and support tickets (and can open new tickets). The business owner manages everything through `/admin` — clients, projects, billing, and ticket replies — including a **"View as client"** action that lets the owner see the dashboard exactly as a given client does (read-only; can't post messages while impersonating).
+
+- **First-time setup**: visit `/admin/setup` once — it only works while zero users exist in the database, and creates the owner's admin account.
+- **Auth model**: `users` table holds both `admin` and `client` roles; `clients` holds the business-facing profile for client accounts. Sessions live in the `sessions` table (14-day expiry), cookie is httpOnly/SameSite=Lax.
+- **Data model**: see `migrations/*.sql` for the full schema — `users`, `sessions`, `clients`, `projects`, `project_features`, `invoices`, `tickets`, `ticket_messages`.
+- **Internal projects**: `projects.client_id` is nullable — a project with no client is an internal (Stone Dragon Media's own) project. It's shown with an "Internal" badge in the admin UI and is filtered out of anything client-facing by construction (client pages always query by a specific `clientId`).
+- **Project features**: each project can have "features" (lightweight user stories — title, description, status: backlog/in_progress/done) managed from the project detail page under `/admin/projects/[id]`.
+- **Client lifecycle**: clients can be **archived** (reversible — blocks login, keeps all data) or **deleted** (irreversible — permanently removes their login and cascades through all of their projects, invoices, tickets, and ticket messages via `ON DELETE CASCADE`). Deletion requires the admin to re-enter their own password.
+- **Filtering/sorting**: the admin Projects and Clients list pages support status/client filters and sortable columns via query params, following the same pattern (see either page for the template).
+- **Library code**: `src/lib/{db,auth,http,users,clients,projects,features,invoices,tickets}.ts`. `src/middleware.ts` resolves the session/user/impersonated-client on every request. `src/lib/http.ts`'s `ensureRole`/`ensureClientContext` guards **return** a redirect `Response` rather than throwing one — Astro page frontmatter only short-circuits via `return <Response>`, a thrown Response is not caught by the renderer. Every call site does `if (result instanceof Response) return result;`.
+- **Not wired to a real billing/accounting system** — invoices are a simple manually-entered record (description, amount, status, dates) in D1, not synced from Stripe/QuickBooks/etc.
 
 ## Site Pages
 
@@ -41,6 +58,10 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 | `/privacy-policy` | Privacy Policy (noindex) |
 | `/sitemap-index.xml` | Astro-generated sitemap (submitted to Search Console) |
 | `/robots.txt` | Crawl rules + sitemap reference |
+| `/login` | Client/admin login (noindex) |
+| `/admin/setup` | One-time admin account bootstrap — only reachable while no users exist (noindex) |
+| `/dashboard/*` | Client dashboard: overview, projects, billing, tickets (noindex, auth required) |
+| `/admin/*` | Admin area: clients, projects, billing, tickets (noindex, auth required) |
 
 ## Key Implementation Notes
 
@@ -68,9 +89,26 @@ npm install
 
 ### Run Dev Server
 
+For marketing-page work only (fast, hot-reloading, but no D1/auth — those routes will error without the `DB` binding):
+
 ```bash
-npm run dev -- --host --port 4321
+npm run dev:astro
 ```
+
+For dashboard/admin/auth work, run the full Cloudflare runtime (D1, cookies, everything) — builds first, then serves via `wrangler dev`; re-run after each change since it doesn't hot-reload:
+
+```bash
+npm run dev
+```
+
+First time only, set up the local D1 database:
+
+```bash
+npx wrangler d1 create sdm-db   # paste the returned database_id into wrangler.toml
+npm run d1:migrate:local
+```
+
+Then visit `/admin/setup` to create the owner's admin account.
 
 ### Build
 
@@ -82,6 +120,13 @@ npm run build
 
 ```bash
 npm run preview
+```
+
+### Database Migrations
+
+```bash
+npm run d1:migrate:local    # apply to local D1 (used by `npm run dev`)
+npm run d1:migrate:remote   # apply to production D1
 ```
 
 ## Project Structure
@@ -97,22 +142,37 @@ npm run preview
 │   │   ├── pneumaris.webp
 │   │   └── tagstash.webp
 │   └── (page hero images, .webp)
+├── migrations/
+│   ├── 0001_initial.sql         # D1 schema: users, sessions, clients, projects, invoices, tickets, ticket_messages
+│   └── 0002_project_features.sql # projects.client_id made nullable (internal projects) + project_features table
 ├── src/
 │   ├── components/
 │   │   ├── SiteHeader.astro
 │   │   └── SiteFooter.astro
 │   ├── layouts/
-│   │   └── BaseLayout.astro
+│   │   ├── BaseLayout.astro     # marketing pages
+│   │   ├── AdminLayout.astro    # admin shell (sidebar nav, shared table/form/badge styles)
+│   │   └── DashboardLayout.astro # client dashboard shell (+ impersonation banner)
+│   ├── lib/                     # D1 data access + auth (db, auth, http, users, clients, projects, features, invoices, tickets)
+│   ├── middleware.ts            # resolves session/user/impersonated-client on every request
+│   ├── env.d.ts                 # App.Locals typing (UserRecord, SessionRecord, ClientRecord)
 │   └── pages/
-│       ├── index.astro
-│       ├── about.astro
-│       ├── contact.astro
-│       ├── services.astro
-│       ├── products.astro
-│       ├── work.astro
-│       ├── privacy-policy.astro
-│       └── 404.astro
+│       ├── index.astro / about.astro / contact.astro / services.astro / products.astro / work.astro / privacy-policy.astro / 404.astro / thank-you.astro
+│       ├── login.astro
+│       ├── admin/                # setup.astro, index.astro, clients/, projects/ (incl. [id]/features/), billing/, tickets/
+│       ├── dashboard/             # index.astro, projects.astro, billing.astro, tickets/
+│       └── api/
+│           ├── auth/ (login.ts, logout.ts)
+│           ├── setup/create-admin.ts
+│           ├── clients/ (save.ts, delete.ts, reset-password.ts, set-active.ts)
+│           ├── projects/ (save.ts, delete.ts)
+│           ├── features/ (save.ts, delete.ts)
+│           ├── invoices/ (save.ts, delete.ts)
+│           ├── tickets/ (create.ts, reply.ts, update-status.ts)
+│           └── admin/impersonate/ (start.ts, stop.ts)
 ├── astro.config.mjs
+├── wrangler.toml                 # D1 binding + Cloudflare Workers config
+├── fix-wrangler.js                # post-build worker entry patch (run by `npm run build`)
 ├── tsconfig.json
 ├── package.json
 ├── AGENTS.md

@@ -1,0 +1,109 @@
+---
+import { Icon } from "astro-icon/components";
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { ensureRole } from "../../../lib/http";
+import { listClients, type ClientListItem } from "../../../lib/clients";
+
+export const prerender = false;
+
+const guard = ensureRole(Astro, ["admin"]);
+if (guard instanceof Response) return guard;
+
+const statusFilter = Astro.url.searchParams.get("status");
+const sortKey = Astro.url.searchParams.get("sort") ?? "company";
+const sortDir = Astro.url.searchParams.get("dir") === "desc" ? "desc" : "asc";
+
+let clients = await listClients(Astro.locals);
+
+if (statusFilter === "active") {
+  clients = clients.filter((client) => client.isActive);
+} else if (statusFilter === "archived") {
+  clients = clients.filter((client) => !client.isActive);
+}
+
+const collator = new Intl.Collator("en", { sensitivity: "base" });
+const sorters: Record<string, (a: ClientListItem, b: ClientListItem) => number> = {
+  company: (a, b) => collator.compare(a.companyName, b.companyName),
+  contact: (a, b) => collator.compare(a.contactName ?? "", b.contactName ?? ""),
+  email: (a, b) => collator.compare(a.email, b.email),
+  status: (a, b) => Number(b.isActive) - Number(a.isActive),
+};
+const sorter = sorters[sortKey] ?? sorters.company;
+clients = [...clients].sort((a, b) => (sortDir === "asc" ? sorter(a, b) : -sorter(a, b)));
+
+function buildUrl(overrides: Record<string, string | null>): string {
+  const params = new URLSearchParams(Astro.url.searchParams);
+  for (const [key, value] of Object.entries(overrides)) {
+    if (value === null) params.delete(key);
+    else params.set(key, value);
+  }
+  const qs = params.toString();
+  return qs ? `/admin/clients?${qs}` : "/admin/clients";
+}
+
+function sortLink(key: string, label: string): { href: string; label: string } {
+  const nextDir = sortKey === key && sortDir === "asc" ? "desc" : "asc";
+  const arrow = sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : "";
+  return { href: buildUrl({ sort: key, dir: nextDir }), label: `${label}${arrow}` };
+}
+
+const companySort = sortLink("company", "Company");
+const contactSort = sortLink("contact", "Contact");
+const emailSort = sortLink("email", "Email");
+const statusSort = sortLink("status", "Status");
+---
+
+<AdminLayout title="Clients">
+  <div class="header-actions" style="margin-bottom: 1rem; justify-content: space-between; flex-wrap: wrap; gap: 0.6rem;">
+    <a class="btn btn-primary" href="/admin/clients/new">
+      <Icon class="icon" name="lucide:plus" aria-hidden="true" />
+      Add Client
+    </a>
+    <div class="header-actions" style="gap: 0.4rem;">
+      <a class={`btn ${!statusFilter ? "btn-primary" : "btn-secondary"}`} href={buildUrl({ status: null })}>All</a>
+      <a class={`btn ${statusFilter === "active" ? "btn-primary" : "btn-secondary"}`} href={buildUrl({ status: "active" })}>Active</a>
+      <a class={`btn ${statusFilter === "archived" ? "btn-primary" : "btn-secondary"}`} href={buildUrl({ status: "archived" })}>Archived</a>
+    </div>
+  </div>
+
+  {clients.length === 0 ? (
+    <div class="card empty-state">No clients match these filters.</div>
+  ) : (
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th><a href={companySort.href}>{companySort.label}</a></th>
+            <th><a href={contactSort.href}>{contactSort.label}</a></th>
+            <th><a href={emailSort.href}>{emailSort.label}</a></th>
+            <th><a href={statusSort.href}>{statusSort.label}</a></th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {clients.map((client) => (
+            <tr>
+              <td><a href={`/admin/clients/${client.id}`}>{client.companyName}</a></td>
+              <td>{client.contactName ?? "—"}</td>
+              <td>{client.email}</td>
+              <td>
+                <span class={`badge ${client.isActive ? "badge-success" : "badge-neutral"}`}>
+                  {client.isActive ? "Active" : "Archived"}
+                </span>
+              </td>
+              <td>
+                <form method="post" action="/api/admin/impersonate/start">
+                  <input type="hidden" name="clientId" value={client.id} />
+                  <button class="btn btn-secondary" type="submit">
+                    <Icon class="icon" name="lucide:eye" aria-hidden="true" />
+                    View as client
+                  </button>
+                </form>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</AdminLayout>
