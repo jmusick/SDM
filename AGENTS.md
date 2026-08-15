@@ -106,15 +106,38 @@ ticket_messages) and `0002_project_features.sql` (nullable `projects.client_id` 
 ## SEO is a first-class concern
 
 This site is actively worked on for local SEO, targeting "Sandusky Ohio web design" and the
-surrounding region (Toledo/Cleveland/Columbus and between). Before changing metadata, copy, or
-structured data:
+surrounding region. Before changing metadata, copy, or structured data:
 
 - Every marketing page goes through `src/layouts/BaseLayout.astro`, which sets `<title>`, meta
   description, canonical URL, Open Graph, Twitter card, the optional `robots` directive, the GA4
   gtag snippet (`G-GBG97CSL2Z`), and the sitemap `<link>`. Always pass `title`, `description`, and
   `canonical`/`ogUrl` for new pages — never leave them to defaults.
+- **Titles and H1s must carry keywords, not labels.** `Services`/`Products`/`Our Work` were the
+  original titles and H1s on five pages and were rewritten to include the service and, where it
+  fits, the geo ("Web Design Services in Sandusky, OH"). Don't regress a page to a bare noun.
+- **Pass `ogImage`/`ogImageAlt` per page.** Each marketing page uses its own hero `.webp` as the
+  share image; the `logo.png` default in `BaseLayout` is only a fallback. `og:locale` and
+  `twitter:image` are set centrally in the layout.
 - `src/pages/index.astro` carries the site's `LocalBusiness`/`Organization` JSON-LD. If the service
-  area, phone number, or `areaServed` list changes, update it there.
+  area, phone number, or `areaServed` list changes, update it there. **`areaServed` must mirror the
+  visible "Areas We Serve" list** — they were allowed to disagree once and it's confusing to audit.
+- **Every marketing page carries JSON-LD.** `BreadcrumbList` comes from `BaseLayout`'s `breadcrumb`
+  prop (pass the page name; it only emits when `canonical` is also set, so noindex pages stay clean)
+  — pass it on any new marketing page. On top of that: `index` has `Organization`/`LocalBusiness`,
+  `services` an `ItemList` of `Service`, `work` a `CollectionPage`, `products` a
+  `SoftwareApplication`, `about` an `AboutPage`, `contact` a `ContactPage`.
+- The `schemaServices` array in `services.astro` frontmatter feeds the `Service` JSON-LD and **its
+  names and descriptions must stay identical to the visible cards**. Schema that describes content
+  not on the page is a guidelines violation, so change both together.
+- **There is deliberately no FAQ section.** One was built on `/services` on 2026-08-15 and removed
+  the same day: four of its six answers restated the pricing cards and the Security & Maintenance
+  card sitting directly above it. The pricing section's `How Much Does a Website Cost?` H2 is the
+  canonical question-form heading instead. If an FAQ is revisited, it must only ask things no other
+  section on the page already answers (project timelines are the obvious gap), and `FAQPage` JSON-LD
+  requires the Q&A to be visible on the page — don't add the schema without the block.
+- **`sameAs` on the homepage JSON-LD is deliberately empty** — as of 2026-08-15 there is no Google
+  Business Profile and no social accounts to point at. Populate it the moment those exist; don't
+  fill it with placeholder or guessed URLs in the meantime.
 - **No street address anywhere.** The business runs out of a residential address. Only city/state
   (Sandusky, OH) appears in visible copy, the footer, and structured data. Never reintroduce a street
   address without being explicitly asked.
@@ -140,12 +163,24 @@ shape:
 4. `<Fragment slot="head"><style>…</style></Fragment>` with page-scoped CSS. Each page owns its own
    `<style>` block rather than relying on a shared component library — this is intentional. Follow it
    rather than introducing a new shared-styles pattern.
-5. `<SiteHeader active="…" />`, a full-bleed `.header-hero` image with `.header-overlay` text, then a
-   `.page` wrapper with the content, ending in `<SiteFooter />`.
+5. `<SiteHeader active="…" />`, a full-bleed `.header-hero` image with `.header-overlay` text, then
+   `<main class="page">` holding the content, then a sibling `<div class="footer-wrap">` holding
+   `<SiteFooter />`.
+
+**The footer must stay outside `<main>`.** `<footer>` only gets the `contentinfo` landmark role when
+it is *not* nested inside `main`/`article`/`aside`/`section`, so moving it in silently drops the
+landmark. That's why `.page` carries no bottom padding and `.footer-wrap` (same `max-width` and
+horizontal padding as `.page`) carries it instead. `404` and `thank-you` use the same pattern with
+their own `.wrapper`.
 
 `public/universal.css` holds the global design tokens (`--ink`, `--ink-soft`, `--surface`, `--line`,
 `--brand`, `--brand-strong`, `--highlight`), typography, resets, and the shared header/footer/button
 rules. Site-wide visual changes belong there; one-page changes belong in that page's `<style>`.
+
+Links inside body copy are styled globally by `.page p a` / `.page li a` in `universal.css`. The
+selector is deliberately scoped to `p`/`li` so it can't hit `.button` links or nav items — if you add
+a body link somewhere outside a paragraph or list item, style it locally rather than widening that
+rule.
 
 `SiteHeader`'s `active` prop drives which nav link is highlighted — its type union must include any
 new route added to the nav. The header nav ends with a **Client Login** link (`.nav-login`, visually
@@ -181,11 +216,32 @@ editing** — check before you write, especially with tools that do exact string
 
 ## Business content — don't invent it
 
-Pricing, service-area cities, phone number, portfolio claims, and business details come directly from
-the business owner, not from assumptions. If a task implies adding or changing this kind of content,
-get it from the user rather than guessing a plausible-sounding value. The same applies to describing
-client work: base feature claims on the actual delivered site, not on what a site like that usually
-has.
+Pricing, phone number, portfolio claims, and business details come directly from the business owner,
+not from assumptions. If a task implies adding or changing this kind of content, get it from the user
+rather than guessing a plausible-sounding value. The same applies to describing client work: base
+feature claims on the actual delivered site, not on what a site like that usually has.
+
+A worked example of why: `/work` claimed Tagstash shipped "Chrome and Firefox extensions" until
+2026-08-15. There is one extension, it ships to Firefox Add-ons, and its manifest carries
+`browser_specific_settings.gecko` and a Firefox `sidebar_action`. The source *is* Chrome-compatible
+(it uses a `globalThis.browser ?? globalThis.chrome` shim), which is presumably where the claim came
+from — but compatible source is not a shipped product. Check what is actually released, not what
+could build. Tagstash facts on `/products` come from `C:\Users\JD\Vault\Projects\Tagstash` and the
+extension repo.
+
+**Service-area cities are an exception, as of 2026-08-15.** The owner authorized adding cities where
+they help local SEO, without asking first. The constraint is honesty about *how* the area is served:
+
+- The visible "Areas We Serve" list on `index.astro` and the `areaServed` JSON-LD are for places
+  within the **in-person ring** — roughly an hour's drive from Sandusky. Erie County plus the
+  neighboring Huron / Ottawa / Sandusky / Seneca / Lorain county towns qualify.
+- Anything farther out goes in the **remote** sentence that follows the list, named as remote.
+  Columbus, Akron, Canton, and Lima were previously claimed as in-person work (2–3 hours away) and
+  were deliberately moved, because overclaiming the radius dilutes the Sandusky relevance signal
+  that is actually winnable. Don't move them back.
+- Adding city names to the list has diminishing returns and can read as keyword stuffing. A page
+  that actually ranks for "web design in <city>" is a page *about* that city — prefer real location
+  pages with distinct content over a longer list.
 
 Contact-form integration keys (Web3Forms `access_key`, hCaptcha `sitekey`) are inlined in
 `src/pages/contact.astro`. They're client-side values by nature, but treat them as

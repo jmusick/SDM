@@ -8,17 +8,41 @@ export const prerender = true;
 ---
 
 <BaseLayout
-  title="Products | Stone Dragon Media"
-  description="Explore products by Stone Dragon Media, including Tagstash - a modern bookmarking and resource organization tool built for productivity."
+  title="Products: Tagstash Bookmarking Tool | Stone Dragon Media"
+  description="Explore products built by Stone Dragon Media, including Tagstash — a modern bookmarking and resource organization tool built for productivity."
   canonical="https://stonedragonmedia.com/products/"
   ogUrl="https://stonedragonmedia.com/products/"
+  breadcrumb="Products"
+  ogImage="https://stonedragonmedia.com/products-header.webp"
+  ogImageAlt="Stone Dragon Media products — practical tools for productivity and workflow"
 >
   <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Tagstash",
+      "url": "https://tagsta.sh/",
+      "description": "Tag-first bookmarking and reference tool for capturing, tagging, and retrieving links without folder trees. Includes accounts, bookmark import, public profile pages, and a companion Firefox extension.",
+      "image": "https://stonedragonmedia.com/work/tagstash.webp",
+      "applicationCategory": "BrowserApplication",
+      "operatingSystem": "Web",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Stone Dragon Media",
+        "url": "https://stonedragonmedia.com"
+      }
+    })} />
     <style>
       .page {
         max-width: 1280px;
         margin: 0 auto;
-        padding: 1rem clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
+        padding: 1rem clamp(1.1rem, 2.5vw, 2.4rem) 0;
+      }
+
+      .footer-wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
       }
 
       .header-hero {
@@ -139,6 +163,35 @@ export const prerender = true;
         margin: 0;
       }
 
+      .product-media {
+        margin: 1.1rem 0 0;
+        border: 1px solid var(--line);
+        border-radius: 0.8rem;
+        overflow: hidden;
+        background: #122238;
+      }
+
+      .product-media img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .product ul {
+        margin: 1.1rem 0 0;
+        padding-left: 1.15rem;
+        color: var(--ink-soft);
+        line-height: 1.6;
+      }
+
+      .product li {
+        margin: 0 0 0.35rem;
+      }
+
+      .product .product-note {
+        margin-top: 1.1rem;
+      }
+
       .actions {
         margin-top: 1rem;
         display: flex;
@@ -198,7 +251,7 @@ export const prerender = true;
   <SiteHeader active="products" />
 
   <div class="header-hero">
-    <img src="/products-header.webp" alt="Stone Dragon Media products – practical tools for productivity and workflow" />
+    <img src="/products-header.webp" alt="Stone Dragon Media products — practical tools for productivity and workflow" />
     <div class="header-overlay">
       <span class="about-label">PRODUCTS</span>
       <span class="hero-title">Our Products</span>
@@ -208,8 +261,8 @@ export const prerender = true;
     </div>
   </div>
 
-  <div class="page">
-    <h1>Products</h1>
+  <main class="page">
+    <h1>Products Built by Stone Dragon Media</h1>
     <p class="lead">Stone Dragon Media builds practical products that solve real workflow problems.</p>
     <section class="product" aria-label="Featured product">
       <div class="badge">
@@ -218,8 +271,30 @@ export const prerender = true;
       </div>
       <h2>Tagstash</h2>
       <p>
-        Tagstash is a modern bookmarking and reference organization tool designed to make it easy
-        to capture, tag, and retrieve important links and resources fast.
+        Tagstash is a tag-first bookmarking and reference tool designed to make it easy to capture,
+        tag, and retrieve important links fast &mdash; no folder trees to maintain, and no digging
+        through a browser bookmark bar to find the one page you saved last month.
+      </p>
+      <div class="product-media">
+        <img
+          src="/work/tagstash.webp"
+          alt="The Tagstash web app showing tag-first bookmark organization and search"
+          loading="lazy"
+          width="1180"
+          height="615"
+        />
+      </div>
+      <ul>
+        <li>Tag-first organization, so a bookmark can live in as many contexts as it needs to</li>
+        <li>Free and Pro plans, with billing handled securely through Stripe</li>
+        <li>Accounts with email verification</li>
+        <li>Bookmark import and management for everything you have already collected</li>
+        <li>Public profile pages for sharing a collection of links</li>
+        <li>A companion Firefox extension for one-click saving, plus a sidebar for browsing, searching, editing, and tagging without leaving the page</li>
+      </ul>
+      <p class="product-note">
+        Tagstash is built and run entirely in house &mdash; see the <a href="/work/#tagstash">build
+        breakdown</a> alongside our client work.
       </p>
       <div class="actions">
         <a class="button button-primary" href="https://tagsta.sh/" target="_blank" rel="noreferrer noopener">
@@ -232,6 +307,9 @@ export const prerender = true;
         </a>
       </div>
     </section>
+  </main>
+
+  <div class="footer-wrap">
     <SiteFooter />
   </div>
 </BaseLayout>

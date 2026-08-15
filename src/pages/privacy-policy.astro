@@ -11,6 +11,7 @@ export const prerender = true;
   description="Read the Stone Dragon Media privacy policy to understand how we collect, use, and protect your personal information."
   canonical="https://stonedragonmedia.com/privacy-policy/"
   ogUrl="https://stonedragonmedia.com/privacy-policy/"
+  breadcrumb="Privacy Policy"
 >
   <Fragment slot="head">
     <style>
@@ -21,7 +22,13 @@ export const prerender = true;
       .wrapper {
         max-width: 980px;
         margin: 0 auto;
-        padding: 2rem clamp(1.1rem, 2.5vw, 2.4rem) 3rem;
+        padding: 2rem clamp(1.1rem, 2.5vw, 2.4rem) 0;
+      }
+
+      .footer-wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 0 clamp(1.1rem, 2.5vw, 2.4rem) 3rem;
       }
 
       .card {
@@ -56,7 +63,7 @@ export const prerender = true;
 
   <SiteHeader />
 
-  <div class="wrapper">
+  <main class="wrapper">
     <div class="card">
       <h1>Privacy Policy</h1>
       <p><em>Effective date: August 14, 2026</em></p>
@@ -87,7 +94,7 @@ export const prerender = true;
       </ul>
       <p>
         This information is stored in our database (Cloudflare D1) and is only accessible to Stone Dragon Media
-        staff administering your account and, when you're signed in, to you. We use it solely to deliver and
+        staff administering your account and, when you’re signed in, to you. We use it solely to deliver and
         communicate about the services we provide you — it is never sold or used for marketing to third parties.
       </p>
 
@@ -169,6 +176,9 @@ export const prerender = true;
         <a href="/contact/">contact form</a>.
       </p>
     </div>
+  </main>
+
+  <div class="footer-wrap">
     <SiteFooter />
   </div>
 </BaseLayout>

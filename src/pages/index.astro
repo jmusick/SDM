@@ -16,6 +16,8 @@ const yearsExperience = currentYear - codingStartYear;
   description="Stone Dragon Media is a Sandusky, Ohio web design agency serving Erie County and the surrounding area — and remote clients anywhere. Custom web solutions, development, and digital marketing."
   canonical="https://stonedragonmedia.com/"
   ogUrl="https://stonedragonmedia.com/"
+  ogImage="https://stonedragonmedia.com/header-bg.webp"
+  ogImageAlt="Stone Dragon Media — custom web design and digital strategy in Sandusky, Ohio"
   includeGenerator={true}
 >
   <Fragment slot="head">
@@ -36,39 +38,33 @@ const yearsExperience = currentYear - codingStartYear;
       },
       "areaServed": [
         "Sandusky, OH",
-        "Columbus, OH",
-        "Cleveland, OH",
-        "Toledo, OH",
-        "Akron, OH",
-        "Parma, OH",
-        "Canton, OH",
-        "Lorain, OH",
-        "Elyria, OH",
-        "Lakewood, OH",
-        "Euclid, OH",
-        "Mansfield, OH",
-        "Mentor, OH",
-        "Strongsville, OH",
-        "Delaware, OH",
-        "Cleveland Heights, OH",
-        "Findlay, OH",
-        "North Ridgeville, OH",
-        "Marion, OH",
-        "Brunswick, OH",
-        "Lima, OH",
+        "Erie County, OH",
         "Huron, OH",
         "Castalia, OH",
         "Milan, OH",
         "Berlin Heights, OH",
-        "Bellevue, OH",
         "Vermilion, OH",
+        "Wakeman, OH",
         "Norwalk, OH",
-        "Clyde, OH",
         "Monroeville, OH",
+        "Bellevue, OH",
+        "Clyde, OH",
+        "Willard, OH",
+        "New London, OH",
+        "Fremont, OH",
+        "Tiffin, OH",
         "Port Clinton, OH",
+        "Marblehead, OH",
+        "Catawba Island, OH",
+        "Oak Harbor, OH",
         "Kelleys Island, OH",
         "Put-in-Bay, OH",
-        "Erie County, OH",
+        "Amherst, OH",
+        "Oberlin, OH",
+        "Toledo, OH",
+        "Cleveland, OH",
+        "Lorain, OH",
+        "Elyria, OH",
         "US"
       ],
       "sameAs": []
@@ -77,7 +73,13 @@ const yearsExperience = currentYear - codingStartYear;
       .page {
         max-width: 1280px;
         margin: 0 auto;
-        padding: 1rem clamp(1.1rem, 2.5vw, 2.4rem) 4.5rem;
+        padding: 1rem clamp(1.1rem, 2.5vw, 2.4rem) 0;
+      }
+
+      .footer-wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 clamp(1.1rem, 2.5vw, 2.4rem) 4.5rem;
       }
 
       .site-nav {
@@ -296,11 +298,32 @@ const yearsExperience = currentYear - codingStartYear;
         gap: 0.5rem;
       }
 
+      /* Matches the watermark treatment on /services — see that page for the opacity rationale.
+         The icon is absolutely positioned so it leaves the .service-title flex row entirely. */
+      .services article {
+        position: relative;
+        overflow: hidden;
+      }
+
       .service-title .icon {
-        width: 1.05rem;
-        height: 1.05rem;
-        color: var(--brand);
-        flex-shrink: 0;
+        position: absolute;
+        right: -0.5rem;
+        bottom: -0.6rem;
+        font-size: 9rem;
+        height: 82%;
+        width: auto;
+        aspect-ratio: 1 / 1;
+        margin: 0;
+        color: var(--brand-strong);
+        opacity: 0.05;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .service-title,
+      .services p {
+        position: relative;
+        z-index: 1;
       }
 
       h2 {
@@ -320,6 +343,21 @@ const yearsExperience = currentYear - codingStartYear;
         margin: 0;
         color: var(--ink-soft);
         font-size: 0.96rem;
+      }
+
+      .services h3 a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .services h3 a:hover {
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
+      }
+
+      .services-more {
+        margin: 1rem 0 0;
+        color: var(--ink-soft);
       }
 
       @keyframes rise {
@@ -370,7 +408,7 @@ const yearsExperience = currentYear - codingStartYear;
   <SiteHeader active="home" showCta={true} />
 
   <div class="header-hero">
-    <img src="/header-bg.webp" alt="Stone Dragon Media – custom web design and digital strategy agency based in Sandusky, Ohio" />
+    <img src="/header-bg.webp" alt="Stone Dragon Media — custom web design and digital strategy agency based in Sandusky, Ohio" />
     <div class="header-overlay">
       <span class="about-label">SANDUSKY, OHIO WEB DESIGN &amp; DIGITAL STRATEGY</span>
       <h1 class="hero-title">Sandusky, Ohio web design for growing brands</h1>
@@ -391,14 +429,14 @@ const yearsExperience = currentYear - codingStartYear;
     </div>
   </div>
 
-  <div class="page">
+  <main class="page">
     <section id="services">
-      <h2>What We Do</h2>
+      <h2>Our Web Design &amp; Digital Services</h2>
       <div class="services">
         <article>
           <div class="service-title">
             <Icon class="icon" name="lucide:layout-template" aria-hidden="true" />
-            <h3>Custom Web Solutions</h3>
+            <h3><a href="/services/#custom-web-solutions">Custom Web Solutions</a></h3>
           </div>
           <p>
             eCommerce sites, informational websites, landing pages, and custom business solutions built fast and built to last.
@@ -407,7 +445,7 @@ const yearsExperience = currentYear - codingStartYear;
         <article>
           <div class="service-title">
             <Icon class="icon" name="lucide:cpu" aria-hidden="true" />
-            <h3>Custom Application Development</h3>
+            <h3><a href="/services/#application-development">Custom Application Development</a></h3>
           </div>
           <p>
             Internal tools, customer portals, workflow automation, and API integrations tailored to your operations.
@@ -416,7 +454,7 @@ const yearsExperience = currentYear - codingStartYear;
         <article>
           <div class="service-title">
             <Icon class="icon" name="lucide:megaphone" aria-hidden="true" />
-            <h3>Marketing</h3>
+            <h3><a href="/services/#marketing">Marketing</a></h3>
           </div>
           <p>
             SEO, PPC, social media, email, and content strategies that drive qualified traffic and measurable growth.
@@ -425,7 +463,7 @@ const yearsExperience = currentYear - codingStartYear;
         <article>
           <div class="service-title">
             <Icon class="icon" name="lucide:bar-chart-2" aria-hidden="true" />
-            <h3>Analytics &amp; Reporting</h3>
+            <h3><a href="/services/#analytics-reporting">Analytics &amp; Reporting</a></h3>
           </div>
           <p>
             GA4 setup, conversion tracking, custom dashboards, and performance audits to turn data into decisions.
@@ -434,7 +472,7 @@ const yearsExperience = currentYear - codingStartYear;
         <article>
           <div class="service-title">
             <Icon class="icon" name="lucide:server" aria-hidden="true" />
-            <h3>Hosting &amp; Infrastructure</h3>
+            <h3><a href="/services/#hosting-infrastructure">Hosting &amp; Infrastructure</a></h3>
           </div>
           <p>
             Domain management, cloud and VPS server setup, SSL, performance optimization, and backup planning.
@@ -443,7 +481,7 @@ const yearsExperience = currentYear - codingStartYear;
         <article>
           <div class="service-title">
             <Icon class="icon" name="lucide:shield" aria-hidden="true" />
-            <h3>Security &amp; Maintenance</h3>
+            <h3><a href="/services/#security-maintenance">Security &amp; Maintenance</a></h3>
           </div>
           <p>
             Ongoing site care including security hardening, updates, uptime monitoring, and vulnerability assessments.
@@ -452,7 +490,7 @@ const yearsExperience = currentYear - codingStartYear;
         <article>
           <div class="service-title">
             <Icon class="icon" name="lucide:palette" aria-hidden="true" />
-            <h3>Branding &amp; Design</h3>
+            <h3><a href="/services/#branding-design">Branding &amp; Design</a></h3>
           </div>
           <p>
             Logo design, brand style guides, color and typography systems, and print and digital asset creation.
@@ -461,54 +499,65 @@ const yearsExperience = currentYear - codingStartYear;
         <article>
           <div class="service-title">
             <Icon class="icon" name="lucide:compass" aria-hidden="true" />
-            <h3>Consulting &amp; Strategy</h3>
+            <h3><a href="/services/#consulting-strategy">Consulting &amp; Strategy</a></h3>
           </div>
           <p>
             Technology selection, digital transformation planning, data migration, and project roadmapping.
           </p>
         </article>
       </div>
+      <p class="services-more">
+        See the full breakdown on our <a href="/services/">services page</a>, browse
+        <a href="/work/">recent projects</a> in our portfolio, or read more
+        <a href="/about/">about Stone Dragon Media</a> and the
+        <a href="/products/">products we build</a>.
+      </p>
     </section>
 
     <section id="areas-served">
       <h2>Areas We Serve</h2>
       <div class="panel">
         <p>
-          Stone Dragon Media is centrally located in Sandusky, Ohio &mdash; putting us within reach of
-          Toledo to the west, Cleveland to the east, and Columbus to the south. That means we work in
-          person with businesses across the region, including Ohio's largest cities:
+          Stone Dragon Media is based in Sandusky, Ohio. We work on site with businesses across
+          Sandusky, Erie County, and the surrounding communities:
         </p>
         <ul class="areas-list">
-          <li>Columbus</li>
-          <li>Cleveland</li>
-          <li>Toledo</li>
-          <li>Akron</li>
-          <li>Parma</li>
-          <li>Canton</li>
-          <li>Lorain</li>
-          <li>Elyria</li>
-          <li>Lakewood</li>
-          <li>Euclid</li>
-          <li>Mansfield</li>
-          <li>Mentor</li>
-          <li>Strongsville</li>
-          <li>Delaware</li>
-          <li>Cleveland Heights</li>
-          <li>Findlay</li>
-          <li>North Ridgeville</li>
-          <li>Marion</li>
-          <li>Brunswick</li>
-          <li>Lima</li>
+          <li>Sandusky</li>
+          <li>Huron</li>
+          <li>Castalia</li>
+          <li>Milan</li>
+          <li>Berlin Heights</li>
+          <li>Vermilion</li>
+          <li>Wakeman</li>
+          <li>Norwalk</li>
+          <li>Monroeville</li>
+          <li>Bellevue</li>
+          <li>Clyde</li>
+          <li>Willard</li>
+          <li>New London</li>
+          <li>Fremont</li>
+          <li>Tiffin</li>
+          <li>Port Clinton</li>
+          <li>Marblehead</li>
+          <li>Catawba Island</li>
+          <li>Oak Harbor</li>
+          <li>Kelleys Island</li>
+          <li>Put-in-Bay</li>
+          <li>Amherst</li>
+          <li>Oberlin</li>
         </ul>
         <p>
-          We also serve Sandusky and the surrounding Erie County communities &mdash; Huron, Castalia,
-          Milan, Berlin Heights, Bellevue, Vermilion, Norwalk, Clyde, Monroeville, Port Clinton, Kelleys
-          Island, and Put-in-Bay &mdash; and for clients further out, we work remotely with businesses
-          anywhere.
+          We also meet clients in person within about an hour&rsquo;s drive &mdash; Toledo to the
+          west, Cleveland to the east, and the Lorain and Elyria corridor in between. Farther out,
+          including Columbus, Akron, Canton, and Lima, we work remotely, as we do with clients
+          anywhere in the US.
         </p>
       </div>
     </section>
 
+  </main>
+
+  <div class="footer-wrap">
     <SiteFooter />
   </div>
 </BaseLayout>

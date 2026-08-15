@@ -249,6 +249,20 @@ body {
 	font-weight: 600;
 }
 
+/* Links inside body copy. Scoped to p/li so buttons and nav links are unaffected. */
+.page p a,
+.page li a {
+	color: var(--brand);
+	font-weight: 600;
+	text-decoration: underline;
+	text-underline-offset: 0.15em;
+}
+
+.page p a:hover,
+.page li a:hover {
+	color: var(--brand-strong);
+}
+
 .site-footer a:hover {
 	text-decoration: underline;
 }

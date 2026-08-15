@@ -8,17 +8,51 @@ export const prerender = true;
 ---
 
 <BaseLayout
-  title="Contact | Stone Dragon Media"
+  title="Contact a Sandusky, OH Web Designer | Stone Dragon Media"
   description="Get in touch with Stone Dragon Media. Start a web project, ask about services, or discuss how we can help grow your digital presence."
   canonical="https://stonedragonmedia.com/contact/"
   ogUrl="https://stonedragonmedia.com/contact/"
+  breadcrumb="Contact"
+  ogImage="https://stonedragonmedia.com/contact-bg.webp"
+  ogImageAlt="Contact Stone Dragon Media — start a project or ask about our services"
 >
   <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      "name": "Contact Stone Dragon Media",
+      "url": "https://stonedragonmedia.com/contact/",
+      "mainEntity": {
+        "@type": "Organization",
+        "name": "Stone Dragon Media",
+        "url": "https://stonedragonmedia.com",
+        "telephone": "+1-567-450-0960",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Sandusky",
+          "addressRegion": "OH",
+          "addressCountry": "US"
+        },
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+1-567-450-0960",
+          "contactType": "sales",
+          "areaServed": "US",
+          "availableLanguage": "English"
+        }
+      }
+    })} />
     <style>
       .page {
         max-width: 1280px;
         margin: 0 auto;
-        padding: 1rem clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
+        padding: 1rem clamp(1.1rem, 2.5vw, 2.4rem) 0;
+      }
+
+      .footer-wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
       }
 
       .header-hero {
@@ -152,7 +186,7 @@ export const prerender = true;
         line-height: 1.5;
       }
 
-      .form-card h2 {
+      .form-card h1 {
         margin: 0 0 0.35rem;
         font-family: "Sora", sans-serif;
         font-size: 1.12rem;
@@ -301,7 +335,7 @@ export const prerender = true;
 
   <SiteHeader active="contact" />
   <div class="header-hero">
-    <img src="/contact-bg.webp" alt="Contact Stone Dragon Media – start a project or ask about our services" />
+    <img src="/contact-bg.webp" alt="Contact Stone Dragon Media — start a project or ask about our services" />
     <div class="header-overlay">
       <span class="about-label">CONTACT</span>
       <span class="hero-title">Get in Touch</span>
@@ -311,11 +345,11 @@ export const prerender = true;
     </div>
   </div>
 
-  <div class="page">
+  <main class="page">
     <div class="contact-layout">
       <div class="form-card">
-        <h1>Start a Conversation</h1>
-        <p>Share a few project details and we will follow up quickly.</p>
+        <h1>Contact Stone Dragon Media</h1>
+        <p>Share a few project details and we will follow up within one business day.</p>
         <form id="contact-form" method="post" action="https://api.web3forms.com/submit" novalidate>
           <input type="hidden" name="access_key" value="8b9f961f-4a2f-43bc-938a-11f26885cd31" />
           <div class="form-grid">
@@ -397,6 +431,9 @@ export const prerender = true;
         </div>
       </div>
     </div>
+  </main>
+
+  <div class="footer-wrap">
     <SiteFooter />
   </div>
 

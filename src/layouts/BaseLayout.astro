@@ -8,10 +8,12 @@ interface Props {
   ogTitle?: string;
   ogDescription?: string;
   ogImage?: string;
+  ogImageAlt?: string;
   twitterCard?: string;
   twitterTitle?: string;
   twitterDescription?: string;
   robots?: string;
+  breadcrumb?: string;
   includeGenerator?: boolean;
 }
 
@@ -24,10 +26,12 @@ const {
   ogTitle,
   ogDescription,
   ogImage = "https://stonedragonmedia.com/logo.png",
+  ogImageAlt,
   twitterCard = "summary_large_image",
   twitterTitle,
   twitterDescription,
   robots,
+  breadcrumb,
   includeGenerator = false,
 } = Astro.props;
 
@@ -61,15 +65,29 @@ const resolvedTwitterDescription = twitterDescription ?? description;
     {robots && <meta name="robots" content={robots} />}
 
     <meta property="og:type" content={ogType} />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content="Stone Dragon Media" />
     {resolvedOgUrl && <meta property="og:url" content={resolvedOgUrl} />}
     <meta property="og:title" content={resolvedOgTitle} />
     {resolvedOgDescription && <meta property="og:description" content={resolvedOgDescription} />}
     <meta property="og:image" content={ogImage} />
+    {ogImageAlt && <meta property="og:image:alt" content={ogImageAlt} />}
 
     <meta name="twitter:card" content={twitterCard} />
+    <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:title" content={resolvedTwitterTitle} />
     {resolvedTwitterDescription && <meta name="twitter:description" content={resolvedTwitterDescription} />}
+
+    {breadcrumb && canonical && (
+      <script type="application/ld+json" set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://stonedragonmedia.com/" },
+          { "@type": "ListItem", "position": 2, "name": breadcrumb, "item": canonical }
+        ]
+      })} />
+    )}
 
     <slot name="head" />
   </head>
