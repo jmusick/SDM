@@ -9,7 +9,7 @@ export const prerender = true;
 
 <BaseLayout
   title="Our Work | Stone Dragon Media"
-  description="See web design and development work from Stone Dragon Media, including the Pneumaris band site and our own Tagsta.sh bookmarking tool."
+  description="See web design and development work from Stone Dragon Media, including the Dorian Black and Pneumaris artist sites and our own Tagstash bookmarking tool."
   canonical="https://stonedragonmedia.com/work/"
   ogUrl="https://stonedragonmedia.com/work/"
 >
@@ -226,6 +226,30 @@ export const prerender = true;
     <div class="work-grid">
       <article class="work-card">
         <div class="work-thumb">
+          <img src="/work/dorianblack.webp" alt="Dorian Black synth-pop artist website" loading="lazy" width="1180" height="615" />
+        </div>
+        <div class="work-body">
+          <h2>Dorian Black</h2>
+          <p>
+            A neon-lit launch site for synth-pop artist Dorian Black, built around the debut album
+            <em>After Tonight</em> &mdash; late-night visuals, the full record, and one place to send
+            every listener.
+          </p>
+          <ul>
+            <li>Custom neon-and-chrome design system built to match the album's late-night mood</li>
+            <li>Music page with album art and the full track listing, runtimes, and liner notes &mdash; all driven from one file the artist can update</li>
+            <li>Streaming links to Spotify and Apple Music site-wide, with slots ready for YouTube, SoundCloud, and socials as they go live</li>
+            <li>Album and artist markup for search engines, so the release can surface as a rich result</li>
+            <li>Static site on a global CDN &mdash; loads fast anywhere and handles a release-day traffic spike</li>
+          </ul>
+          <a class="button button-secondary" href="https://dorianblack.com/" target="_blank" rel="noreferrer noopener">
+            <Icon class="icon" name="lucide:external-link" aria-hidden="true" />
+            Visit Site
+          </a>
+        </div>
+      </article>
+      <article class="work-card">
+        <div class="work-thumb">
           <img src="/work/pneumaris.webp" alt="Pneumaris band website" loading="lazy" width="1180" height="615" />
         </div>
         <div class="work-body">
@@ -249,10 +273,10 @@ export const prerender = true;
       </article>
       <article class="work-card">
         <div class="work-thumb">
-          <img src="/work/tagstash.webp" alt="Tagsta.sh bookmarking tool" loading="lazy" width="1180" height="615" />
+          <img src="/work/tagstash.webp" alt="Tagstash bookmarking tool" loading="lazy" width="1180" height="615" />
         </div>
         <div class="work-body">
-          <h2>Tagsta.sh</h2>
+          <h2>Tagstash</h2>
           <p>
             Our own tag-first bookmarking and resource-organization tool, built to capture, tag, and
             retrieve important links fast &mdash; no folder trees required.

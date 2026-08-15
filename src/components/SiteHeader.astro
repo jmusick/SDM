@@ -2,7 +2,7 @@
 import { Icon } from "astro-icon/components";
 
 interface Props {
-	active?: "home" | "about" | "services" | "work" | "products" | "contact";
+	active?: "home" | "about" | "services" | "work" | "products" | "contact" | "login";
 	showCta?: boolean;
 }
 
@@ -34,6 +34,10 @@ const { active = "home", showCta = false } = Astro.props;
 				<a class={active === "work" ? "active" : undefined} href="/work/">Our Work</a>
 				<a class={active === "products" ? "active" : undefined} href="/products/">Products</a>
 				<a class={active === "contact" ? "active" : undefined} href="/contact/">Contact</a>
+				<a class={`nav-login${active === "login" ? " active" : ""}`} href="/login/">
+					<Icon class="icon" name="lucide:lock" aria-hidden="true" />
+					Client Login
+				</a>
 			</nav>
 			{showCta && (
 				<a class="button button-secondary" href="/contact/">

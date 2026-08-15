@@ -139,6 +139,33 @@ body {
 	background: rgba(239, 247, 253, 0.86);
 }
 
+/* Client portal entry — separated from the marketing links so it doesn't read as another content page. */
+.site-nav .nav-login {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.32rem;
+	margin-left: 0.75rem;
+	color: var(--ink-soft);
+}
+
+.site-nav .nav-login::before {
+	content: "";
+	position: absolute;
+	left: -0.5rem;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 1px;
+	height: 1.1rem;
+	background: var(--line);
+}
+
+.site-nav .nav-login .icon {
+	width: 0.85rem;
+	height: 0.85rem;
+	flex-shrink: 0;
+}
+
 .button {
 	display: inline-flex;
 	align-items: center;
@@ -272,6 +299,21 @@ body {
 
 	.site-nav a {
 		padding: 0.7rem 0.85rem;
+	}
+
+	/* Stacked nav: the vertical divider becomes a rule above the link. */
+	.site-nav .nav-login {
+		margin-left: 0;
+		margin-top: 0.45rem;
+	}
+
+	.site-nav .nav-login::before {
+		left: 0;
+		right: 0;
+		top: -0.22rem;
+		transform: none;
+		width: auto;
+		height: 1px;
 	}
 
 	.site-head-inner .button {
