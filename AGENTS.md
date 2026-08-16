@@ -135,9 +135,19 @@ surrounding region. Before changing metadata, copy, or structured data:
   canonical question-form heading instead. If an FAQ is revisited, it must only ask things no other
   section on the page already answers (project timelines are the obvious gap), and `FAQPage` JSON-LD
   requires the Q&A to be visible on the page — don't add the schema without the block.
-- **`sameAs` on the homepage JSON-LD is deliberately empty** — as of 2026-08-15 there is no Google
-  Business Profile and no social accounts to point at. Populate it the moment those exist; don't
-  fill it with placeholder or guessed URLs in the meantime.
+- **Social profiles live in `src/lib/social.ts`, which is the single source of truth.** It feeds the
+  `SocialLinks.astro` component (rendered in both the header utility bar and the footer) and the
+  `sameAs` array in the homepage JSON-LD — add or change a profile there and all three update
+  together. Facebook, X, Nextdoor, and Yelp were added 2026-08-15. There is still **no Google
+  Business Profile**; add its URL to that list the moment one exists. Never put a placeholder or
+  guessed profile URL in it — an unverifiable `sameAs` entry is worse than a short list.
+- **Brand icons come from `@iconify-json/simple-icons`** — `lucide`, the set used everywhere else,
+  has no brand marks. `astro-icon` inlines only the icons actually referenced, so the set's size
+  doesn't reach the output. **Nextdoor is the exception**: `simple-icons:nextdoor` is the full
+  *wordmark* logotype (24 units wide, ~4 tall), which renders as illegible 4px text at any icon
+  size. The square house glyph is vendored at `src/icons/nextdoor.svg` (from CoreUI Brand Icons,
+  MIT) and referenced as the local icon name `nextdoor`. Check a brand icon's aspect ratio before
+  adding it to an icon row — several Simple Icons entries are wordmarks, not glyphs.
 - **No street address anywhere.** The business runs out of a residential address. Only city/state
   (Sandusky, OH) appears in visible copy, the footer, and structured data. Never reintroduce a street
   address without being explicitly asked.
@@ -183,10 +193,19 @@ a body link somewhere outside a paragraph or list item, style it locally rather 
 rule.
 
 `SiteHeader`'s `active` prop drives which nav link is highlighted — its type union must include any
-new route added to the nav. The header nav ends with a **Client Login** link (`.nav-login`, visually
-separated from the marketing links); the footer carries Privacy Policy, Sitemap, and the version read
-from `package.json`. The mobile nav collapses to a hamburger at `max-width: 920px`; the toggle script
-closes the panel on any `<a>` click inside it, so new nav links get that for free.
+new route added to the nav. `SiteHeader` opens with a slim **utility bar** (`.site-utility`) carrying
+the phone number and city on the left and `SocialLinks` on the right, then the logo/nav row below it;
+the nav ends with a **Client Login** link (`.nav-login`, visually separated from the marketing
+links). The footer carries `SocialLinks`, Privacy Policy, Sitemap, and the version read from
+`package.json`. The mobile nav collapses to a hamburger at `max-width: 920px` — the utility bar stays
+visible above it, stacked and centred — and the toggle script closes the panel on any `<a>` click
+inside it, so new nav links get that for free.
+
+`SocialLinks.astro` renders a `<ul>`, not a `<nav>`, deliberately: it appears twice per page, and two
+identically-labelled nav landmarks is a duplicate-landmark failure. Its CSS in `universal.css` is
+scoped through `li` (`.social-links li a`) on purpose — `.site-footer a` and `.site-footer a:hover`
+match the same links at equal specificity and would otherwise win on source order and underline the
+icons on hover. Don't flatten those selectors.
 
 ## Code style
 

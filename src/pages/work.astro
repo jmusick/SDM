@@ -9,7 +9,7 @@ export const prerender = true;
 
 <BaseLayout
   title="Web Design Portfolio | Stone Dragon Media"
-  description="See web design and development work from Stone Dragon Media, including the Dorian Black and Pneumaris artist sites and our own Tagstash bookmarking tool."
+  description="See web design and development work from Stone Dragon Media, including the Simon Rook author site, the Dorian Black and Pneumaris artist sites, and our own Tagstash bookmarking tool."
   canonical="https://stonedragonmedia.com/work/"
   ogUrl="https://stonedragonmedia.com/work/"
   breadcrumb="Our Work"
@@ -23,6 +23,14 @@ export const prerender = true;
       "name": "Web Design Portfolio",
       "url": "https://stonedragonmedia.com/work/",
       "about": [
+        {
+          "@type": "WebSite",
+          "name": "Simon Rook",
+          "url": "https://simonrook.com/",
+          "description": "Author site for Simon Rook, built around the launch of the practical-philosophy book The Stoic Mind for Overthinkers.",
+          "image": "https://stonedragonmedia.com/work/simonrook.webp",
+          "creator": { "@type": "Organization", "name": "Stone Dragon Media", "url": "https://stonedragonmedia.com" }
+        },
         {
           "@type": "WebSite",
           "name": "Dorian Black",
@@ -265,6 +273,29 @@ export const prerender = true;
     <h1>Our Work &mdash; Web Design Portfolio</h1>
     <p class="lead">A sample of recent projects, from client sites to our own products.</p>
     <div class="work-grid">
+      <article class="work-card" id="simon-rook">
+        <div class="work-thumb">
+          <img src="/work/simonrook.webp" alt="Simon Rook author website" loading="lazy" width="1180" height="615" />
+        </div>
+        <div class="work-body">
+          <h2>Simon Rook</h2>
+          <p>
+            An author site built around the launch of <em>The Stoic Mind for Overthinkers</em> &mdash;
+            the book, the full chapter breakdown, and one clear path to buy it.
+          </p>
+          <ul>
+            <li>Custom design system drawn straight from the book cover &mdash; deep navy, bronze, and bone type carried across every page</li>
+            <li>The whole catalogue runs from a single file: adding a title creates its own page with the chapter breakdown, what readers will take away, and buy links &mdash; no new pages to build</li>
+            <li>Book and author markup for search engines, so titles can surface as rich results with cover art and format</li>
+            <li>Buy links pointing readers to Amazon Kindle, with slots ready for more stores and author profiles as they open</li>
+            <li>Static site on a global CDN &mdash; loads fast anywhere, with an auto-generated sitemap for search engines</li>
+          </ul>
+          <a class="button button-secondary" href="https://simonrook.com/" target="_blank" rel="noreferrer noopener">
+            <Icon class="icon" name="lucide:external-link" aria-hidden="true" />
+            Visit Site
+          </a>
+        </div>
+      </article>
       <article class="work-card" id="dorian-black">
         <div class="work-thumb">
           <img src="/work/dorianblack.webp" alt="Dorian Black synth-pop artist website" loading="lazy" width="1180" height="615" />

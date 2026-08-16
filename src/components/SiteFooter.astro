@@ -1,5 +1,6 @@
 ---
 import packageJson from "../../package.json";
+import SocialLinks from "./SocialLinks.astro";
 
 const currentYear = new Date().getFullYear();
 const siteVersion = packageJson.version;
@@ -10,6 +11,7 @@ const siteVersion = packageJson.version;
 		Copyright {currentYear} Stone Dragon Media, LLC. All rights reserved.
 		<div class="footer-nap">Sandusky, OH &middot; <a href="tel:+15674500960">(567) 450-0960</a></div>
 	</div>
+	<SocialLinks class="footer-social" />
 	<div class="footer-right">
 		<a class="footer-link" href="/privacy-policy/">Privacy Policy</a>
 		<a class="footer-link" href="/sitemap-index.xml">Sitemap</a>

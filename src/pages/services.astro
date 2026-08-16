@@ -258,7 +258,7 @@ const schemaServices = [
       .proof-grid {
         margin-top: 1.2rem;
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 1rem;
       }
 
@@ -297,6 +297,12 @@ const schemaServices = [
       .proof-more {
         margin-top: 1rem;
         color: var(--ink-soft);
+      }
+
+      @media (max-width: 920px) {
+        .proof-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
       }
 
       @media (max-width: 640px) {
@@ -545,6 +551,10 @@ const schemaServices = [
       <h2>Recent Work</h2>
       <p class="lead">A few of the projects behind those services.</p>
       <div class="proof-grid">
+        <a class="proof-card" href="/work/#simon-rook">
+          <img src="/work/simonrook.webp" alt="Simon Rook author website" loading="lazy" width="1180" height="615" />
+          <span class="proof-name">Simon Rook</span>
+        </a>
         <a class="proof-card" href="/work/#dorian-black">
           <img src="/work/dorianblack.webp" alt="Dorian Black synth-pop artist website" loading="lazy" width="1180" height="615" />
           <span class="proof-name">Dorian Black</span>

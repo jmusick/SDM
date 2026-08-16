@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import SocialLinks from "./SocialLinks.astro";
 
 interface Props {
 	active?: "home" | "about" | "services" | "work" | "products" | "contact" | "login";
@@ -10,6 +11,21 @@ const { active = "home", showCta = false } = Astro.props;
 ---
 
 <header class="site-head">
+	<div class="site-utility">
+		<div class="site-utility-inner">
+			<div class="site-utility-contact">
+				<a class="site-utility-phone" href="tel:+15674500960">
+					<Icon class="icon" name="lucide:phone" aria-hidden="true" />
+					(567) 450-0960
+				</a>
+				<span class="site-utility-loc">
+					<Icon class="icon" name="lucide:map-pin" aria-hidden="true" />
+					Sandusky, OH
+				</span>
+			</div>
+			<SocialLinks class="utility-social" />
+		</div>
+	</div>
 	<div class="site-head-inner">
 		<div class="site-head-bar">
 			<a class="site-brand" href="/">

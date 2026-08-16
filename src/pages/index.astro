@@ -3,6 +3,7 @@ import { Icon } from "astro-icon/components";
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { socialProfileUrls } from "../lib/social";
 
 export const prerender = true;
 
@@ -67,7 +68,7 @@ const yearsExperience = currentYear - codingStartYear;
         "Elyria, OH",
         "US"
       ],
-      "sameAs": []
+      "sameAs": socialProfileUrls
     })} />
     <style>
       .page {

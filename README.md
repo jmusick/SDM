@@ -10,7 +10,7 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 - About page
 - Services page, including a "How Much Does It Cost?" pricing-philosophy section
 - Products page (Tagstash)
-- Our Work portfolio page (Dorian Black, Pneumaris, Tagstash)
+- Our Work portfolio page (Simon Rook, Dorian Black, Pneumaris, Tagstash)
 - Contact form with hCaptcha and Web3Forms submission
 - Privacy policy
 - Auto-generated sitemap
@@ -68,7 +68,8 @@ A handful of clients log in at `/login` to see their own projects, invoices, and
 ## Key Implementation Notes
 
 - **Shared layout** — `src/layouts/BaseLayout.astro` manages all `<head>` metadata: canonical URLs, Open Graph (each marketing page passes its own `ogImage`/`ogImageAlt` hero), Twitter cards, robots meta, the optional `breadcrumb` JSON-LD, GA4 gtag snippet, and the sitemap `<link>`.
-- **Navigation/footer** — `src/components/SiteHeader.astro`, `src/components/SiteFooter.astro`. The header nav ends with a Client Login link into the portal; the nav collapses to a hamburger at `max-width: 920px`. The footer carries Privacy Policy and Sitemap links, the business NAP (name, city/state, phone), and the version read from `package.json` at build time.
+- **Navigation/footer** — `src/components/SiteHeader.astro`, `src/components/SiteFooter.astro`. The header nav ends with a Client Login link into the portal; the nav collapses to a hamburger at `max-width: 920px`. The header opens with a slim utility bar carrying the phone number, city, and social icons, above the logo/nav row; the nav collapses to a hamburger at `max-width: 920px`. The footer carries Privacy Policy and Sitemap links, the business NAP (name, city/state, phone), social profile icons, and the version read from `package.json` at build time.
+- **Social profiles** — `src\lib\social.ts` is the single source of truth for the business's Facebook, X, Nextdoor, and Yelp URLs. It feeds the `SocialLinks.astro` component (used in both the header utility bar and the footer) and the `sameAs` array in the homepage `Organization`/`LocalBusiness` JSON-LD, so they can't drift apart. Brand icons come from `@iconify-json/simple-icons`, except Nextdoor — that set ships the wordmark logotype, which is illegible at icon size, so the square house glyph is vendored at `src\icons\nextdoor.svg`.
 - **Global stylesheet** — `public/universal.css` (design tokens, typography, resets).
 - **Sitemap** — Generated entirely by `@astrojs/sitemap` at `/sitemap-index.xml` / `/sitemap-0.xml`. There is no hand-maintained sitemap route — a prior custom `sitemap.xml.ts` route was removed because it went stale (missing pages) and is intentionally not reintroduced. `robots.txt` and the footer/`<link rel="sitemap">` all point at `/sitemap-index.xml`.
 - **Local SEO / structured data** — Every marketing page carries JSON-LD. `src/pages/index.astro` has the `LocalBusiness`/`Organization` block (phone, city/state, `areaServed`); the other pages add `ItemList`/`Service` (services), `CollectionPage` (work), `SoftwareApplication` (products), `AboutPage`, and `ContactPage`. `BreadcrumbList` is emitted by `BaseLayout.astro` from its `breadcrumb` prop. The business is home-based, so no street address is published anywhere on the site or in structured data — only city/state. `areaServed` and the visible "Areas We Serve" list are kept in sync, and cover the in-person ring only; farther cities are described as remote.
@@ -148,6 +149,7 @@ npm run d1:migrate:remote   # apply to production D1
 │   ├── work/                     # portfolio thumbnails, 1180x615 .webp
 │   │   ├── dorianblack.webp
 │   │   ├── pneumaris.webp
+│   │   ├── simonrook.webp
 │   │   └── tagstash.webp
 │   └── (page hero images, .webp)
 ├── migrations/
