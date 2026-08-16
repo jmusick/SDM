@@ -45,13 +45,23 @@ const resolvedTwitterDescription = twitterDescription ?? description;
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GBG97CSL2Z"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-GBG97CSL2Z');
+    <!-- Google tag (gtag.js) — production hostname only. -->
+    <script is:inline>
+      if (window.location.hostname === "stonedragonmedia.com" || window.location.hostname === "www.stonedragonmedia.com") {
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { window.dataLayer.push(arguments); };
+
+        const googleTag = document.createElement("script");
+        googleTag.async = true;
+        googleTag.src = "https://www.googletagmanager.com/gtag/js?id=G-GBG97CSL2Z";
+        document.head.appendChild(googleTag);
+
+        window.gtag("js", new Date());
+        window.gtag("config", "G-GBG97CSL2Z", {
+          allow_google_signals: false,
+          allow_ad_personalization_signals: false,
+        });
+      }
     </script>
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

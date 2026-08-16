@@ -492,6 +492,28 @@ export const prerender = true;
 
         const result = await response.json();
         if (result.success) {
+          const analytics = (window as Window & {
+            gtag?: (...args: unknown[]) => void;
+          }).gtag;
+
+          if (analytics) {
+            let redirected = false;
+            const showThankYou = () => {
+              if (redirected) return;
+              redirected = true;
+              window.location.href = "/thank-you/";
+            };
+
+            analytics("event", "generate_lead", {
+              event_category: "engagement",
+              event_label: "contact_form",
+              transport_type: "beacon",
+              event_callback: showThankYou,
+            });
+            window.setTimeout(showThankYou, 1200);
+            return;
+          }
+
           window.location.href = "/thank-you/";
           return;
         } else {

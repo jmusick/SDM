@@ -110,7 +110,9 @@ surrounding region. Before changing metadata, copy, or structured data:
 
 - Every marketing page goes through `src/layouts/BaseLayout.astro`, which sets `<title>`, meta
   description, canonical URL, Open Graph, Twitter card, the optional `robots` directive, the GA4
-  gtag snippet (`G-GBG97CSL2Z`), and the sitemap `<link>`. Always pass `title`, `description`, and
+  gtag snippet (`G-GBG97CSL2Z`, production hostname only), and the sitemap `<link>`. The contact form
+  emits `generate_lead` only after Web3Forms confirms success and never sends form contents to GA4.
+  Always pass `title`, `description`, and
   `canonical`/`ogUrl` for new pages — never leave them to defaults.
 - **Titles and H1s must carry keywords, not labels.** `Services`/`Products`/`Our Work` were the
   original titles and H1s on five pages and were rewritten to include the service and, where it
