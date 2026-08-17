@@ -1,0 +1,113 @@
+---
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+export const prerender = true;
+
+const pages = [
+  { href: "/", label: "Home", description: "Web design and development studio based in Sandusky, Ohio." },
+  { href: "/about/", label: "About", description: "Who we are and how we work." },
+  { href: "/services/", label: "Services", description: "Web design, development, and ongoing support." },
+  { href: "/work/", label: "Our Work", description: "Portfolio of recent client projects." },
+  { href: "/products/", label: "Products", description: "Products and tools we've built." },
+  { href: "/contact/", label: "Contact", description: "Get in touch to start a project." },
+  { href: "/privacy-policy/", label: "Privacy Policy", description: "How we collect, use, and protect your information." },
+];
+---
+
+<BaseLayout
+  title="Sitemap | Stone Dragon Media"
+  description="Browse all pages on the Stone Dragon Media website."
+  canonical="https://stonedragonmedia.com/sitemap/"
+  ogUrl="https://stonedragonmedia.com/sitemap/"
+  breadcrumb="Sitemap"
+>
+  <Fragment slot="head">
+    <style>
+      :root {
+        --surface: rgba(243, 248, 253, 0.95);
+      }
+
+      .wrapper {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 2rem clamp(1.1rem, 2.5vw, 2.4rem) 0;
+      }
+
+      .footer-wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 0 clamp(1.1rem, 2.5vw, 2.4rem) 3rem;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+        padding: 1.4rem;
+        box-shadow: 0 16px 30px rgba(18, 45, 69, 0.12);
+      }
+
+      h1 {
+        font-family: "Sora", sans-serif;
+        color: var(--brand-strong);
+      }
+
+      .sitemap-list {
+        list-style: none;
+        margin: 1.4rem 0 0;
+        padding: 0;
+        display: grid;
+        gap: 1rem;
+      }
+
+      .sitemap-list li {
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 1rem;
+      }
+
+      .sitemap-list li:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .sitemap-list a {
+        font-family: "Sora", sans-serif;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--brand-strong);
+      }
+
+      .sitemap-list p {
+        margin: 0.25rem 0 0;
+        color: var(--ink-soft);
+        line-height: 1.6;
+      }
+
+      .site-footer {
+        margin-top: 1.6rem;
+      }
+    </style>
+  </Fragment>
+
+  <SiteHeader />
+
+  <main class="wrapper">
+    <div class="card">
+      <h1>Sitemap</h1>
+      <ul class="sitemap-list">
+        {pages.map((page) => (
+          <li>
+            <a href={page.href}>{page.label}</a>
+            <p>{page.description}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </main>
+
+  <div class="footer-wrap">
+    <SiteFooter />
+  </div>
+</BaseLayout>

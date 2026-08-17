@@ -153,11 +153,16 @@ surrounding region. Before changing metadata, copy, or structured data:
 - **No street address anywhere.** The business runs out of a residential address. Only city/state
   (Sandusky, OH) appears in visible copy, the footer, and structured data. Never reintroduce a street
   address without being explicitly asked.
-- The sitemap is generated entirely by `@astrojs/sitemap` at `/sitemap-index.xml`, filtered in
-  `astro.config.mjs` to exclude `/thank-you`, `/login`, `/dashboard`, `/admin`, `/api`. **Do not add
-  a hand-maintained sitemap route** — one existed, went stale because it needed manual updates on
-  every new page, and was removed for that reason. `robots.txt` and the footer/`<link rel="sitemap">`
-  all point at `/sitemap-index.xml`; keep them in sync if that URL changes.
+- The XML sitemap consumed by crawlers/Search Console is generated entirely by `@astrojs/sitemap` at
+  `/sitemap-index.xml`, filtered in `astro.config.mjs` to exclude `/thank-you`, `/login`, `/dashboard`,
+  `/admin`, `/api`. **Do not add a hand-maintained route that duplicates this** — one existed, went
+  stale because it needed manual updates on every new page, and was removed for that reason.
+  `robots.txt` and the `<link rel="sitemap">` in `BaseLayout` point at `/sitemap-index.xml`; keep them
+  in sync if that URL changes.
+- `/sitemap.astro` is a separate, human-facing HTML sitemap (the footer "Sitemap" link points here, not
+  at the XML file). It hand-lists marketing pages in a `pages` array — it does **not** read from the
+  XML sitemap or `astro.config.mjs`'s filter. This reintroduces the staleness risk noted above at a
+  smaller scale: **update its `pages` array whenever a marketing page is added, renamed, or removed.**
 - `noindex, nofollow` is set on exactly four pages (`404`, `thank-you`, `login`, `admin/setup`) plus
   everything under `AdminLayout`/`DashboardLayout`. `/privacy-policy` is intentionally indexable.
 - Every real page (except `404`) must render `<SiteHeader />` and `<SiteFooter />`. A page with no
