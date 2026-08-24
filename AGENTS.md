@@ -35,6 +35,11 @@ Always run `npm run build` after non-trivial changes before considering a task d
 touching `/dashboard`, `/admin`, or auth, also exercise the real flow via `npm run dev` — `astro
 check` and `build` will not catch a broken redirect or a missing D1 binding.
 
+`scripts/seed-local.mjs` generates SQL for local test data (clients, projects, invoices, tickets)
+with real PBKDF2 hashes, and is **not** wired into `package.json` — pipe its output into
+`npx wrangler d1 execute sdm-db --local` (the committed `scripts/seed-local.sql` is one such
+generated dump). Local only; never point it at `--remote`.
+
 **`npm run preview` is broken.** It maps to `astro preview`, which exits with `No build output
 found` even straight after a successful build, because `astro.config.mjs` sets `build.client: './'`
 and `build.server: './_worker.js'` — a layout the adapter's preview does not expect. To eyeball the
@@ -73,7 +78,8 @@ changing the `build` paths; they are what produce a Pages-compatible `_worker.js
   `cloudflare:workers`' `env` — *not* `Astro.locals.runtime.env`, which is for a different
   `@astrojs/cloudflare` config shape than this project uses.
 - **`src/middleware.ts`** resolves session, user, and impersonated client on every request.
-- **Data access** lives in `src/lib/{auth,clients,db,features,http,invoices,projects,tickets,users}.ts`.
+- **Data access** lives in
+  `src/lib/{auth,clients,db,http,invoices,notes,projects,tasks,timeEntries,tickets,users}.ts`.
   Keep SQL there, not in pages.
 - **Auth model**: `users` holds both `admin` and `client` roles; `clients` holds the business profile
   for client accounts. Sessions are a first-party cookie (`sdm_session`, httpOnly/SameSite=Lax,
@@ -95,13 +101,104 @@ changing the `build` paths; they are what produce a Pages-compatible `_worker.js
   unless permanent removal is explicitly requested.
 - **Invoices are a manual record** (description, amount, status, dates) in D1. Nothing is synced from
   Stripe/QuickBooks — don't imply otherwise in copy or code.
+- **Projects have notes and a task board**, both admin-write / client-read-only. `project_notes` and
+  `task_notes` share one implementation (`src/lib/notes.ts`, parameterized by table name — see
+  `NoteTable`) since the two tables are structurally identical. Tasks (`src/lib/tasks.ts`) have a
+  `type` (story/bug/task/chore), `priority` (low/normal/high), an optional `assignedToUserId`
+  (admin users only — populated via `listAdminUsers` in `src/lib/users.ts`), and a `lane`
+  (planning/to_do/in_progress/qa/done) shown as a drag-and-drop Kanban board on
+  `/admin/projects/[id].astro`. New tasks always start in `planning`. Lane changes go through a
+  **dedicated** function (`updateTaskLane`) and a **JSON-returning** API route
+  (`/api/tasks/update-lane`) — the only non-redirect write endpoint in the app, since it's called
+  via `fetch()` from the drag handler rather than a form post. Don't route lane changes through
+  `updateTask`/`api/tasks/save`, and don't make other new endpoints return JSON just because this
+  one does — it's a deliberate, narrow exception, not the new convention. Time entries
+  (`src/lib/timeEntries.ts`) are individual add/delete-only log rows (no edit), stored in a single
+  canonical `minutes` column — the add form accepts hours or minutes and converts server-side.
+- **There is no standalone task page.** Everything about a task — details
+  (title/description/type/priority/assignee), notes, and time entries — is managed through a single
+  native `<dialog>` modal on `/admin/projects/[id].astro` (the app's first use of `<dialog>`). The
+  old `/admin/projects/[projectId]/tasks/{new,[taskId]}.astro` pages were deleted once the modal grew
+  to cover everything they did; don't recreate them.
+  - **One shared dialog** handles both "Add Task" and editing an existing card. Clicking a kanban
+    card intercepts the click (`e.preventDefault()`) and calls `openTaskModal("edit", card)`, which
+    populates the details fields from `data-task-*` attributes already rendered on that card — no
+    fetch call, the data is already on the page.
+  - **Notes and time entries are pre-rendered per task into inert `<template id="task-panel-{taskId}">`
+    elements** (looped once at the bottom of the page, one per task) rather than fetched — opening
+    the modal for a task clones that task's template into `#task-modal-panels`
+    (`renderTaskPanels()`). This means every task's full notes/time HTML ships on every load of the
+    project page; fine at this app's scale, but don't reach for this pattern on a page with hundreds
+    of list items.
+  - **Every task-scoped write is still a plain form POST + full-page-reload redirect** (`/api/tasks/save`,
+    `/api/task-notes/{save,delete}`, `/api/time-entries/{save,delete}`) — no AJAX was introduced.
+    What changed is the *redirect target*: all of them now redirect to
+    `/admin/projects/{projectId}?openTask={taskId}` (instead of a task-page URL that no longer
+    exists). A small script on page load reads `?openTask=`, finds that task's card, calls
+    `openTaskModal("edit", card)` to reopen it with the fresh data, then strips the param via
+    `history.replaceState` so a manual refresh doesn't reopen it again. `/api/tasks/delete` is the one
+    exception — it redirects to the plain project URL with no `openTask`, since the task (and its
+    templated panel) no longer exists. Validation failures redirect with `?error=task_invalid`,
+    `note_invalid`, or `time_invalid` (mapped to messages in the page's `errorMessages` record) rather
+    than reopening the modal with the bad input preserved — a minor UX gap, accepted for simplicity.
+  - **Cloned template content isn't covered by the page's initial `querySelectorAll(...).forEach(...)`
+    event bindings** (those run once, before the clone exists). The note edit/cancel toggle inside
+    `#task-modal-panels` uses event delegation (`taskModalPanels.addEventListener("click", ...)` +
+    `target.closest(...)`) instead, precisely because of this.
+  - Closing the modal: a `[data-close-modal]` button, or clicking the `::backdrop` (detected as a
+    click whose `event.target` is the `<dialog>` element itself, since nothing else in it can be that
+    target).
+- **Client dashboard project/task views are read-only by omission, not by disabled controls**:
+  `src/pages/dashboard/projects/[id].astro` renders the same Kanban markup as the admin page but
+  without `draggable` attributes, without the drag `<script>` block, and without any note
+  add/edit/delete forms. The real guarantee is that every write endpoint under `/api/tasks/*`,
+  `/api/project-notes/*`, `/api/task-notes/*`, and `/api/time-entries/*` is `ensureRole(["admin"])`
+  — the UI omission is just so clients aren't shown controls that would 302 away if used.
+
+- **Account settings are self-service only.** `/admin/settings` and `/dashboard/settings` both render
+  the same `src/components/SettingsForm.astro` (name/email, and a change-password form requiring the
+  current password, min 10 chars) and post to `/api/settings/{profile,password}`. Those routes
+  **always** act on `context.locals.user.id` and never on a `userId` from form input — there is no
+  admin-edits-another-user's-account path here. The form carries a `backTo` hidden field, but both
+  routes whitelist it to exactly the two known paths before redirecting, so it can't be used as an
+  open redirect. Errors come back as `?error=` codes (`invalid_email`, `email_taken`,
+  `password_too_short`, `password_mismatch`, `wrong_password`) mapped in each page's `errorMessages`
+  record; success as `?saved=1` (profile) or `?saved=password`.
+  - `/dashboard/settings` redirects any non-`client` user to `/admin/settings`, deliberately: an admin
+    impersonating a client would otherwise be editing their own admin account from inside the client
+    shell, which reads as editing the client's.
+  - **Changing a password does not invalidate the user's other sessions.** Existing `sessions` rows
+    stay valid until they expire. Acceptable for this app's scale — but if a "sign out everywhere"
+    expectation ever comes up, that's the gap.
 
 ## Database migrations
 
 Add a new numbered file under `migrations/` — never edit `0001_initial.sql` after it has been
 applied anywhere. Then run `npm run d1:migrate:local` (and `:remote` for production). Current
 migrations: `0001_initial.sql` (users, sessions, clients, projects, invoices, tickets,
-ticket_messages) and `0002_project_features.sql` (nullable `projects.client_id` + `project_features`).
+ticket_messages), `0002_project_features.sql` (nullable `projects.client_id` + `project_features`),
+`0003_tasks_notes_time.sql` (renames `project_features` to `tasks` — adding `type`/`lane`/
+`priority`, dropping `status` — and adds `project_notes`, `task_notes`, `time_entries`), and
+`0004_task_lanes_assignee.sql` (expands `tasks.lane` from planned/in_progress/qa/done to
+planning/to_do/in_progress/qa/done, migrating old `planned` rows to `to_do`, and adds
+`tasks.assigned_to_user_id`), and `0005_user_names.sql` (adds `users.first_name`/`last_name`).
+Table rebuilds that change `CHECK` constraints or rename columns follow the same
+`PRAGMA foreign_keys=OFF` → create `_new`/replacement table → copy → drop → rename → recreate
+indexes → `PRAGMA foreign_keys=ON` dance established in `0002`.
+
+**`PRAGMA foreign_keys=OFF` does not reliably survive to later statements in the same migration
+file** — `wrangler d1 execute`/`migrations apply` appears to run each statement with foreign key
+enforcement back on (`PRAGMA foreign_keys;` returns `1` by default on a fresh statement), so a
+`DROP TABLE parent` later in the file can still trigger SQLite's implicit cascading delete against
+any other table with an `ON DELETE CASCADE` FK pointing at it — silently wiping that child data.
+This bit `0004_task_lanes_assignee.sql`: dropping the old `tasks` table wiped every `task_notes`
+and `time_entries` row that referenced it, because those child tables (added in `0003`) already
+held data by the time `0004` ran. `0002` and `0003` got lucky only because their `DROP TABLE`
+targets had no cascade-linked children with rows yet at the time they ran. **Before writing a
+migration that rebuilds a table other tables reference via `ON DELETE CASCADE`, check whether
+those child tables can have existing rows** — if they can, don't `DROP TABLE` the parent in the
+same migration; back up and reinsert the child rows explicitly (copy them out before the drop,
+back in after), or restructure so the parent is never dropped while it has live cascade children.
 
 ## SEO is a first-class concern
 
@@ -225,6 +322,16 @@ editing** — check before you write, especially with tools that do exact string
 | `src/layouts/*.astro` | CRLF | 2 spaces |
 | `src/pages/**`, `src/lib/*.ts` | LF | 2 spaces |
 | `*.md` | LF | — |
+
+**In client-side `<script>` blocks, don't write `document.querySelector<HTMLSelectElement>(...)`
+(or `HTMLInputElement`/`HTMLFormElement`/`HTMLDialogElement`/`HTMLAnchorElement`/`HTMLTextAreaElement`
+— any DOM subtype except plain `HTMLElement`).** `worker-configuration.d.ts` declares its own global
+`Element` interface (from the HTMLRewriter API) that merges with the DOM lib's `Element`, giving the
+merged type an incompatible `remove()` signature — the editor's TS server then reports every
+`HTMLXxxElement` as failing querySelector's `E extends Element` constraint. It doesn't fail
+`astro build` (client scripts aren't typechecked there), but it does show as red squiggles and would
+fail `astro check`. Work around it with a plain query plus a cast instead:
+`document.querySelector("#foo") as HTMLSelectElement | null`.
 
 ## Images
 

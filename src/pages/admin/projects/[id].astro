@@ -4,7 +4,10 @@ import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { ensureRole } from "../../../lib/http";
 import { getProjectById } from "../../../lib/projects";
 import { getClientById } from "../../../lib/clients";
-import { listFeaturesByProject, type FeatureStatus } from "../../../lib/features";
+import { listTasksByProject, type TaskLane, type TaskType } from "../../../lib/tasks";
+import { listNotes } from "../../../lib/notes";
+import { listAdminUsers } from "../../../lib/users";
+import { listTimeEntriesByTask, getTaskTimeTotalMinutes } from "../../../lib/timeEntries";
 
 export const prerender = false;
 
@@ -17,98 +20,632 @@ if (!project) {
   return Astro.redirect("/admin/projects");
 }
 
-const client = project.clientId ? await getClientById(Astro.locals, project.clientId) : null;
-const features = await listFeaturesByProject(Astro.locals, project.id);
-const toDateInput = (ms: number | null) => (ms ? new Date(ms).toISOString().slice(0, 10) : "");
-const errorParam = Astro.url.searchParams.get("error");
-const errorMessage = errorParam === "invalid" ? "Project name is required." : null;
+const [client, tasks, notes, admins] = await Promise.all([
+  project.clientId ? getClientById(Astro.locals, project.clientId) : Promise.resolve(null),
+  listTasksByProject(Astro.locals, project.id),
+  listNotes(Astro.locals, "project_notes", project.id),
+  listAdminUsers(Astro.locals),
+]);
 
-const featureStatusBadge: Record<FeatureStatus, string> = {
-  backlog: "badge-neutral",
-  in_progress: "badge-warning",
-  done: "badge-success",
+// Notes/time entries for every task are loaded up front (rather than fetched when the modal
+// opens) so editing a task never needs a JSON API round trip — the modal just clones the
+// matching <template>. Fine at this app's scale; revisit if a project ever has hundreds of tasks.
+const taskDetails = new Map(
+  await Promise.all(
+    tasks.map(async (task) => {
+      const [taskNotes, timeEntries, totalMinutes] = await Promise.all([
+        listNotes(Astro.locals, "task_notes", task.id),
+        listTimeEntriesByTask(Astro.locals, task.id),
+        getTaskTimeTotalMinutes(Astro.locals, task.id),
+      ]);
+      return [task.id, { notes: taskNotes, timeEntries, totalMinutes }] as const;
+    })
+  )
+);
+
+const toDateInput = (ms: number | null) => (ms ? new Date(ms).toISOString().slice(0, 10) : "");
+const formatDateTime = (ms: number) => new Date(ms).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+// entry_date is stored as UTC midnight (parsed from a plain <input type=date>), so render it
+// back in UTC too — otherwise a negative-offset local timezone shifts it a day earlier.
+const formatDate = (ms: number) => new Date(ms).toLocaleDateString("en-US", { dateStyle: "medium", timeZone: "UTC" });
+const formatMinutes = (m: number) => `${Math.floor(m / 60)}h ${m % 60}m`;
+
+const errorParam = Astro.url.searchParams.get("error");
+const errorMessages: Record<string, string> = {
+  invalid: "Project name is required.",
+  task_invalid: "A task title is required.",
+  note_invalid: "Note text is required.",
+  time_invalid: "Enter a valid date and an amount greater than zero.",
+};
+const errorMessage = errorParam ? (errorMessages[errorParam] ?? null) : null;
+
+const lanes: TaskLane[] = ["planning", "to_do", "in_progress", "qa", "done"];
+const laneLabel: Record<TaskLane, string> = {
+  planning: "Planning",
+  to_do: "To Do",
+  in_progress: "In Progress",
+  qa: "QA",
+  done: "Done",
+};
+const tasksByLane: Record<TaskLane, typeof tasks> = { planning: [], to_do: [], in_progress: [], qa: [], done: [] };
+for (const task of tasks) tasksByLane[task.lane].push(task);
+
+const taskTypeBadge: Record<TaskType, string> = {
+  story: "badge-neutral",
+  bug: "badge-danger",
+  task: "badge-warning",
+  chore: "badge-success",
 };
 ---
 
 <AdminLayout title={project.name}>
   {errorMessage && <div class="notice notice-error">{errorMessage}</div>}
-  <div class="card" style="max-width: 620px;">
-    <p style="margin: 0 0 0.8rem; color: var(--ink-soft);">
-      Client: {project.clientId ? <a href={`/admin/clients/${project.clientId}`}>{client?.companyName ?? "Unknown"}</a> : <span class="badge badge-internal">Internal</span>}
-    </p>
-    <form method="post" action="/api/projects/save">
-      <input type="hidden" name="projectId" value={project.id} />
-      <div class="form-grid">
-        <div class="field full">
-          <label for="name">Project Name</label>
-          <input id="name" name="name" type="text" required value={project.name} />
-        </div>
-        <div class="field full">
-          <label for="description">Description</label>
-          <textarea id="description" name="description">{project.description ?? ""}</textarea>
-        </div>
-        <div class="field">
-          <label for="status">Status</label>
-          <select id="status" name="status">
-            <option value="planning" selected={project.status === "planning"}>Planning</option>
-            <option value="in_progress" selected={project.status === "in_progress"}>In Progress</option>
-            <option value="review" selected={project.status === "review"}>Review</option>
-            <option value="on_hold" selected={project.status === "on_hold"}>On Hold</option>
-            <option value="completed" selected={project.status === "completed"}>Completed</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="startDate">Start Date</label>
-          <input id="startDate" name="startDate" type="date" value={toDateInput(project.startDate)} />
-        </div>
-        <div class="field">
-          <label for="targetDate">Target Date</label>
-          <input id="targetDate" name="targetDate" type="date" value={toDateInput(project.targetDate)} />
-        </div>
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-primary" type="submit">Save Changes</button>
-      </div>
-    </form>
-  </div>
 
-  <div class="card section-gap" style="max-width: 620px;">
-    <div class="header-actions" style="margin-bottom: 1rem; justify-content: space-between;">
-      <h2 style="margin: 0; font-family: 'Sora', sans-serif; font-size: 1rem; color: var(--brand-strong);">Features</h2>
-      <a class="btn btn-secondary" href={`/admin/projects/${project.id}/features/new`}>
-        <Icon class="icon" name="lucide:plus" aria-hidden="true" />
-        Add Feature
-      </a>
+  <div class="project-columns">
+    <div class="card">
+      <p style="margin: 0 0 0.8rem; color: var(--ink-soft);">
+        Client: {project.clientId ? <a href={`/admin/clients/${project.clientId}`} style="color: var(--brand-strong); font-weight: 600; text-decoration: none;">{client?.companyName ?? "Unknown"}</a> : <span class="badge badge-internal">Internal</span>}
+      </p>
+      <form method="post" action="/api/projects/save" id="project-form">
+        <input type="hidden" name="projectId" value={project.id} />
+        <div class="form-grid">
+          <div class="field full">
+            <label for="name">Project Name</label>
+            <input id="name" name="name" type="text" required value={project.name} />
+          </div>
+          <div class="field full">
+            <label for="description">Description</label>
+            <textarea id="description" name="description">{project.description ?? ""}</textarea>
+          </div>
+          <div class="field">
+            <label for="status">Status</label>
+            <select id="status" name="status">
+              <option value="planning" selected={project.status === "planning"}>Planning</option>
+              <option value="in_progress" selected={project.status === "in_progress"}>In Progress</option>
+              <option value="review" selected={project.status === "review"}>Review</option>
+              <option value="on_hold" selected={project.status === "on_hold"}>On Hold</option>
+              <option value="completed" selected={project.status === "completed"}>Completed</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="startDate">Start Date</label>
+            <input id="startDate" name="startDate" type="date" value={toDateInput(project.startDate)} />
+          </div>
+          <div class="field">
+            <label for="targetDate">Target Date</label>
+            <input id="targetDate" name="targetDate" type="date" value={toDateInput(project.targetDate)} />
+          </div>
+        </div>
+      </form>
+      <div class="form-actions" style="justify-content: space-between;">
+        <button class="btn btn-primary" type="submit" form="project-form">Save Changes</button>
+        <form
+          method="post"
+          action="/api/projects/delete"
+          onsubmit="return confirm('Delete this project? This cannot be undone.');"
+          style="margin: 0;"
+        >
+          <input type="hidden" name="projectId" value={project.id} />
+          <button class="btn btn-danger" type="submit">
+            <Icon class="icon" name="lucide:trash-2" aria-hidden="true" />
+            Delete Project
+          </button>
+        </form>
+      </div>
     </div>
-    {features.length === 0 ? (
-      <p class="empty-state">No features yet.</p>
-    ) : (
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {features.map((feature) => (
-            <tr>
-              <td><a href={`/admin/projects/${project.id}/features/${feature.id}`}>{feature.title}</a></td>
-              <td><span class={`badge ${featureStatusBadge[feature.status]}`}>{feature.status.replace(/_/g, " ")}</span></td>
-            </tr>
+
+    <div class="card" data-note-list>
+      <h2 style="margin: 0 0 1rem; font-family: 'Sora', sans-serif; font-size: 1rem; color: var(--brand-strong);">Notes</h2>
+      {notes.length === 0 ? (
+        <p class="empty-state">No notes yet.</p>
+      ) : (
+        <div class="thread">
+          {notes.map((note) => (
+            <div class="thread-message">
+              <div class="thread-meta">
+                <span>{note.authorName}</span>
+                <span>{formatDateTime(note.createdAt)}</span>
+              </div>
+              <div class="thread-body" data-note-body>{note.body}</div>
+              <form method="post" action="/api/project-notes/save" class="note-edit-form" hidden data-note-edit-form>
+                <input type="hidden" name="projectId" value={project.id} />
+                <input type="hidden" name="noteId" value={note.id} />
+                <div class="field">
+                  <textarea name="body" required>{note.body}</textarea>
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">Save</button>
+                  <button class="btn btn-secondary" type="button" data-cancel-edit>Cancel</button>
+                </div>
+              </form>
+              <div class="form-actions" data-note-actions>
+                <button class="btn btn-secondary" type="button" data-edit-note>Edit</button>
+                <form method="post" action="/api/project-notes/delete" onsubmit="return confirm('Delete this note?');">
+                  <input type="hidden" name="projectId" value={project.id} />
+                  <input type="hidden" name="noteId" value={note.id} />
+                  <button class="btn btn-danger" type="submit">Delete</button>
+                </form>
+              </div>
+            </div>
           ))}
-        </tbody>
-      </table>
-    )}
+        </div>
+      )}
+      <form method="post" action="/api/project-notes/save">
+        <input type="hidden" name="projectId" value={project.id} />
+        <div class="field">
+          <label for="body">Add Note</label>
+          <textarea id="body" name="body" required></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Add Note</button>
+        </div>
+      </form>
+    </div>
   </div>
 
-  <div class="card section-gap" style="max-width: 620px;">
-    <form method="post" action="/api/projects/delete" onsubmit="return confirm('Delete this project? This cannot be undone.');">
-      <input type="hidden" name="projectId" value={project.id} />
-      <button class="btn btn-danger" type="submit">
-        <Icon class="icon" name="lucide:trash-2" aria-hidden="true" />
-        Delete Project
+  <div class="card section-gap">
+    <div class="header-actions" style="margin-bottom: 1rem; justify-content: space-between;">
+      <h2 style="margin: 0; font-family: 'Sora', sans-serif; font-size: 1rem; color: var(--brand-strong);">Tasks</h2>
+      <button type="button" class="btn btn-secondary" data-open-task-modal="create">
+        <Icon class="icon" name="lucide:plus" aria-hidden="true" />
+        Add Task
       </button>
-    </form>
+    </div>
+    <div class="kanban" data-kanban>
+      {lanes.map((lane) => (
+        <div class="kanban-column">
+          <div class="kanban-column-header">
+            {laneLabel[lane]}
+            <span class="kanban-count">{tasksByLane[lane].length}</span>
+          </div>
+          <div class="kanban-drop-zone" data-lane-dropzone={lane}>
+            {tasksByLane[lane].map((task) => (
+              <a
+                class="kanban-card"
+                href={`/admin/projects/${project.id}?openTask=${task.id}`}
+                draggable="true"
+                data-task-id={task.id}
+                data-open-task-modal="edit"
+                data-task-title={task.title}
+                data-task-description={task.description ?? ""}
+                data-task-type={task.type}
+                data-task-priority={task.priority}
+                data-task-assignee={task.assignedToUserId ?? ""}
+              >
+                <span class={`badge ${taskTypeBadge[task.type]}`}>{task.type}</span>
+                <span class="kanban-card-title">{task.title}</span>
+                <div class="kanban-card-footer">
+                  <span class={`kanban-priority kanban-priority-${task.priority}`}>{task.priority}</span>
+                  <span class="kanban-assignee">{task.assignedToName ?? "Unassigned"}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   </div>
+
+  <dialog class="modal" id="task-modal">
+    <div class="modal-header">
+      <h2 id="task-modal-heading">Add Task</h2>
+      <button type="button" class="modal-close" data-close-modal aria-label="Close">
+        <Icon class="icon" name="lucide:x" aria-hidden="true" />
+      </button>
+    </div>
+    <div class="modal-body">
+      <form method="post" action="/api/tasks/save" id="task-modal-form">
+        <input type="hidden" name="projectId" value={project.id} />
+        <input type="hidden" name="taskId" id="task-modal-taskId" value="" />
+        <div class="form-grid">
+          <div class="field full">
+            <label for="task-modal-title">Title</label>
+            <input id="task-modal-title" name="title" type="text" required />
+          </div>
+          <div class="field full">
+            <label for="task-modal-description">Description</label>
+            <textarea id="task-modal-description" name="description"></textarea>
+          </div>
+          <div class="field">
+            <label for="task-modal-type">Type</label>
+            <select id="task-modal-type" name="type">
+              <option value="story">Story</option>
+              <option value="bug">Bug</option>
+              <option value="task">Task</option>
+              <option value="chore">Chore</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="task-modal-priority">Priority</label>
+            <select id="task-modal-priority" name="priority">
+              <option value="low">Low</option>
+              <option value="normal">Normal</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="task-modal-assignee">Assignee</label>
+            <select id="task-modal-assignee" name="assignedToUserId">
+              <option value="">Unassigned</option>
+              {admins.map((admin) => (
+                <option value={admin.id}>{admin.displayName}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Task</button>
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+        </div>
+      </form>
+
+      <div id="task-modal-panels"></div>
+    </div>
+    <form
+      method="post"
+      action="/api/tasks/delete"
+      id="task-modal-delete-form"
+      onsubmit="return confirm('Delete this task? This cannot be undone.');"
+      hidden
+    >
+      <input type="hidden" name="projectId" value={project.id} />
+      <input type="hidden" name="taskId" id="task-modal-delete-taskId" value="" />
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-danger">
+          <Icon class="icon" name="lucide:trash-2" aria-hidden="true" />
+          Delete Task
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  {tasks.map((task) => {
+    const details = taskDetails.get(task.id);
+    const taskNotes = details?.notes ?? [];
+    const timeEntries = details?.timeEntries ?? [];
+    const totalMinutes = details?.totalMinutes ?? 0;
+    return (
+      <template id={`task-panel-${task.id}`}>
+        <div data-note-list>
+          <h3 class="modal-section-heading">Notes</h3>
+          {taskNotes.length === 0 ? (
+            <p class="empty-state">No notes yet.</p>
+          ) : (
+            <div class="thread">
+              {taskNotes.map((note) => (
+                <div class="thread-message">
+                  <div class="thread-meta">
+                    <span>{note.authorName}</span>
+                    <span>{formatDateTime(note.createdAt)}</span>
+                  </div>
+                  <div class="thread-body" data-note-body>{note.body}</div>
+                  <form method="post" action="/api/task-notes/save" class="note-edit-form" hidden data-note-edit-form>
+                    <input type="hidden" name="projectId" value={project.id} />
+                    <input type="hidden" name="taskId" value={task.id} />
+                    <input type="hidden" name="noteId" value={note.id} />
+                    <div class="field">
+                      <textarea name="body" required>{note.body}</textarea>
+                    </div>
+                    <div class="form-actions">
+                      <button class="btn btn-primary" type="submit">Save</button>
+                      <button class="btn btn-secondary" type="button" data-cancel-edit>Cancel</button>
+                    </div>
+                  </form>
+                  <div class="form-actions" data-note-actions>
+                    <button class="btn btn-secondary" type="button" data-edit-note>Edit</button>
+                    <form method="post" action="/api/task-notes/delete" onsubmit="return confirm('Delete this note?');">
+                      <input type="hidden" name="projectId" value={project.id} />
+                      <input type="hidden" name="taskId" value={task.id} />
+                      <input type="hidden" name="noteId" value={note.id} />
+                      <button class="btn btn-danger" type="submit">Delete</button>
+                    </form>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <form method="post" action="/api/task-notes/save">
+            <input type="hidden" name="projectId" value={project.id} />
+            <input type="hidden" name="taskId" value={task.id} />
+            <div class="field">
+              <label>Add Note</label>
+              <textarea name="body" required></textarea>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Add Note</button>
+            </div>
+          </form>
+        </div>
+
+        <div>
+          <h3 class="modal-section-heading">Time Logged</h3>
+          <p style="margin: 0 0 1rem; color: var(--ink-soft);">Total: <strong>{formatMinutes(totalMinutes)}</strong></p>
+          {timeEntries.length === 0 ? (
+            <p class="empty-state">No time logged yet.</p>
+          ) : (
+            <table class="data-table" style="margin-bottom: 1rem;">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Note</th>
+                  <th>Logged By</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {timeEntries.map((entry) => (
+                  <tr>
+                    <td>{formatDate(entry.entryDate)}</td>
+                    <td>{formatMinutes(entry.minutes)}</td>
+                    <td>{entry.note ?? "—"}</td>
+                    <td>{entry.userName}</td>
+                    <td>
+                      <form method="post" action="/api/time-entries/delete" onsubmit="return confirm('Delete this time entry?');">
+                        <input type="hidden" name="projectId" value={project.id} />
+                        <input type="hidden" name="taskId" value={task.id} />
+                        <input type="hidden" name="entryId" value={entry.id} />
+                        <button class="btn btn-danger" type="submit">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          <form method="post" action="/api/time-entries/save">
+            <input type="hidden" name="projectId" value={project.id} />
+            <input type="hidden" name="taskId" value={task.id} />
+            <div class="form-grid">
+              <div class="field">
+                <label>Date</label>
+                <input name="date" type="date" required />
+              </div>
+              <div class="field">
+                <label>Amount</label>
+                <input name="amount" type="number" step="0.25" min="0" required />
+              </div>
+              <div class="field">
+                <label>Unit</label>
+                <select name="unit">
+                  <option value="hours">Hours</option>
+                  <option value="minutes">Minutes</option>
+                </select>
+              </div>
+              <div class="field full">
+                <label>Note</label>
+                <input name="note" type="text" />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Log Time</button>
+            </div>
+          </form>
+        </div>
+      </template>
+    );
+  })}
 </AdminLayout>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-note-edit-form]").forEach((form) => {
+    const message = form.closest(".thread-message");
+    if (!message) return;
+    const body = message.querySelector<HTMLElement>("[data-note-body]");
+    const actions = message.querySelector<HTMLElement>("[data-note-actions]");
+    const editBtn = actions?.querySelector<HTMLElement>("[data-edit-note]");
+    const cancelBtn = form.querySelector<HTMLElement>("[data-cancel-edit]");
+
+    editBtn?.addEventListener("click", () => {
+      form.hidden = false;
+      if (body) body.hidden = true;
+      if (actions) actions.hidden = true;
+    });
+
+    cancelBtn?.addEventListener("click", () => {
+      form.hidden = true;
+      if (body) body.hidden = false;
+      if (actions) actions.hidden = false;
+    });
+  });
+
+  const board = document.querySelector<HTMLElement>("[data-kanban]");
+  if (board) {
+    let draggedEl: HTMLElement | null = null;
+
+    board.querySelectorAll<HTMLElement>(".kanban-card[draggable]").forEach((card) => {
+      card.addEventListener("dragstart", (e) => {
+        draggedEl = card;
+        card.classList.add("dragging");
+        e.dataTransfer?.setData("text/plain", card.dataset.taskId ?? "");
+      });
+      card.addEventListener("dragend", () => {
+        card.classList.remove("dragging");
+        draggedEl = null;
+      });
+      card.addEventListener("click", (e) => {
+        if (card.dataset.justDropped === "true") {
+          e.preventDefault();
+          delete card.dataset.justDropped;
+          return;
+        }
+        // Modifier/middle clicks should still open the real task page in a
+        // new tab as normal — only a plain click opens the modal instead.
+        if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        openTaskModal("edit", card);
+      });
+    });
+
+    board.querySelectorAll<HTMLElement>("[data-lane-dropzone]").forEach((zone) => {
+      zone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        zone.classList.add("drag-over");
+      });
+      zone.addEventListener("dragleave", () => zone.classList.remove("drag-over"));
+      zone.addEventListener("drop", async (e) => {
+        e.preventDefault();
+        zone.classList.remove("drag-over");
+
+        // Capture the dragged element up front: `dragend` fires on the source
+        // card right after `drop`, and since this handler awaits a fetch, the
+        // shared `draggedEl` variable is very likely already null by the time
+        // we'd reach the catch block below — which silently skipped the
+        // revert-on-failure while the alert still fired unconditionally,
+        // making a real failure look like "it worked anyway."
+        const el = draggedEl;
+        if (!el) return;
+
+        const taskId = el.dataset.taskId;
+        const lane = zone.dataset.laneDropzone;
+        const originZone = el.parentElement;
+        if (!taskId || !lane) return;
+
+        el.dataset.justDropped = "true";
+        zone.appendChild(el);
+
+        try {
+          const res = await fetch("/api/tasks/update-lane", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ taskId, lane }),
+          });
+          if (!res.ok) throw new Error(`http_${res.status}`);
+          const data = await res.json();
+          if (!data.ok) throw new Error(data.error ?? "update_failed");
+        } catch {
+          originZone.appendChild(el);
+          alert("Could not move task. Please try again.");
+        }
+      });
+    });
+  }
+
+  const taskModal = document.querySelector("#task-modal") as HTMLDialogElement | null;
+  const taskModalForm = document.querySelector("#task-modal-form") as HTMLFormElement | null;
+  const taskModalDeleteForm = document.querySelector("#task-modal-delete-form") as HTMLFormElement | null;
+  const taskModalPanels = document.querySelector<HTMLElement>("#task-modal-panels");
+  const taskModalHeading = document.querySelector<HTMLElement>("#task-modal-heading");
+  const taskModalTaskId = document.querySelector("#task-modal-taskId") as HTMLInputElement | null;
+  const taskModalDeleteTaskId = document.querySelector("#task-modal-delete-taskId") as HTMLInputElement | null;
+  const taskModalTitle = document.querySelector("#task-modal-title") as HTMLInputElement | null;
+  const taskModalDescription = document.querySelector("#task-modal-description") as HTMLTextAreaElement | null;
+  const taskModalType = document.querySelector("#task-modal-type") as HTMLSelectElement | null;
+  const taskModalPriority = document.querySelector("#task-modal-priority") as HTMLSelectElement | null;
+  const taskModalAssignee = document.querySelector("#task-modal-assignee") as HTMLSelectElement | null;
+
+  // Notes/time entries for every task are pre-rendered into inert <template> elements (one per
+  // task) rather than fetched — cloning a template's content is how the modal's panels get filled
+  // in, with no JSON API involved.
+  function renderTaskPanels(taskId: string) {
+    if (!taskModalPanels) return;
+    taskModalPanels.replaceChildren();
+    const template = document.querySelector<HTMLTemplateElement>(`#task-panel-${taskId}`);
+    if (template) {
+      taskModalPanels.appendChild(template.content.cloneNode(true));
+    }
+  }
+
+  function openTaskModal(mode: "create" | "edit", card?: HTMLElement) {
+    if (
+      !taskModal ||
+      !taskModalForm ||
+      !taskModalDeleteForm ||
+      !taskModalHeading ||
+      !taskModalTaskId ||
+      !taskModalDeleteTaskId ||
+      !taskModalTitle ||
+      !taskModalDescription ||
+      !taskModalType ||
+      !taskModalPriority ||
+      !taskModalAssignee
+    ) {
+      return;
+    }
+
+    taskModalForm.reset();
+
+    if (mode === "edit" && card) {
+      const taskId = card.dataset.taskId ?? "";
+      taskModalHeading.textContent = "Edit Task";
+      taskModalTaskId.value = taskId;
+      taskModalDeleteTaskId.value = taskId;
+      taskModalTitle.value = card.dataset.taskTitle ?? "";
+      taskModalDescription.value = card.dataset.taskDescription ?? "";
+      taskModalType.value = card.dataset.taskType ?? "task";
+      taskModalPriority.value = card.dataset.taskPriority ?? "normal";
+      taskModalAssignee.value = card.dataset.taskAssignee ?? "";
+      taskModalDeleteForm.hidden = false;
+      renderTaskPanels(taskId);
+    } else {
+      taskModalHeading.textContent = "Add Task";
+      taskModalTaskId.value = "";
+      taskModalDeleteTaskId.value = "";
+      taskModalType.value = "task";
+      taskModalPriority.value = "normal";
+      taskModalDeleteForm.hidden = true;
+      taskModalPanels?.replaceChildren();
+    }
+
+    taskModal.showModal();
+  }
+
+  if (taskModal) {
+    document.querySelectorAll<HTMLElement>("[data-open-task-modal]").forEach((trigger) => {
+      trigger.addEventListener("click", (e) => {
+        if (trigger.dataset.openTaskModal === "edit") return; // handled by the kanban card click listener above
+        if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+        e.preventDefault();
+        openTaskModal("create");
+      });
+    });
+
+    taskModal.querySelectorAll<HTMLElement>("[data-close-modal]").forEach((btn) => {
+      btn.addEventListener("click", () => taskModal.close());
+    });
+
+    // Clicking the ::backdrop lands directly on the <dialog> element itself
+    // (nothing inside it), so that's how we distinguish an outside click.
+    taskModal.addEventListener("click", (e) => {
+      if (e.target === taskModal) taskModal.close();
+    });
+
+    // The notes/time panels are injected after page load (cloned from a <template>), so the
+    // top-of-file per-element note-toggle binding never sees them — use delegation instead.
+    taskModalPanels?.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      const editBtn = target.closest<HTMLElement>("[data-edit-note]");
+      const cancelBtn = target.closest<HTMLElement>("[data-cancel-edit]");
+
+      if (editBtn) {
+        const message = editBtn.closest(".thread-message");
+        const form = message?.querySelector<HTMLElement>("[data-note-edit-form]");
+        const body = message?.querySelector<HTMLElement>("[data-note-body]");
+        const actions = message?.querySelector<HTMLElement>("[data-note-actions]");
+        if (form) form.hidden = false;
+        if (body) body.hidden = true;
+        if (actions) actions.hidden = true;
+      } else if (cancelBtn) {
+        const message = cancelBtn.closest(".thread-message");
+        const form = cancelBtn.closest<HTMLElement>("[data-note-edit-form]");
+        const body = message?.querySelector<HTMLElement>("[data-note-body]");
+        const actions = message?.querySelector<HTMLElement>("[data-note-actions]");
+        if (form) form.hidden = true;
+        if (body) body.hidden = false;
+        if (actions) actions.hidden = false;
+      }
+    });
+
+    // A task write (save/delete note, log/delete time, save task details) redirects back here
+    // with ?openTask=<id> so the modal reopens showing the fresh data instead of leaving the
+    // admin back at a closed board after every small change.
+    const openTaskId = new URLSearchParams(window.location.search).get("openTask");
+    if (openTaskId) {
+      const card = board?.querySelector<HTMLElement>(`[data-task-id="${openTaskId}"]`);
+      if (card) openTaskModal("edit", card);
+      const url = new URL(window.location.href);
+      url.searchParams.delete("openTask");
+      window.history.replaceState({}, "", url);
+    }
+  }
+</script>

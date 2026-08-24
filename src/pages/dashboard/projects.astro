@@ -40,7 +40,7 @@ const formatDate = (ms: number | null) => (ms ? new Date(ms).toLocaleDateString(
           {projects.map((project) => (
             <tr>
               <td>
-                <strong>{project.name}</strong>
+                <a href={`/dashboard/projects/${project.id}`}><strong>{project.name}</strong></a>
                 {project.description && <div style="color: var(--ink-soft); font-size: 0.85rem; margin-top: 0.2rem;">{project.description}</div>}
               </td>
               <td><span class={`badge ${statusBadge[project.status]}`}>{project.status.replace(/_/g, " ")}</span></td>

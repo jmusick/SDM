@@ -204,11 +204,21 @@ const isActive = (prefix: string) => currentPath === prefix || currentPath.start
         color: #7d2121;
       }
 
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.7rem;
+      }
+
       .field {
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
         margin-bottom: 0.85rem;
+      }
+
+      .field.full {
+        grid-column: 1 / -1;
       }
 
       .field label {
@@ -298,6 +308,141 @@ const isActive = (prefix: string) => currentPath === prefix || currentPath.start
         white-space: pre-wrap;
         line-height: 1.5;
       }
+
+      .kanban {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.9rem;
+        align-items: start;
+      }
+
+      .kanban-column {
+        background: rgba(239, 247, 253, 0.5);
+        border: 1px solid var(--line);
+        border-radius: 0.85rem;
+        padding: 0.7rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+      }
+
+      .kanban-column-header {
+        font-family: "Sora", sans-serif;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--brand-strong);
+        display: flex;
+        justify-content: space-between;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+
+      .kanban-count {
+        color: var(--ink-soft);
+        font-weight: 600;
+      }
+
+      .kanban-drop-zone {
+        min-height: 60px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        border-radius: 0.6rem;
+        transition: background 0.15s ease;
+      }
+
+      .kanban-drop-zone.drag-over {
+        background: rgba(31, 90, 137, 0.08);
+      }
+
+      .kanban-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 0.65rem;
+        padding: 0.6rem 0.7rem;
+        text-decoration: none;
+        color: var(--ink);
+      }
+
+      .kanban-card-title {
+        font-weight: 600;
+        font-size: 0.92rem;
+      }
+
+      .kanban-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.4rem;
+        margin-top: 0.15rem;
+      }
+
+      .kanban-assignee {
+        font-size: 0.75rem;
+        color: var(--ink-soft);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .kanban-priority {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        flex-shrink: 0;
+      }
+
+      .kanban-priority-low {
+        color: var(--ink-soft);
+      }
+
+      .kanban-priority-normal {
+        color: #7d5a12;
+      }
+
+      .kanban-priority-high {
+        color: #7d2121;
+      }
+
+      .form-actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.6rem;
+      }
+
+      .notice {
+        margin-bottom: 1rem;
+        padding: 0.7rem 0.85rem;
+        border-radius: 0.65rem;
+        font-size: 0.9rem;
+      }
+
+      .notice-success {
+        background: rgba(12, 117, 58, 0.12);
+        border: 1px solid rgba(12, 117, 58, 0.28);
+        color: #0b5f33;
+      }
+
+      .notice-error {
+        background: rgba(173, 38, 38, 0.12);
+        border: 1px solid rgba(173, 38, 38, 0.28);
+        color: #7d2121;
+      }
+
+      @media (max-width: 1200px) {
+        .kanban {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .kanban {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
     <slot name="head" />
   </head>
@@ -318,6 +463,9 @@ const isActive = (prefix: string) => currentPath === prefix || currentPath.start
           <a href="/dashboard/projects" class={isActive("/dashboard/projects") ? "active" : undefined}>Projects</a>
           <a href="/dashboard/billing" class={isActive("/dashboard/billing") ? "active" : undefined}>Billing</a>
           <a href="/dashboard/tickets" class={isActive("/dashboard/tickets") ? "active" : undefined}>Tickets</a>
+          {!impersonatedClient && (
+            <a href="/dashboard/settings" class={isActive("/dashboard/settings") ? "active" : undefined}>Settings</a>
+          )}
         </nav>
         {!impersonatedClient && user && (
           <div class="dash-logout">

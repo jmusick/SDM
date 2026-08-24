@@ -1,0 +1,62 @@
+---
+interface Props {
+  user: { email: string; firstName: string | null; lastName: string | null; role: UserRole };
+  backTo: "/admin/settings" | "/dashboard/settings";
+  errorMessage: string | null;
+  successMessage: string | null;
+}
+
+const { user, backTo, errorMessage, successMessage } = Astro.props;
+---
+
+{errorMessage && <div class="notice notice-error">{errorMessage}</div>}
+{successMessage && <div class="notice notice-success">{successMessage}</div>}
+
+<div class="card" style="max-width: 560px;">
+  <h2 style="margin: 0 0 1rem; font-family: 'Sora', sans-serif; font-size: 1rem; color: var(--brand-strong);">Profile</h2>
+  <form method="post" action="/api/settings/profile">
+    <input type="hidden" name="backTo" value={backTo} />
+    <div class="form-grid">
+      <div class="field">
+        <label for="firstName">First Name</label>
+        <input id="firstName" name="firstName" type="text" value={user.firstName ?? ""} autocomplete="given-name" />
+      </div>
+      <div class="field">
+        <label for="lastName">Last Name</label>
+        <input id="lastName" name="lastName" type="text" value={user.lastName ?? ""} autocomplete="family-name" />
+      </div>
+      <div class="field full">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required value={user.email} autocomplete="email" />
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Save Profile</button>
+    </div>
+  </form>
+</div>
+
+<div class="card section-gap" style="max-width: 560px;">
+  <h2 style="margin: 0 0 1rem; font-family: 'Sora', sans-serif; font-size: 1rem; color: var(--brand-strong);">Change Password</h2>
+  <form method="post" action="/api/settings/password">
+    <input type="hidden" name="backTo" value={backTo} />
+    <div class="form-grid">
+      <div class="field full">
+        <label for="currentPassword">Current Password</label>
+        <input id="currentPassword" name="currentPassword" type="password" required autocomplete="current-password" />
+      </div>
+      <div class="field">
+        <label for="newPassword">New Password</label>
+        <input id="newPassword" name="newPassword" type="password" required minlength="10" autocomplete="new-password" />
+      </div>
+      <div class="field">
+        <label for="confirmPassword">Confirm New Password</label>
+        <input id="confirmPassword" name="confirmPassword" type="password" required minlength="10" autocomplete="new-password" />
+      </div>
+    </div>
+    <p style="margin: 0.6rem 0 0; font-size: 0.82rem; color: var(--ink-soft);">At least 10 characters.</p>
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Update Password</button>
+    </div>
+  </form>
+</div>

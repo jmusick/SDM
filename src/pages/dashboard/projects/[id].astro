@@ -1,0 +1,104 @@
+---
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import { ensureClientContext } from "../../../lib/http";
+import { getProjectById } from "../../../lib/projects";
+import { listTasksByProject, type TaskLane, type TaskType } from "../../../lib/tasks";
+import { listNotes } from "../../../lib/notes";
+
+export const prerender = false;
+
+const clientResult = await ensureClientContext(Astro);
+if (clientResult instanceof Response) return clientResult;
+const client = clientResult;
+
+const { id } = Astro.params;
+const project = id ? await getProjectById(Astro.locals, id) : null;
+if (!project || project.clientId !== client.id) {
+  return Astro.redirect("/dashboard/projects");
+}
+
+const [tasks, notes] = await Promise.all([
+  listTasksByProject(Astro.locals, project.id),
+  listNotes(Astro.locals, "project_notes", project.id),
+]);
+
+const formatDateTime = (ms: number) => new Date(ms).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+
+const lanes: TaskLane[] = ["planning", "to_do", "in_progress", "qa", "done"];
+const laneLabel: Record<TaskLane, string> = {
+  planning: "Planning",
+  to_do: "To Do",
+  in_progress: "In Progress",
+  qa: "QA",
+  done: "Done",
+};
+const tasksByLane: Record<TaskLane, typeof tasks> = { planning: [], to_do: [], in_progress: [], qa: [], done: [] };
+for (const task of tasks) tasksByLane[task.lane].push(task);
+
+const taskTypeBadge: Record<TaskType, string> = {
+  story: "badge-neutral",
+  bug: "badge-danger",
+  task: "badge-warning",
+  chore: "badge-success",
+};
+
+const statusBadge: Record<string, string> = {
+  planning: "badge-neutral",
+  in_progress: "badge-warning",
+  review: "badge-warning",
+  completed: "badge-success",
+  on_hold: "badge-danger",
+};
+---
+
+<DashboardLayout title={project.name}>
+  <p style="margin: 0 0 1rem; color: var(--ink-soft);">
+    Status: <span class={`badge ${statusBadge[project.status]}`}>{project.status.replace(/_/g, " ")}</span>
+  </p>
+  {project.description && <p style="margin: 0 0 1.2rem; color: var(--ink-soft);">{project.description}</p>}
+
+  <div class="card">
+    <h2 style="margin: 0 0 1rem; font-family: 'Sora', sans-serif; font-size: 1rem; color: var(--brand-strong);">Notes</h2>
+    {notes.length === 0 ? (
+      <p class="empty-state">No notes yet.</p>
+    ) : (
+      <div class="thread">
+        {notes.map((note) => (
+          <div class="thread-message">
+            <div class="thread-meta">
+              <span>{note.authorName}</span>
+              <span>{formatDateTime(note.createdAt)}</span>
+            </div>
+            <div class="thread-body">{note.body}</div>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+
+  <div class="card section-gap">
+    <h2 style="margin: 0 0 1rem; font-family: 'Sora', sans-serif; font-size: 1rem; color: var(--brand-strong);">Tasks</h2>
+    <div class="kanban">
+      {lanes.map((lane) => (
+        <div class="kanban-column">
+          <div class="kanban-column-header">
+            {laneLabel[lane]}
+            <span class="kanban-count">{tasksByLane[lane].length}</span>
+          </div>
+          <div class="kanban-drop-zone">
+            {tasksByLane[lane].map((task) => (
+              <div class="kanban-card">
+                <span class={`badge ${taskTypeBadge[task.type]}`}>{task.type}</span>
+                <span class="kanban-card-title">{task.title}</span>
+                <div class="kanban-card-footer">
+                  <span class={`kanban-priority kanban-priority-${task.priority}`}>{task.priority}</span>
+                  <span class="kanban-assignee">{task.assignedToName ?? "Unassigned"}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</DashboardLayout>

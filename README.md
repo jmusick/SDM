@@ -14,7 +14,7 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 - Contact form with hCaptcha and Web3Forms submission
 - Privacy policy
 - Auto-generated sitemap
-- Authenticated client dashboard (`/dashboard`) and admin area (`/admin`) — projects, billing, and support tickets, backed by Cloudflare D1
+- Authenticated client dashboard (`/dashboard`) and admin area (`/admin`) — projects with a Kanban task board, notes, time tracking, billing, support tickets, and account settings, backed by Cloudflare D1
 
 ## Stack
 
@@ -28,7 +28,7 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 | Contact form | Web3Forms API |
 | CAPTCHA | hCaptcha |
 | Hosting | Cloudflare Pages project `sdm` (via `@astrojs/cloudflare`), git-integrated — pushing to `master` deploys to production |
-| Database | Cloudflare D1 (`sdm-db`), binding `DB` — client/project/invoice/ticket data |
+| Database | Cloudflare D1 (`sdm-db`), binding `DB` — client/project/task/note/time-entry/invoice/ticket data |
 | Auth | Cookie-based sessions (`sdm_session`), PBKDF2 password hashing via Web Crypto — no external auth provider |
 
 ## Client Dashboard & Admin Area
@@ -37,12 +37,14 @@ A handful of clients log in at `/login` to see their own projects, invoices, and
 
 - **First-time setup**: visit `/admin/setup` once — it only works while zero users exist in the database, and creates the owner's admin account.
 - **Auth model**: `users` table holds both `admin` and `client` roles; `clients` holds the business-facing profile for client accounts. Sessions live in the `sessions` table (14-day expiry), cookie is httpOnly/SameSite=Lax.
-- **Data model**: see `migrations/*.sql` for the full schema — `users`, `sessions`, `clients`, `projects`, `project_features`, `invoices`, `tickets`, `ticket_messages`.
+- **Data model**: see `migrations/*.sql` for the full schema — `users`, `sessions`, `clients`, `projects`, `tasks`, `project_notes`, `task_notes`, `time_entries`, `invoices`, `tickets`, `ticket_messages`.
 - **Internal projects**: `projects.client_id` is nullable — a project with no client is an internal (Stone Dragon Media's own) project. It's shown with an "Internal" badge in the admin UI and is filtered out of anything client-facing by construction (client pages always query by a specific `clientId`).
-- **Project features**: each project can have "features" (lightweight user stories — title, description, status: backlog/in_progress/done) managed from the project detail page under `/admin/projects/[id]`.
+- **Project task board**: each project has a drag-and-drop Kanban board (lanes: planning / to do / in progress / QA / done) on `/admin/projects/[id]`. Tasks carry a type (story/bug/task/chore), priority, and an optional assignee (admin users only). Everything about a task — details, notes, and time entries — is edited in a single modal on that page; there is no separate task page. Projects also have their own notes thread, and time is logged per task as add/delete-only entries (stored in minutes; the form accepts hours or minutes).
+- **Client-side project view**: clients see the same board read-only at `/dashboard/projects/[id]` — no drag handles, no note or time forms. Every write endpoint under `/api/tasks/*`, `/api/project-notes/*`, `/api/task-notes/*`, and `/api/time-entries/*` is admin-only regardless.
+- **Account settings**: both roles manage their own name, email, and password at `/admin/settings` / `/dashboard/settings` (shared `SettingsForm.astro`). These are strictly self-service — the API routes always act on the logged-in user, never on a `userId` from form input. Changing a password does not sign out the user's other sessions.
 - **Client lifecycle**: clients can be **archived** (reversible — blocks login, keeps all data) or **deleted** (irreversible — permanently removes their login and cascades through all of their projects, invoices, tickets, and ticket messages via `ON DELETE CASCADE`). Deletion requires the admin to re-enter their own password.
 - **Filtering/sorting**: the admin Projects and Clients list pages support status/client filters and sortable columns via query params, following the same pattern (see either page for the template).
-- **Library code**: `src/lib/{db,auth,http,users,clients,projects,features,invoices,tickets}.ts`. `src/middleware.ts` resolves the session/user/impersonated-client on every request. `src/lib/http.ts`'s `ensureRole`/`ensureClientContext` guards **return** a redirect `Response` rather than throwing one — Astro page frontmatter only short-circuits via `return <Response>`, a thrown Response is not caught by the renderer. Every call site does `if (result instanceof Response) return result;`.
+- **Library code**: `src/lib/{db,auth,http,users,clients,projects,tasks,notes,timeEntries,invoices,tickets}.ts`. `src/middleware.ts` resolves the session/user/impersonated-client on every request. `src/lib/http.ts`'s `ensureRole`/`ensureClientContext` guards **return** a redirect `Response` rather than throwing one — Astro page frontmatter only short-circuits via `return <Response>`, a thrown Response is not caught by the renderer. Every call site does `if (result instanceof Response) return result;`.
 - **Not wired to a real billing/accounting system** — invoices are a simple manually-entered record (description, amount, status, dates) in D1, not synced from Stripe/QuickBooks/etc.
 
 ## Site Pages
@@ -62,8 +64,8 @@ A handful of clients log in at `/login` to see their own projects, invoices, and
 | `/robots.txt` | Crawl rules + sitemap reference |
 | `/login` | Client/admin login (noindex) |
 | `/admin/setup` | One-time admin account bootstrap — only reachable while no users exist (noindex) |
-| `/dashboard/*` | Client dashboard: overview, projects, billing, tickets (noindex, auth required) |
-| `/admin/*` | Admin area: clients, projects, billing, tickets (noindex, auth required) |
+| `/dashboard/*` | Client dashboard: overview, projects (read-only task board), billing, tickets, settings (noindex, auth required) |
+| `/admin/*` | Admin area: clients, projects (task board, notes, time), billing, tickets, settings (noindex, auth required) |
 
 ## Key Implementation Notes
 
@@ -154,29 +156,40 @@ npm run d1:migrate:remote   # apply to production D1
 │   └── (page hero images, .webp)
 ├── migrations/
 │   ├── 0001_initial.sql         # D1 schema: users, sessions, clients, projects, invoices, tickets, ticket_messages
-│   └── 0002_project_features.sql # projects.client_id made nullable (internal projects) + project_features table
+│   ├── 0002_project_features.sql # projects.client_id made nullable (internal projects) + project_features table
+│   ├── 0003_tasks_notes_time.sql # project_features -> tasks (type/lane/priority) + project_notes, task_notes, time_entries
+│   ├── 0004_task_lanes_assignee.sql # adds the planning/to_do lanes + tasks.assigned_to_user_id
+│   └── 0005_user_names.sql       # users.first_name / users.last_name
+├── scripts/
+│   ├── seed-local.mjs           # generates local test-data SQL (not in package.json — pipe into wrangler d1 execute --local)
+│   └── seed-local.sql
 ├── src/
 │   ├── components/
 │   │   ├── SiteHeader.astro
+│   │   ├── SettingsForm.astro   # shared profile/password forms for both settings pages
 │   │   └── SiteFooter.astro
 │   ├── layouts/
 │   │   ├── BaseLayout.astro     # marketing pages
 │   │   ├── AdminLayout.astro    # admin shell (sidebar nav, shared table/form/badge styles)
 │   │   └── DashboardLayout.astro # client dashboard shell (+ impersonation banner)
-│   ├── lib/                     # D1 data access + auth (db, auth, http, users, clients, projects, features, invoices, tickets)
+│   ├── lib/                     # D1 data access + auth (db, auth, http, users, clients, projects, tasks, notes, timeEntries, invoices, tickets)
 │   ├── middleware.ts            # resolves session/user/impersonated-client on every request
 │   ├── env.d.ts                 # App.Locals typing (UserRecord, SessionRecord, ClientRecord)
 │   └── pages/
 │       ├── index.astro / about.astro / contact.astro / services.astro / products.astro / work.astro / privacy-policy.astro / 404.astro / thank-you.astro
 │       ├── login.astro
-│       ├── admin/                # setup.astro, index.astro, clients/, projects/ (incl. [id]/features/), billing/, tickets/
-│       ├── dashboard/             # index.astro, projects.astro, billing.astro, tickets/
+│       ├── admin/                # setup.astro, index.astro, settings.astro, clients/, projects/ (board + task modal), billing/, tickets/
+│       ├── dashboard/             # index.astro, projects.astro, projects/[id].astro, billing.astro, settings.astro, tickets/
 │       └── api/
 │           ├── auth/ (login.ts, logout.ts)
 │           ├── setup/create-admin.ts
 │           ├── clients/ (save.ts, delete.ts, reset-password.ts, set-active.ts)
 │           ├── projects/ (save.ts, delete.ts)
-│           ├── features/ (save.ts, delete.ts)
+│           ├── tasks/ (save.ts, delete.ts, update-lane.ts)
+│           ├── project-notes/ (save.ts, delete.ts)
+│           ├── task-notes/ (save.ts, delete.ts)
+│           ├── time-entries/ (save.ts, delete.ts)
+│           ├── settings/ (profile.ts, password.ts)
 │           ├── invoices/ (save.ts, delete.ts)
 │           ├── tickets/ (create.ts, reply.ts, update-status.ts)
 │           └── admin/impersonate/ (start.ts, stop.ts)

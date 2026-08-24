@@ -1,0 +1,33 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import SettingsForm from "../../components/SettingsForm.astro";
+import { ensureRole } from "../../lib/http";
+import { getUserById } from "../../lib/users";
+
+export const prerender = false;
+
+const guard = ensureRole(Astro, ["admin"]);
+if (guard instanceof Response) return guard;
+
+const user = await getUserById(Astro.locals, guard.id);
+if (!user) {
+  return Astro.redirect("/login");
+}
+
+const errorParam = Astro.url.searchParams.get("error");
+const errorMessages: Record<string, string> = {
+  invalid_email: "Enter a valid email address.",
+  email_taken: "That email is already in use by another account.",
+  password_too_short: "New password must be at least 10 characters.",
+  password_mismatch: "New password and confirmation don't match.",
+  wrong_password: "Current password is incorrect.",
+};
+const errorMessage = errorParam ? errorMessages[errorParam] ?? "Something went wrong." : null;
+
+const savedParam = Astro.url.searchParams.get("saved");
+const successMessage = savedParam === "password" ? "Password updated." : savedParam === "1" ? "Profile saved." : null;
+---
+
+<AdminLayout title="Settings">
+  <SettingsForm user={user} backTo="/admin/settings" errorMessage={errorMessage} successMessage={successMessage} />
+</AdminLayout>
