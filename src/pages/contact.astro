@@ -163,19 +163,19 @@ export const prerender = true;
         margin-top: 0.15rem;
       }
 
-      .info-item h3 {
+      .info-item h2 {
         margin: 0 0 0.3rem;
         font-family: "Sora", sans-serif;
         font-size: 1rem;
         color: var(--brand-strong);
       }
 
-      .info-item h3 a {
+      .info-item h2 a {
         color: inherit;
         text-decoration: none;
       }
 
-      .info-item h3 a:hover {
+      .info-item h2 a:hover {
         text-decoration: underline;
       }
 
@@ -209,6 +209,16 @@ export const prerender = true;
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
+      }
+
+      .required-note {
+        margin: 0 0 0.75rem;
+        font-size: 0.85rem;
+        color: var(--ink-soft);
+      }
+
+      .required-mark {
+        color: var(--brand-strong);
       }
 
       .field.full {
@@ -345,20 +355,21 @@ export const prerender = true;
     </div>
   </div>
 
-  <main class="page">
+  <main class="page" id="main-content">
     <div class="contact-layout">
       <div class="form-card">
         <h1>Contact Stone Dragon Media</h1>
         <p>Share a few project details and we will follow up within one business day.</p>
-        <form id="contact-form" method="post" action="https://api.web3forms.com/submit" novalidate>
+        <p class="required-note">Fields marked with <span aria-hidden="true">*</span> are required.</p>
+        <form id="contact-form" method="post" action="https://api.web3forms.com/submit">
           <input type="hidden" name="access_key" value="8b9f961f-4a2f-43bc-938a-11f26885cd31" />
           <div class="form-grid">
             <div class="field">
-              <label for="name">Name</label>
+              <label for="name">Name <span class="required-mark" aria-hidden="true">*</span></label>
               <input id="name" name="name" type="text" required />
             </div>
             <div class="field">
-              <label for="email">Email</label>
+              <label for="email">Email <span class="required-mark" aria-hidden="true">*</span></label>
               <input id="email" name="email" type="email" required />
             </div>
             <div class="field">
@@ -375,7 +386,7 @@ export const prerender = true;
               </select>
             </div>
             <div class="field full">
-              <label for="message">Project Details</label>
+              <label for="message">Project Details <span class="required-mark" aria-hidden="true">*</span></label>
               <textarea id="message" name="message" placeholder="Tell us about your goals, scope, and desired outcomes." required></textarea>
             </div>
           </div>
@@ -397,35 +408,35 @@ export const prerender = true;
         <div class="info-item">
           <Icon class="info-icon" name="lucide:map-pin" aria-hidden="true" />
           <div>
-            <h3>Sandusky, OH</h3>
+            <h2>Sandusky, OH</h2>
             <p>Serving Sandusky, Erie County, and the surrounding area in person, plus remote clients anywhere.</p>
           </div>
         </div>
         <div class="info-item">
           <Icon class="info-icon" name="lucide:phone" aria-hidden="true" />
           <div>
-            <h3><a href="tel:+15674500960">(567) 450-0960</a></h3>
+            <h2><a href="tel:+15674500960">(567) 450-0960</a></h2>
             <p>Call or text to talk through your project.</p>
           </div>
         </div>
         <div class="info-item">
           <Icon class="info-icon" name="lucide:clock" aria-hidden="true" />
           <div>
-            <h3>Quick Response</h3>
+            <h2>Quick Response</h2>
             <p>We follow up on all inquiries within one business day.</p>
           </div>
         </div>
         <div class="info-item">
           <Icon class="info-icon" name="lucide:shield-check" aria-hidden="true" />
           <div>
-            <h3>No Obligation</h3>
+            <h2>No Obligation</h2>
             <p>Consultations are free. No pressure, no commitments required.</p>
           </div>
         </div>
         <div class="info-item">
           <Icon class="info-icon" name="lucide:layers" aria-hidden="true" />
           <div>
-            <h3>Full-Service</h3>
+            <h2>Full-Service</h2>
             <p>From strategy through launch and beyond, we handle the entire project lifecycle.</p>
           </div>
         </div>

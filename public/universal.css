@@ -15,6 +15,24 @@
 	box-sizing: border-box;
 }
 
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 1000;
+	padding: 0.75rem 1.25rem;
+	background: var(--brand-strong);
+	color: #edf6ff;
+	font-family: "Sora", sans-serif;
+	font-weight: 600;
+	text-decoration: none;
+	border-radius: 0 0 0.5rem 0;
+}
+
+.skip-link:focus {
+	left: 0;
+}
+
 html,
 body {
 	min-height: 100%;
@@ -269,7 +287,7 @@ body {
 	align-items: center;
 	justify-content: space-between;
 	gap: 1rem;
-	color: var(--ink-soft);
+	color: var(--ink);
 	font-size: 0.93rem;
 }
 
@@ -343,10 +361,15 @@ body {
 	font-weight: 600;
 }
 
-/* Links inside body copy. Scoped to p/li so buttons and nav links are unaffected. */
+/*
+ * Links inside body copy. Scoped to p/li so buttons and nav links are unaffected.
+ * Uses --ink rather than --brand: this text sits directly on the page's gradient
+ * background (which is fixed-attachment and can scroll under it at any point),
+ * and --brand doesn't reach 4.5:1 against the gradient's darker end.
+ */
 .page p a,
 .page li a {
-	color: var(--brand);
+	color: var(--ink);
 	font-weight: 600;
 	text-decoration: underline;
 	text-underline-offset: 0.15em;
@@ -359,6 +382,14 @@ body {
 
 .site-footer a:hover {
 	text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.button:hover,
+	.about-cta-link:hover,
+	.proof-card:hover {
+		transform: none;
+	}
 }
 
 @media (max-width: 920px) {
