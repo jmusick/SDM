@@ -1,7 +1,7 @@
 {
   "name": "sdm",
   "type": "module",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "license": "SEE LICENSE IN LICENSE.md",
   "engines": {
     "node": ">=22.12.0"
