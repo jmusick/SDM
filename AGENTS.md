@@ -7,11 +7,10 @@ change something documented in both, change both.
 ## What this project is
 
 The website for Stone Dragon Media, LLC, a web design and digital strategy agency based in Sandusky,
-Ohio, live at [stonedragonmedia.com](https://stonedragonmedia.com). It is two things in one Astro
-app:
+Ohio, live at [stonedragonmedia.com](https://stonedragonmedia.com). It is two things in one Astro app:
 
 1. **Marketing site** (`/`, `/about`, `/services`, `/products`, `/work`, `/contact`, `/thank-you`,
-   `/privacy-policy`, `/404`) — prerendered to static HTML at build time.
+   `/privacy-policy`, `/sitemap`, `/404`) — prerendered to static HTML at build time.
 2. **Client portal + admin** (`/login`, `/dashboard/*`, `/admin/*`, `/api/*`) — server-rendered per
    request, backed by Cloudflare D1.
 
@@ -31,290 +30,149 @@ npm run d1:migrate:remote  # apply migrations/*.sql to production D1
 npm run cf:types           # regenerate worker-configuration.d.ts
 ```
 
-Always run `npm run build` after non-trivial changes before considering a task done. For anything
-touching `/dashboard`, `/admin`, or auth, also exercise the real flow via `npm run dev` — `astro
-check` and `build` will not catch a broken redirect or a missing D1 binding.
+Always run `npm run build` after non-trivial changes. For anything touching `/dashboard`, `/admin`,
+or auth, also exercise the real flow via `npm run dev` — `astro check`/`build` won't catch a broken
+redirect or missing D1 binding.
 
-`scripts/seed-local.mjs` generates SQL for local test data (clients, projects, invoices, tickets)
-with real PBKDF2 hashes, and is **not** wired into `package.json` — pipe its output into
-`npx wrangler d1 execute sdm-db --local` (the committed `scripts/seed-local.sql` is one such
-generated dump). Local only; never point it at `--remote`.
+`scripts/seed-local.mjs` generates local test-data SQL (real PBKDF2 hashes) and is **not** wired into
+`package.json` — pipe its output into `npx wrangler d1 execute sdm-db --local`. Local only.
 
-**`npm run preview` is broken.** It maps to `astro preview`, which exits with `No build output
-found` even straight after a successful build, because `astro.config.mjs` sets `build.client: './'`
-and `build.server: './_worker.js'` — a layout the adapter's preview does not expect. To eyeball the
-built output, serve `dist/` with any static file server, or use `npm run dev`. Don't "fix" this by
-changing the `build` paths; they are what produce a Pages-compatible `_worker.js/`.
+**`npm run preview` is broken** (`astro preview` → "No build output found") because `astro.config.mjs`
+sets `build.client`/`build.server` to a layout the adapter's preview doesn't expect — those paths are
+what produce the Pages-compatible `_worker.js/`, so don't "fix" this by changing them. Serve `dist/`
+with a static file server, or use `npm run dev`, instead.
 
 ## Deployment
 
-- Cloudflare **Pages** project named `sdm`, git-integrated with GitHub `jmusick/SDM`. Pushing to
-  `master` auto-deploys to production. A manual `wrangler pages deploy dist --project-name=sdm` also
-  works but registers as a "direct upload" rather than a commit-tied deployment.
+- Cloudflare **Pages** project `sdm`, git-integrated with GitHub `jmusick/SDM`. Pushing to `master`
+  auto-deploys. A manual `wrangler pages deploy dist --project-name=sdm` works but registers as a
+  "direct upload" rather than a commit-tied deployment.
 - **Git-integrated Pages builds do not read bindings from `wrangler.toml`.** The D1 binding must be
-  added in the Cloudflare dashboard (Pages project → Settings → Bindings → D1, variable name `DB`),
-  and only takes effect on the *next* deployment. If production 500s on portal routes after a schema
-  or config change, check this first.
-- `fix-wrangler.js` runs at the end of every build: it deletes `.wrangler/deploy/config.json` and
-  `dist/_worker.js/wrangler.json`, then writes `dist/_worker.js/index.js` re-exporting `entry.mjs`.
-- **`wrangler.toml` has no `main` field, deliberately.** Adding one breaks `astro build` — the
-  Cloudflare Vite plugin resolves it against a build-output path that doesn't exist yet during the
-  pre-build sync step. `npm run dev` passes the worker entry and `--assets dist` as CLI flags
-  instead. (`[assets]` and `[[d1_databases]]` *are* in the toml and are fine; only `main` is the
-  problem.)
+  added in the Cloudflare dashboard (Pages project → Settings → Bindings → D1, variable `DB`), taking
+  effect on the *next* deploy. If portal routes 500 after a schema/config change, check this first.
+- `fix-wrangler.js` runs at the end of every build: deletes `.wrangler/deploy/config.json` and
+  `dist/_worker.js/wrangler.json`, writes `dist/_worker.js/index.js` re-exporting `entry.mjs`.
+- **`wrangler.toml` has no `main` field, deliberately** — adding one breaks `astro build` (the
+  Cloudflare Vite plugin resolves it against a not-yet-existing build path). `npm run dev` passes the
+  worker entry and `--assets dist` as CLI flags instead.
 
 ## Portal / admin architecture
 
-- **Every new marketing page must be prerendered.** Add `export const prerender = true;` to its
-  frontmatter, or it runs through the Worker on every request. Only `/login`, `/dashboard/*`,
-  `/admin/*`, and `/api/*` should be dynamic.
+- **Every new marketing page must be prerendered** (`export const prerender = true;`) or it runs
+  through the Worker on every request. Only `/login`, `/dashboard/*`, `/admin/*`, `/api/*` are dynamic.
 - **Auth guards return, never throw.** `src/lib/http.ts`'s `ensureRole`/`requireUser`/
-  `ensureClientContext` return a redirect `Response` on failure. Astro frontmatter only
-  short-circuits rendering via `return <Response>` — a *thrown* Response is not caught by the
-  renderer and produces an unhandled 500. Every call site must do
-  `if (result instanceof Response) return result;` before using the value. Applies in both `.astro`
-  pages and `.ts` API routes.
-- **D1 access** goes through `src/lib/db.ts`'s `ensureDB(locals)`, which reads the `DB` binding via
-  `cloudflare:workers`' `env` — *not* `Astro.locals.runtime.env`, which is for a different
-  `@astrojs/cloudflare` config shape than this project uses.
-- **`src/middleware.ts`** resolves session, user, and impersonated client on every request.
-- **Data access** lives in
-  `src/lib/{auth,clients,db,http,invoices,notes,projects,tasks,timeEntries,tickets,users}.ts`.
-  Keep SQL there, not in pages.
-- **Auth model**: `users` holds both `admin` and `client` roles; `clients` holds the business profile
-  for client accounts. Sessions are a first-party cookie (`sdm_session`, httpOnly/SameSite=Lax,
-  14-day expiry) with PBKDF2 hashing via Web Crypto. No external auth provider.
-- **`/admin/setup`** is a one-time bootstrap that only works while zero users exist.
-- **Impersonation** ("View as client" in `/admin/clients`) is strictly read-only by design — ticket
-  submission/reply forms are hidden and the underlying API routes reject the write whenever
-  `Astro.locals.impersonatedClient` is set. Don't add new client-side mutations without repeating
-  that check.
-- **`projects.client_id` is nullable.** `NULL` means an internal (no-client) project — don't assume
-  every project row has a client, and don't join with `INNER JOIN clients` (use `LEFT JOIN`, as
-  `listAllProjects` does).
-- **Client deletion is deliberately cascading.** `deleteClient()` in `src/lib/clients.ts` deletes the
-  client's row in `users`, and the schema's `ON DELETE CASCADE` chain handles the rest in one
-  statement — sessions, the `clients` profile, and everything keyed to that client (`projects`,
-  `invoices`, `tickets`, `ticket_messages`). It's gated behind the admin re-entering their own
-  password (`/api/clients/delete.ts` via `verifyUserPassword`). **Archiving** (`clients.isActive` via
-  `set-active.ts`) is the reversible alternative — prefer it in any new "remove this client" UI
-  unless permanent removal is explicitly requested.
-- **Invoices are a manual record** (description, amount, status, dates) in D1. Nothing is synced from
-  Stripe/QuickBooks — don't imply otherwise in copy or code.
-- **Projects have notes and a task board**, both admin-write / client-read-only. `project_notes` and
-  `task_notes` share one implementation (`src/lib/notes.ts`, parameterized by table name — see
-  `NoteTable`) since the two tables are structurally identical. Tasks (`src/lib/tasks.ts`) have a
-  `type` (story/bug/task/chore), `priority` (low/normal/high), an optional `assignedToUserId`
-  (admin users only — populated via `listAdminUsers` in `src/lib/users.ts`), and a `lane`
-  (planning/to_do/in_progress/qa/done) shown as a drag-and-drop Kanban board on
-  `/admin/projects/[id].astro`. New tasks always start in `planning`. Lane changes go through a
-  **dedicated** function (`updateTaskLane`) and a **JSON-returning** API route
-  (`/api/tasks/update-lane`) — the only non-redirect write endpoint in the app, since it's called
-  via `fetch()` from the drag handler rather than a form post. Don't route lane changes through
-  `updateTask`/`api/tasks/save`, and don't make other new endpoints return JSON just because this
-  one does — it's a deliberate, narrow exception, not the new convention. Time entries
-  (`src/lib/timeEntries.ts`) are individual add/delete-only log rows (no edit), stored in a single
-  canonical `minutes` column — the add form accepts hours or minutes and converts server-side.
-- **There is no standalone task page.** Everything about a task — details
-  (title/description/type/priority/assignee), notes, and time entries — is managed through a single
-  native `<dialog>` modal on `/admin/projects/[id].astro` (the app's first use of `<dialog>`). The
-  old `/admin/projects/[projectId]/tasks/{new,[taskId]}.astro` pages were deleted once the modal grew
-  to cover everything they did; don't recreate them.
-  - **One shared dialog** handles both "Add Task" and editing an existing card. Clicking a kanban
-    card intercepts the click (`e.preventDefault()`) and calls `openTaskModal("edit", card)`, which
-    populates the details fields from `data-task-*` attributes already rendered on that card — no
-    fetch call, the data is already on the page.
-  - **Notes and time entries are pre-rendered per task into inert `<template id="task-panel-{taskId}">`
-    elements** (looped once at the bottom of the page, one per task) rather than fetched — opening
-    the modal for a task clones that task's template into `#task-modal-panels`
-    (`renderTaskPanels()`). This means every task's full notes/time HTML ships on every load of the
-    project page; fine at this app's scale, but don't reach for this pattern on a page with hundreds
-    of list items.
-  - **Every task-scoped write is still a plain form POST + full-page-reload redirect** (`/api/tasks/save`,
-    `/api/task-notes/{save,delete}`, `/api/time-entries/{save,delete}`) — no AJAX was introduced.
-    What changed is the *redirect target*: all of them now redirect to
-    `/admin/projects/{projectId}?openTask={taskId}` (instead of a task-page URL that no longer
-    exists). A small script on page load reads `?openTask=`, finds that task's card, calls
-    `openTaskModal("edit", card)` to reopen it with the fresh data, then strips the param via
-    `history.replaceState` so a manual refresh doesn't reopen it again. `/api/tasks/delete` is the one
-    exception — it redirects to the plain project URL with no `openTask`, since the task (and its
-    templated panel) no longer exists. Validation failures redirect with `?error=task_invalid`,
-    `note_invalid`, or `time_invalid` (mapped to messages in the page's `errorMessages` record) rather
-    than reopening the modal with the bad input preserved — a minor UX gap, accepted for simplicity.
-  - **Cloned template content isn't covered by the page's initial `querySelectorAll(...).forEach(...)`
-    event bindings** (those run once, before the clone exists). The note edit/cancel toggle inside
-    `#task-modal-panels` uses event delegation (`taskModalPanels.addEventListener("click", ...)` +
-    `target.closest(...)`) instead, precisely because of this.
-  - Closing the modal: a `[data-close-modal]` button, or clicking the `::backdrop` (detected as a
-    click whose `event.target` is the `<dialog>` element itself, since nothing else in it can be that
-    target).
-- **Client dashboard project/task views are read-only by omission, not by disabled controls**:
-  `src/pages/dashboard/projects/[id].astro` renders the same Kanban markup as the admin page but
-  without `draggable` attributes, without the drag `<script>` block, and without any note
-  add/edit/delete forms. The real guarantee is that every write endpoint under `/api/tasks/*`,
-  `/api/project-notes/*`, `/api/task-notes/*`, and `/api/time-entries/*` is `ensureRole(["admin"])`
-  — the UI omission is just so clients aren't shown controls that would 302 away if used.
-
-- **Account settings are self-service only.** `/admin/settings` and `/dashboard/settings` both render
-  the same `src/components/SettingsForm.astro` (name/email, and a change-password form requiring the
-  current password, min 10 chars) and post to `/api/settings/{profile,password}`. Those routes
-  **always** act on `context.locals.user.id` and never on a `userId` from form input — there is no
-  admin-edits-another-user's-account path here. The form carries a `backTo` hidden field, but both
-  routes whitelist it to exactly the two known paths before redirecting, so it can't be used as an
-  open redirect. Errors come back as `?error=` codes (`invalid_email`, `email_taken`,
-  `password_too_short`, `password_mismatch`, `wrong_password`) mapped in each page's `errorMessages`
-  record; success as `?saved=1` (profile) or `?saved=password`.
-  - `/dashboard/settings` redirects any non-`client` user to `/admin/settings`, deliberately: an admin
-    impersonating a client would otherwise be editing their own admin account from inside the client
-    shell, which reads as editing the client's.
-  - **Changing a password does not invalidate the user's other sessions.** Existing `sessions` rows
-    stay valid until they expire. Acceptable for this app's scale — but if a "sign out everywhere"
-    expectation ever comes up, that's the gap.
+  `ensureClientContext` return a redirect `Response` on failure — a *thrown* one isn't caught by the
+  renderer. Every call site must do `if (result instanceof Response) return result;`.
+- **D1 access** goes through `src/lib/db.ts`'s `ensureDB(locals)` (`cloudflare:workers`' `env`, not
+  `Astro.locals.runtime.env`). `src/middleware.ts` resolves session/user/impersonated client on every
+  request. SQL lives in `src/lib/{auth,clients,db,http,invoices,notes,projects,tasks,timeEntries,
+  tickets,users}.ts`, not in pages.
+- **Auth model**: `users` holds both `admin`/`client` roles; `clients` holds the client business
+  profile. Sessions are a first-party cookie (`sdm_session`, httpOnly/SameSite=Lax, 14-day expiry),
+  PBKDF2 via Web Crypto, no external provider. `/admin/setup` bootstraps the first admin and only
+  works while zero users exist.
+- **Impersonation** ("View as client") is strictly read-only — write forms are hidden and API routes
+  reject writes whenever `Astro.locals.impersonatedClient` is set. Repeat that check in new mutations.
+  `projects.client_id` is nullable (`NULL` = internal project) — use `LEFT JOIN`, not `INNER JOIN`.
+- **Client deletion cascades permanently** (`deleteClient()`, via `ON DELETE CASCADE`: `clients` →
+  `projects` → `tasks`/`project_notes` → `task_notes`/`time_entries`, plus `invoices`,
+  `tickets`→`ticket_messages`), gated behind re-entering the admin's password. **Archiving**
+  (`clients.isActive`) is the reversible alternative — prefer it unless told to delete permanently.
+  Invoices are a manual D1 record (description, amount, status, dates) — nothing syncs from
+  Stripe/QuickBooks.
+- **Kanban task board** (`/admin/projects/[id].astro`): tasks have `type`, `priority`, optional
+  `assignedToUserId` (admins only), and a `lane` (planning/to_do/in_progress/qa/done, starting in
+  `planning`). Drag-and-drop lane changes go through `/api/tasks/update-lane`, the app's only
+  non-redirect JSON write route — don't extend that pattern elsewhere. Task details/notes/time are all
+  edited in **one shared `<dialog>` modal**, not a separate page; notes/time are pre-rendered per-task
+  into `<template>` elements and cloned in on open. Writes are still plain POST + redirect, back to
+  `?openTask={id}` which a page-load script uses to reopen the modal. Time entries are add/delete-only,
+  stored in minutes.
+- **Client dashboard task views are read-only by omission** (same markup, no drag/write forms) — the
+  real guarantee is every `/api/tasks/*`, `/api/project-notes/*`, `/api/task-notes/*`,
+  `/api/time-entries/*` route being `ensureRole(["admin"])`.
+- **Account settings are self-service only** — `/admin/settings` and `/dashboard/settings` share
+  `SettingsForm.astro`, posting to `/api/settings/{profile,password}`, which always act on
+  `context.locals.user.id`, never a `userId` from input. `/dashboard/settings` redirects non-`client`
+  users to `/admin/settings`. Password changes don't invalidate other sessions.
 
 ## Database migrations
 
-Add a new numbered file under `migrations/` — never edit `0001_initial.sql` after it has been
-applied anywhere. Then run `npm run d1:migrate:local` (and `:remote` for production). Current
-migrations: `0001_initial.sql` (users, sessions, clients, projects, invoices, tickets,
-ticket_messages), `0002_project_features.sql` (nullable `projects.client_id` + `project_features`),
-`0003_tasks_notes_time.sql` (renames `project_features` to `tasks` — adding `type`/`lane`/
-`priority`, dropping `status` — and adds `project_notes`, `task_notes`, `time_entries`), and
-`0004_task_lanes_assignee.sql` (expands `tasks.lane` from planned/in_progress/qa/done to
-planning/to_do/in_progress/qa/done, migrating old `planned` rows to `to_do`, and adds
-`tasks.assigned_to_user_id`), and `0005_user_names.sql` (adds `users.first_name`/`last_name`).
-Table rebuilds that change `CHECK` constraints or rename columns follow the same
-`PRAGMA foreign_keys=OFF` → create `_new`/replacement table → copy → drop → rename → recreate
-indexes → `PRAGMA foreign_keys=ON` dance established in `0002`.
+Add a new numbered file under `migrations/` — never edit `0001_initial.sql` after it's been applied
+anywhere — then `npm run d1:migrate:local` (`:remote` for production). Current: `0001_initial.sql`
+(users, sessions, clients, projects, invoices, tickets, ticket_messages), `0002_project_features.sql`
+(nullable `client_id` + `project_features`), `0003_tasks_notes_time.sql` (renames it to `tasks`, adds
+notes/time tables), `0004_task_lanes_assignee.sql` (planning/to_do lanes + assignee),
+`0005_user_names.sql` (`first_name`/`last_name`). Rebuilds that change `CHECK`/rename columns follow
+`PRAGMA foreign_keys=OFF` → create replacement → copy → drop → rename → reindex →
+`PRAGMA foreign_keys=ON`, per `0002`.
 
-**`PRAGMA foreign_keys=OFF` does not reliably survive to later statements in the same migration
-file** — `wrangler d1 execute`/`migrations apply` appears to run each statement with foreign key
-enforcement back on (`PRAGMA foreign_keys;` returns `1` by default on a fresh statement), so a
-`DROP TABLE parent` later in the file can still trigger SQLite's implicit cascading delete against
-any other table with an `ON DELETE CASCADE` FK pointing at it — silently wiping that child data.
-This bit `0004_task_lanes_assignee.sql`: dropping the old `tasks` table wiped every `task_notes`
-and `time_entries` row that referenced it, because those child tables (added in `0003`) already
-held data by the time `0004` ran. `0002` and `0003` got lucky only because their `DROP TABLE`
-targets had no cascade-linked children with rows yet at the time they ran. **Before writing a
-migration that rebuilds a table other tables reference via `ON DELETE CASCADE`, check whether
-those child tables can have existing rows** — if they can, don't `DROP TABLE` the parent in the
-same migration; back up and reinsert the child rows explicitly (copy them out before the drop,
-back in after), or restructure so the parent is never dropped while it has live cascade children.
+**`PRAGMA foreign_keys=OFF` does not reliably survive to later statements in the same file** —
+enforcement comes back on per-statement, so a later `DROP TABLE parent` can still trigger cascading
+deletes against any table with an `ON DELETE CASCADE` FK to it. This wiped `task_notes`/`time_entries`
+in `0004` when the old `tasks` table was dropped. **Before rebuilding a table with live cascade
+children, back up and reinsert their rows explicitly rather than dropping the parent.**
 
 ## SEO is a first-class concern
 
-This site is actively worked on for local SEO, targeting "Sandusky Ohio web design" and the
-surrounding region. Before changing metadata, copy, or structured data:
+Actively worked for local SEO, targeting "Sandusky Ohio web design" and the surrounding region.
 
-- Every marketing page goes through `src/layouts/BaseLayout.astro`, which sets `<title>`, meta
-  description, canonical URL, Open Graph, Twitter card, the optional `robots` directive, the GA4
-  gtag snippet (`G-GBG97CSL2Z`, production hostname only), and the sitemap `<link>`. The contact form
-  emits `generate_lead` only after Web3Forms confirms success and never sends form contents to GA4.
-  Always pass `title`, `description`, and
-  `canonical`/`ogUrl` for new pages — never leave them to defaults.
-- **Titles and H1s must carry keywords, not labels.** `Services`/`Products`/`Our Work` were the
-  original titles and H1s on five pages and were rewritten to include the service and, where it
-  fits, the geo ("Web Design Services in Sandusky, OH"). Don't regress a page to a bare noun.
-- **Pass `ogImage`/`ogImageAlt` per page.** Each marketing page uses its own hero `.webp` as the
-  share image; the `logo.png` default in `BaseLayout` is only a fallback. `og:locale` and
-  `twitter:image` are set centrally in the layout.
-- `src/pages/index.astro` carries the site's `LocalBusiness`/`Organization` JSON-LD. If the service
-  area, phone number, or `areaServed` list changes, update it there. **`areaServed` must mirror the
-  visible "Areas We Serve" list** — they were allowed to disagree once and it's confusing to audit.
-- **Every marketing page carries JSON-LD.** `BreadcrumbList` comes from `BaseLayout`'s `breadcrumb`
-  prop (pass the page name; it only emits when `canonical` is also set, so noindex pages stay clean)
-  — pass it on any new marketing page. On top of that: `index` has `Organization`/`LocalBusiness`,
-  `services` an `ItemList` of `Service`, `work` a `CollectionPage`, `products` a
-  `SoftwareApplication`, `about` an `AboutPage`, `contact` a `ContactPage`.
-- The `schemaServices` array in `services.astro` frontmatter feeds the `Service` JSON-LD and **its
-  names and descriptions must stay identical to the visible cards**. Schema that describes content
-  not on the page is a guidelines violation, so change both together.
-- **There is deliberately no FAQ section.** One was built on `/services` on 2026-08-15 and removed
-  the same day: four of its six answers restated the pricing cards and the Security & Maintenance
-  card sitting directly above it. The pricing section's `How Much Does a Website Cost?` H2 is the
-  canonical question-form heading instead. If an FAQ is revisited, it must only ask things no other
-  section on the page already answers (project timelines are the obvious gap), and `FAQPage` JSON-LD
-  requires the Q&A to be visible on the page — don't add the schema without the block.
-- **Social profiles live in `src/lib/social.ts`, which is the single source of truth.** It feeds the
-  `SocialLinks.astro` component (rendered in both the header utility bar and the footer) and the
-  `sameAs` array in the homepage JSON-LD — add or change a profile there and all three update
-  together. Facebook, X, Nextdoor, and Yelp were added 2026-08-15. There is still **no Google
-  Business Profile**; add its URL to that list the moment one exists. Never put a placeholder or
-  guessed profile URL in it — an unverifiable `sameAs` entry is worse than a short list.
-- **Brand icons come from `@iconify-json/simple-icons`** — `lucide`, the set used everywhere else,
-  has no brand marks. `astro-icon` inlines only the icons actually referenced, so the set's size
-  doesn't reach the output. **Nextdoor is the exception**: `simple-icons:nextdoor` is the full
-  *wordmark* logotype (24 units wide, ~4 tall), which renders as illegible 4px text at any icon
-  size. The square house glyph is vendored at `src/icons/nextdoor.svg` (from CoreUI Brand Icons,
-  MIT) and referenced as the local icon name `nextdoor`. Check a brand icon's aspect ratio before
-  adding it to an icon row — several Simple Icons entries are wordmarks, not glyphs.
-- **No street address anywhere.** The business runs out of a residential address. Only city/state
-  (Sandusky, OH) appears in visible copy, the footer, and structured data. Never reintroduce a street
-  address without being explicitly asked.
-- The XML sitemap consumed by crawlers/Search Console is generated entirely by `@astrojs/sitemap` at
-  `/sitemap-index.xml`, filtered in `astro.config.mjs` to exclude `/thank-you`, `/login`, `/dashboard`,
-  `/admin`, `/api`. **Do not add a hand-maintained route that duplicates this** — one existed, went
-  stale because it needed manual updates on every new page, and was removed for that reason.
-  `robots.txt` and the `<link rel="sitemap">` in `BaseLayout` point at `/sitemap-index.xml`; keep them
-  in sync if that URL changes.
-- `/sitemap.astro` is a separate, human-facing HTML sitemap (the footer "Sitemap" link points here, not
-  at the XML file). It hand-lists marketing pages in a `pages` array — it does **not** read from the
-  XML sitemap or `astro.config.mjs`'s filter. This reintroduces the staleness risk noted above at a
-  smaller scale: **update its `pages` array whenever a marketing page is added, renamed, or removed.**
-- `noindex, nofollow` is set on exactly four pages (`404`, `thank-you`, `login`, `admin/setup`) plus
-  everything under `AdminLayout`/`DashboardLayout`. `/privacy-policy` is intentionally indexable.
-- Every real page (except `404`) must render `<SiteHeader />` and `<SiteFooter />`. A page with no
-  nav is a dead end for users and crawlers alike — this was a real bug fixed on `privacy-policy` and
-  `404`; don't reintroduce it.
+- Every marketing page goes through `BaseLayout.astro` (title, description, canonical, OG/Twitter,
+  optional `robots`, GA4 gtag, sitemap link) — always pass `title`/`description`/`canonical`/`ogUrl`
+  and a page-specific `ogImage`/`ogImageAlt` (its own hero `.webp`; `logo.png` is only the fallback).
+  **Titles and H1s must carry keywords, not bare labels** ("Web Design Services in Sandusky, OH", not
+  "Services").
+- **Every marketing page carries JSON-LD** (`BreadcrumbList` from `BaseLayout`'s `breadcrumb` prop;
+  `index` has `Organization`/`LocalBusiness`, plus per-page `Service`/`CollectionPage`/
+  `SoftwareApplication`/`AboutPage`/`ContactPage`). Keep `schemaServices` in `services.astro` identical
+  to the visible cards, and `areaServed` identical to the visible "Areas We Serve" list. No street
+  address anywhere (home-based business) — only city/state in copy and structured data.
+- **No FAQ section, deliberately** — a prior one duplicated content above it and was removed. If
+  revisited, only answer things not covered elsewhere, and only with the Q&A visibly on the page.
+- **`src/lib/social.ts`** is the single source of truth for social profile URLs, feeding
+  `SocialLinks.astro` and the homepage JSON-LD `sameAs`. No Google Business Profile yet. Never add a
+  placeholder/guessed profile URL. Brand icons come from `@iconify-json/simple-icons`, not `lucide` —
+  check aspect ratio first, several entries are illegible wordmarks (Nextdoor's is vendored locally at
+  `src/icons/nextdoor.svg`).
+- `/sitemap-index.xml` is generated entirely by `@astrojs/sitemap`, filtered in `astro.config.mjs`
+  (excludes thank-you/login/dashboard/admin/api) — don't add a hand-maintained duplicate. `/sitemap`
+  is a separate human-facing HTML page with its own `pages` array; update it whenever a marketing page
+  changes.
+- `noindex, nofollow`: `404`, `thank-you`, `login`, `admin/setup`, and everything under
+  `AdminLayout`/`DashboardLayout`. `/privacy-policy` is intentionally indexable. Every real page
+  (except `404`) renders `<SiteHeader />` and `<SiteFooter />`.
 
 ## Page conventions
 
-Every marketing content page (`about`, `services`, `products`, `work`, `contact`) follows the same
-shape:
+Marketing pages (`about`/`services`/`products`/`work`/`contact`) share one shape: `Icon`/
+`SiteHeader`/`SiteFooter`/`BaseLayout` imports → `prerender = true` → `<BaseLayout>` with
+`title`/`description`/`canonical`/`ogUrl` → `<Fragment slot="head"><style>` with page-scoped CSS (each
+page owns its own block rather than a shared library — intentional) → `<SiteHeader active="…" />`, a
+full-bleed `.header-hero`, `<main class="page">`, then a **sibling** `<div class="footer-wrap">` with
+`<SiteFooter />`.
 
-1. Imports: `Icon` from `astro-icon/components`, `SiteHeader`, `SiteFooter`, `BaseLayout`.
-2. `export const prerender = true;`
-3. `<BaseLayout>` with `title`, `description`, `canonical`, `ogUrl`.
-4. `<Fragment slot="head"><style>…</style></Fragment>` with page-scoped CSS. Each page owns its own
-   `<style>` block rather than relying on a shared component library — this is intentional. Follow it
-   rather than introducing a new shared-styles pattern.
-5. `<SiteHeader active="…" />`, a full-bleed `.header-hero` image with `.header-overlay` text, then
-   `<main class="page">` holding the content, then a sibling `<div class="footer-wrap">` holding
-   `<SiteFooter />`.
+**The footer must stay outside `<main>`** — `<footer>` only gets the `contentinfo` role when not
+nested in `main`/`article`/`aside`/`section`; `.page`/`.wrapper` carries no bottom padding so
+`.footer-wrap` can carry it instead. `SocialLinks.astro` renders a `<ul>`, not a `<nav>` (it appears
+twice per page — two identically labelled nav landmarks is a duplicate-landmark failure); its CSS is
+scoped through `li` (`.social-links li a`) since `.site-footer a`/`:hover` would otherwise win on
+specificity.
 
-**The footer must stay outside `<main>`.** `<footer>` only gets the `contentinfo` landmark role when
-it is *not* nested inside `main`/`article`/`aside`/`section`, so moving it in silently drops the
-landmark. That's why `.page` carries no bottom padding and `.footer-wrap` (same `max-width` and
-horizontal padding as `.page`) carries it instead. `404` and `thank-you` use the same pattern with
-their own `.wrapper`.
+`public/universal.css` holds the global tokens (`--ink`, `--ink-soft`, `--surface`, `--line`,
+`--brand`, `--brand-strong`, `--highlight`), typography, resets, and shared header/footer/button
+rules — site-wide changes belong there, one-page changes in that page's `<style>`. **`--ink-soft`/
+`--brand` only reach 4.5:1 contrast on light `.card`/`.surface`/`.panel` backgrounds** — text directly
+on the page's (fixed-attachment) gradient background must use `--ink` instead. Body-copy links are
+styled globally by `.page p a`/`.page li a` (scoped to avoid `.button`/nav links).
 
-`public/universal.css` holds the global design tokens (`--ink`, `--ink-soft`, `--surface`, `--line`,
-`--brand`, `--brand-strong`, `--highlight`), typography, resets, and the shared header/footer/button
-rules. Site-wide visual changes belong there; one-page changes belong in that page's `<style>`.
-
-Links inside body copy are styled globally by `.page p a` / `.page li a` in `universal.css`. The
-selector is deliberately scoped to `p`/`li` so it can't hit `.button` links or nav items — if you add
-a body link somewhere outside a paragraph or list item, style it locally rather than widening that
-rule.
-
-`SiteHeader`'s `active` prop drives which nav link is highlighted — its type union must include any
-new route added to the nav. `SiteHeader` opens with a slim **utility bar** (`.site-utility`) carrying
-the phone number and city on the left and `SocialLinks` on the right, then the logo/nav row below it;
-the nav ends with a **Client Login** link (`.nav-login`, visually separated from the marketing
-links). The footer carries `SocialLinks`, Privacy Policy, Sitemap, and the version read from
-`package.json`. The mobile nav collapses to a hamburger at `max-width: 920px` — the utility bar stays
-visible above it, stacked and centred — and the toggle script closes the panel on any `<a>` click
-inside it, so new nav links get that for free.
-
-`SocialLinks.astro` renders a `<ul>`, not a `<nav>`, deliberately: it appears twice per page, and two
-identically-labelled nav landmarks is a duplicate-landmark failure. Its CSS in `universal.css` is
-scoped through `li` (`.social-links li a`) on purpose — `.site-footer a` and `.site-footer a:hover`
-match the same links at equal specificity and would otherwise win on source order and underline the
-icons on hover. Don't flatten those selectors.
+`SiteHeader`'s `active` prop drives nav highlighting — extend its type union for any new route. It
+opens with a utility bar (phone + city + `SocialLinks`) above the logo/nav row; the nav ends with a
+visually-separated **Client Login** link and collapses to a hamburger at `max-width: 920px`. It also
+renders the page's first element, a skip-to-`#main-content` link — every `<main>` must keep that id.
 
 ## Code style
 
-There is no linter or formatter, and conventions differ by directory. **Match the file you're
-editing** — check before you write, especially with tools that do exact string matching:
+No linter or formatter; conventions differ by directory. **Match the file you're editing:**
 
 | Path | Line endings | Indent |
 |---|---|---|
@@ -323,69 +181,38 @@ editing** — check before you write, especially with tools that do exact string
 | `src/pages/**`, `src/lib/*.ts` | LF | 2 spaces |
 | `*.md` | LF | — |
 
-**In client-side `<script>` blocks, don't write `document.querySelector<HTMLSelectElement>(...)`
-(or `HTMLInputElement`/`HTMLFormElement`/`HTMLDialogElement`/`HTMLAnchorElement`/`HTMLTextAreaElement`
-— any DOM subtype except plain `HTMLElement`).** `worker-configuration.d.ts` declares its own global
-`Element` interface (from the HTMLRewriter API) that merges with the DOM lib's `Element`, giving the
-merged type an incompatible `remove()` signature — the editor's TS server then reports every
-`HTMLXxxElement` as failing querySelector's `E extends Element` constraint. It doesn't fail
-`astro build` (client scripts aren't typechecked there), but it does show as red squiggles and would
-fail `astro check`. Work around it with a plain query plus a cast instead:
-`document.querySelector("#foo") as HTMLSelectElement | null`.
+**In client `<script>` blocks, avoid `document.querySelector<HTMLSelectElement>(...)`** (or any DOM
+subtype besides `HTMLElement`) — `worker-configuration.d.ts`'s global `Element` (HTMLRewriter API)
+merges with the DOM lib's and breaks querySelector's generic constraint, flagging every
+`HTMLXxxElement` call as a red squiggle (doesn't fail `build`, would fail `astro check`). Use
+`document.querySelector("#foo") as HTMLSelectElement | null` instead.
 
 ## Images
 
-- Use `sharp` (already present as a transitive dependency via Astro — resolve it at `node_modules/
-  sharp`, don't add it to `package.json`) to compress and resize any new image before committing.
-  Hero and portfolio screenshots go to `.webp` at quality ~80–85; the logo and favicon are
-  palette-compressed `.png` — lossy WebP blurs flat-color logo edges, avoid it there.
-- Target well under 200 KB per hero image and well under 100 KB for the logo/favicon. This site had a
-  real page-speed problem from unoptimized multi-MB PNGs (some near 2 MB) — don't reintroduce that.
-- Portfolio thumbnails in `public/work/` are 1180×615 WebP, ~30–40 KB, cropped from the top of a
-  full-page screenshot. Match those dimensions so the `.work-thumb` grid stays even.
-- New `<img>` tags need real `alt` text describing the content, not filler.
-- Large originals and editable design files belong in the separate project library
-  (`C:\Users\JD\Projects\Stone Dragon Media`), not in this repo.
+- Compress/resize with `sharp` (transitive Astro dependency at `node_modules/sharp` — don't add it to
+  `package.json`) before committing. Hero/portfolio shots: `.webp` quality ~80–85. Logo/favicon:
+  palette-compressed `.png` (lossy WebP blurs flat-color edges). Target well under 200 KB per hero
+  image, under 100 KB for logo/favicon — this site had a real page-speed problem from multi-MB PNGs,
+  don't reintroduce it. Portfolio thumbnails in `public/work/` are 1180×615 WebP, ~30–40 KB.
+- New `<img>` tags need real descriptive `alt` text. Large originals/design files belong in the
+  separate project library (`C:\Users\JD\Projects\Stone Dragon Media`), not this repo.
 
 ## Business content — don't invent it
 
-Pricing, phone number, portfolio claims, and business details come directly from the business owner,
-not from assumptions. If a task implies adding or changing this kind of content, get it from the user
-rather than guessing a plausible-sounding value. The same applies to describing client work: base
-feature claims on the actual delivered site, not on what a site like that usually has.
+Pricing, phone number, portfolio claims, and business details come from the business owner, not
+assumptions. Base client-work claims on what actually shipped, not what a typical site would have.
+**Service-area cities are an exception (2026-08-15)** — the owner authorized adding cities that help
+local SEO without asking first, but the "Areas We Serve" list/`areaServed` JSON-LD covers only the
+in-person ring (~1 hour from Sandusky); farther cities go in the following sentence, named as remote.
+Don't move Columbus/Akron/Canton/Lima back into the in-person list — they were removed for overclaiming
+the radius.
 
-A worked example of why: `/work` claimed Tagstash shipped "Chrome and Firefox extensions" until
-2026-08-15. There is one extension, it ships to Firefox Add-ons, and its manifest carries
-`browser_specific_settings.gecko` and a Firefox `sidebar_action`. The source *is* Chrome-compatible
-(it uses a `globalThis.browser ?? globalThis.chrome` shim), which is presumably where the claim came
-from — but compatible source is not a shipped product. Check what is actually released, not what
-could build. Tagstash facts on `/products` come from `C:\Users\JD\Vault\Projects\Tagstash` and the
-extension repo.
-
-**Service-area cities are an exception, as of 2026-08-15.** The owner authorized adding cities where
-they help local SEO, without asking first. The constraint is honesty about *how* the area is served:
-
-- The visible "Areas We Serve" list on `index.astro` and the `areaServed` JSON-LD are for places
-  within the **in-person ring** — roughly an hour's drive from Sandusky. Erie County plus the
-  neighboring Huron / Ottawa / Sandusky / Seneca / Lorain county towns qualify.
-- Anything farther out goes in the **remote** sentence that follows the list, named as remote.
-  Columbus, Akron, Canton, and Lima were previously claimed as in-person work (2–3 hours away) and
-  were deliberately moved, because overclaiming the radius dilutes the Sandusky relevance signal
-  that is actually winnable. Don't move them back.
-- Adding city names to the list has diminishing returns and can read as keyword stuffing. A page
-  that actually ranks for "web design in <city>" is a page *about* that city — prefer real location
-  pages with distinct content over a longer list.
-
-Contact-form integration keys (Web3Forms `access_key`, hCaptcha `sitekey`) are inlined in
-`src/pages/contact.astro`. They're client-side values by nature, but treat them as
-implementation-sensitive — don't copy them into docs or new files.
-
-`/privacy-policy` covers both the marketing contact form/analytics **and** client portal account data
-stored in D1. If either half changes — new third-party service, new data collected, changed retention
-— update the policy and its effective date in the same change.
+Contact-form keys (Web3Forms `access_key`, hCaptcha `sitekey`) are inlined in `contact.astro` — don't
+copy them into docs or new files. `/privacy-policy` covers both the marketing form/analytics and
+client portal account data in D1 — if either half changes (new third-party service, new data
+collected, changed retention), update the policy and its effective date together.
 
 ## License
 
 This code is public for transparency and reference only — no commercial use. See `LICENSE.md`. Don't
-add an OSS license badge, contribution guide, or anything implying this project accepts outside
-contributions.
+add an OSS license badge, contribution guide, or anything implying this project accepts contributions.

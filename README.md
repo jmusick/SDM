@@ -21,7 +21,7 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 | Layer | Technology |
 |---|---|
 | Framework | Astro 6, `output: 'server'` (marketing pages are still individually prerendered to static HTML; only `/login`, `/dashboard/*`, `/admin/*`, `/api/*` are dynamic) |
-| Icons | astro-icon + Lucide icon set |
+| Icons | astro-icon + Lucide icon set (Simple Icons for brand/social marks) |
 | Language | TypeScript |
 | Sitemap | @astrojs/sitemap (`/sitemap-index.xml`) — dashboard/admin/login/api routes are excluded |
 | Analytics | Google Analytics 4 (GA4) — `G-GBG97CSL2Z` via gtag.js |
@@ -70,7 +70,7 @@ A handful of clients log in at `/login` to see their own projects, invoices, and
 ## Key Implementation Notes
 
 - **Shared layout** — `src/layouts/BaseLayout.astro` manages all `<head>` metadata: canonical URLs, Open Graph (each marketing page passes its own `ogImage`/`ogImageAlt` hero), Twitter cards, robots meta, the optional `breadcrumb` JSON-LD, GA4 gtag snippet, and the sitemap `<link>`.
-- **Navigation/footer** — `src/components/SiteHeader.astro`, `src/components/SiteFooter.astro`. The header nav ends with a Client Login link into the portal; the nav collapses to a hamburger at `max-width: 920px`. The header opens with a slim utility bar carrying the phone number, city, and social icons, above the logo/nav row; the nav collapses to a hamburger at `max-width: 920px`. The footer carries Privacy Policy and Sitemap links, the business NAP (name, city/state, phone), social profile icons, and the version read from `package.json` at build time.
+- **Navigation/footer** — `src/components/SiteHeader.astro`, `src/components/SiteFooter.astro`. The header opens with a slim utility bar carrying the phone number, city, and social icons above the logo/nav row; the nav ends with a Client Login link into the portal and collapses to a hamburger at `max-width: 920px`. The footer carries Privacy Policy and Sitemap links, the business NAP (name, city/state, phone), social profile icons, and the version read from `package.json` at build time.
 - **Social profiles** — `src\lib\social.ts` is the single source of truth for the business's Facebook, X, Nextdoor, and Yelp URLs. It feeds the `SocialLinks.astro` component (used in both the header utility bar and the footer) and the `sameAs` array in the homepage `Organization`/`LocalBusiness` JSON-LD, so they can't drift apart. Brand icons come from `@iconify-json/simple-icons`, except Nextdoor — that set ships the wordmark logotype, which is illegible at icon size, so the square house glyph is vendored at `src\icons\nextdoor.svg`.
 - **Global stylesheet** — `public/universal.css` (design tokens, typography, resets).
 - **Sitemap** — Generated entirely by `@astrojs/sitemap` at `/sitemap-index.xml` / `/sitemap-0.xml`. There is no hand-maintained sitemap route — a prior custom `sitemap.xml.ts` route was removed because it went stale (missing pages) and is intentionally not reintroduced. `robots.txt` and the footer/`<link rel="sitemap">` all point at `/sitemap-index.xml`.
@@ -166,8 +166,9 @@ npm run d1:migrate:remote   # apply to production D1
 ├── src/
 │   ├── components/
 │   │   ├── SiteHeader.astro
-│   │   ├── SettingsForm.astro   # shared profile/password forms for both settings pages
-│   │   └── SiteFooter.astro
+│   │   ├── SiteFooter.astro
+│   │   ├── SocialLinks.astro    # shared social icon row (header utility bar + footer)
+│   │   └── SettingsForm.astro   # shared profile/password forms for both settings pages
 │   ├── layouts/
 │   │   ├── BaseLayout.astro     # marketing pages
 │   │   ├── AdminLayout.astro    # admin shell (sidebar nav, shared table/form/badge styles)
