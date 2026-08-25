@@ -1,23 +1,11 @@
 ---
 import { Icon } from "astro-icon/components";
-import SiteHeader from "../components/SiteHeader.astro";
-import SiteFooter from "../components/SiteFooter.astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { serviceCategories } from "../../lib/services";
 
 export const prerender = true;
-
-// Names and descriptions here must match the visible cards below — they feed the Service JSON-LD.
-// If a card's heading or summary changes, change it here too.
-const schemaServices = [
-  ["Custom Web Solutions", "Custom websites and web systems built to communicate value, drive action, and stay lightning fast.", "custom-web-solutions"],
-  ["Custom Application Development", "Tailored software solutions built around your workflow, not the other way around.", "application-development"],
-  ["Marketing", "Data-driven campaigns that put your business in front of the right audience at the right time.", "marketing"],
-  ["Analytics & Reporting", "Turn your data into decisions with clear, actionable insight into how your digital presence is performing.", "analytics-reporting"],
-  ["Hosting & Infrastructure", "Reliable, secure hosting environments configured for performance and peace of mind.", "hosting-infrastructure"],
-  ["Security & Maintenance", "Proactive care to keep your site secure, up to date, and running smoothly long after launch.", "security-maintenance"],
-  ["Branding & Design", "A cohesive visual identity that communicates who you are and builds trust with your audience.", "branding-design"],
-  ["Consulting & Strategy", "Expert guidance to help you make confident decisions about technology, process, and digital growth.", "consulting-strategy"],
-];
 ---
 
 <BaseLayout
@@ -32,25 +20,18 @@ const schemaServices = [
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
-      "@type": "ItemList",
+      "@type": "CollectionPage",
       "name": "Services offered by Stone Dragon Media",
-      "itemListElement": schemaServices.map(([name, description, id], i) => ({
-        "@type": "ListItem",
-        "position": i + 1,
-        "item": {
-          "@type": "Service",
-          "name": name,
-          "description": description,
-          "url": `https://stonedragonmedia.com/services/#${id}`,
-          "serviceType": name,
-          "provider": {
-            "@type": "Organization",
-            "name": "Stone Dragon Media",
-            "url": "https://stonedragonmedia.com"
-          },
-          "areaServed": { "@type": "AdministrativeArea", "name": "Erie County, OH" }
-        }
-      }))
+      "url": "https://stonedragonmedia.com/services/",
+      "mainEntity": {
+        "@type": "ItemList",
+        "itemListElement": serviceCategories.map((category, i) => ({
+          "@type": "ListItem",
+          "position": i + 1,
+          "name": category.name,
+          "url": `https://stonedragonmedia.com/services/${category.slug}/`
+        }))
+      }
     })} />
     <style>
       .page {
@@ -140,6 +121,7 @@ const schemaServices = [
         margin: 0 0 1rem;
       }
 
+      .categories > h2,
       .pricing > h2 {
         font-family: "Sora", sans-serif;
         color: var(--brand-strong);
@@ -158,26 +140,11 @@ const schemaServices = [
         gap: 1rem;
       }
 
-      /* The eight services are split into four labeled pairs so the page reads as groups
-         rather than one uniform wall of cards. */
-      .service-group {
+      /* The eight services live on four category subpages; this page is the hub that summarises
+         each one. Card headings link through, and the list under them names the services inside
+         so the hub still says what each category actually covers. */
+      .categories {
         margin-top: 2.2rem;
-      }
-
-      .service-group:first-of-type {
-        margin-top: 1.6rem;
-      }
-
-      .service-group > h2 {
-        font-family: "Sora", sans-serif;
-        color: var(--brand-strong);
-        font-size: 0.95rem;
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        margin: 0 0 0.85rem;
-        padding-bottom: 0.4rem;
-        border-bottom: 1px solid var(--line);
       }
 
       .card {
@@ -191,7 +158,7 @@ const schemaServices = [
 
       /* The service icon is a watermark bleeding off the bottom-right corner rather than a small
          inline mark. Size is set as a share of card height so the shorter pricing cards and the
-         taller service cards get a proportional mark instead of one fixed size that suits neither.
+         taller category cards get a proportional mark instead of one fixed size that suits neither.
          Opacity is deliberately low: at 0.05 body text clears WCAG AA comfortably (~5:1 even over
          the darkest part of the page gradient). Going much past 0.07 starts eating that margin. */
       .card .icon {
@@ -213,7 +180,8 @@ const schemaServices = [
 
       .card h3,
       .card p,
-      .card ul {
+      .card ul,
+      .card .card-link {
         position: relative;
         z-index: 1;
       }
@@ -223,6 +191,15 @@ const schemaServices = [
         font-size: 1.06rem;
         color: var(--brand-strong);
         font-family: "Sora", sans-serif;
+      }
+
+      .card h3 a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .card h3 a:hover {
+        text-decoration: underline;
       }
 
       .card p {
@@ -241,8 +218,31 @@ const schemaServices = [
         margin: 0 0 0.3rem;
       }
 
+      .card-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-top: 0.7rem;
+        font-family: "Sora", sans-serif;
+        font-weight: 600;
+        font-size: 0.92rem;
+        color: var(--brand-strong);
+        text-decoration: none;
+      }
+
+      .card-link:hover {
+        text-decoration: underline;
+      }
+
+      /* Not .icon — that class is the corner watermark on these cards. */
+      .card-link .arrow {
+        width: 0.9rem;
+        height: 0.9rem;
+        flex-shrink: 0;
+      }
+
       /* Real portfolio screenshots, reused from /work at their native 1180x615. They break the
-         run of text between the service cards and pricing, and are below the fold — keep them
+         run of text between the category cards and pricing, and are below the fold — keep them
          lazy with explicit dimensions so LCP and CLS are unaffected. */
       .proof {
         margin-top: 3rem;
@@ -435,115 +435,24 @@ const schemaServices = [
   <main class="page" id="main-content">
     <h1>Web Design &amp; Development Services in Sandusky, Ohio</h1>
     <p class="lead">Stone Dragon Media offers end-to-end digital services from strategy through launch and long-term support, including website solutions built for speed and reliability. Based in Sandusky, Ohio, we work in person across Erie County and northern Ohio, from Toledo in the west to Cleveland in the east, and remotely with clients anywhere.</p>
-    <section class="service-group">
-      <h2>Design &amp; Development</h2>
-      <div class="grid">
-        <article class="card" id="custom-web-solutions">
-          <Icon class="icon" name="lucide:layout-template" aria-hidden="true" />
-          <h3>Custom Web Solutions</h3>
-          <p>Custom websites and web systems built to communicate value, drive action, and stay lightning fast.</p>
-          <ul>
-            <li>eCommerce and informational websites</li>
-            <li>Landing pages and microsites</li>
-            <li>Platform and third-party integrations</li>
-            <li>Website redesigns and migrations</li>
-          </ul>
-        </article>
-        <article class="card" id="application-development">
-          <Icon class="icon" name="lucide:cpu" aria-hidden="true" />
-          <h3>Custom Application Development</h3>
-          <p>Tailored software solutions built around your workflow, not the other way around.</p>
-          <ul>
-            <li>Internal tools and dashboards</li>
-            <li>Customer and client portals</li>
-            <li>Process and workflow automation</li>
-            <li>API development, integrations, and database design</li>
-          </ul>
-        </article>
-      </div>
-    </section>
 
-    <section class="service-group">
-      <h2>Marketing &amp; Analytics</h2>
+    <section class="categories">
+      <h2>What We Do</h2>
       <div class="grid">
-        <article class="card" id="marketing">
-          <Icon class="icon" name="lucide:megaphone" aria-hidden="true" />
-          <h3>Marketing</h3>
-          <p>Data-driven campaigns that put your business in front of the right audience at the right time.</p>
-          <ul>
-            <li>Search Engine Optimization (SEO)</li>
-            <li>Pay Per Click (PPC) management</li>
-            <li>Social media, email, and text message marketing</li>
-            <li>Content strategy and copywriting</li>
-          </ul>
-        </article>
-        <article class="card" id="analytics-reporting">
-          <Icon class="icon" name="lucide:bar-chart-2" aria-hidden="true" />
-          <h3>Analytics &amp; Reporting</h3>
-          <p>Turn your data into decisions with clear, actionable insight into how your digital presence is performing.</p>
-          <ul>
-            <li>Google Analytics setup and configuration</li>
-            <li>Conversion tracking and goal setup</li>
-            <li>Custom reporting dashboards</li>
-            <li>Performance audits</li>
-          </ul>
-        </article>
-      </div>
-    </section>
-
-    <section class="service-group">
-      <h2>Hosting &amp; Security</h2>
-      <div class="grid">
-        <article class="card" id="hosting-infrastructure">
-          <Icon class="icon" name="lucide:server" aria-hidden="true" />
-          <h3>Hosting &amp; Infrastructure</h3>
-          <p>Reliable, secure hosting environments configured for performance and peace of mind.</p>
-          <ul>
-            <li>Domain registration and SSL management</li>
-            <li>Cloud and VPS server setup</li>
-            <li>Hosting migration and troubleshooting</li>
-            <li>Performance optimization, backup, and recovery planning</li>
-          </ul>
-        </article>
-        <article class="card" id="security-maintenance">
-          <Icon class="icon" name="lucide:shield" aria-hidden="true" />
-          <h3>Security &amp; Maintenance</h3>
-          <p>Proactive care to keep your site secure, up to date, and running smoothly long after launch.</p>
-          <ul>
-            <li>Security hardening and monitoring</li>
-            <li>Software and plugin updates</li>
-            <li>Uptime monitoring and vulnerability assessments</li>
-            <li>Ongoing site maintenance plans</li>
-          </ul>
-        </article>
-      </div>
-    </section>
-
-    <section class="service-group">
-      <h2>Branding &amp; Consulting</h2>
-      <div class="grid">
-        <article class="card" id="branding-design">
-          <Icon class="icon" name="lucide:palette" aria-hidden="true" />
-          <h3>Branding &amp; Design</h3>
-          <p>A cohesive visual identity that communicates who you are and builds trust with your audience.</p>
-          <ul>
-            <li>Logo design and brand mark creation</li>
-            <li>Brand style guide development</li>
-            <li>Color palette and typography systems</li>
-            <li>Brand consultation, print, and digital asset design</li>
-          </ul>
-        </article>
-        <article class="card" id="consulting-strategy">
-          <Icon class="icon" name="lucide:compass" aria-hidden="true" />
-          <h3>Consulting &amp; Strategy</h3>
-          <p>Expert guidance to help you make confident decisions about technology, process, and digital growth.</p>
-          <ul>
-            <li>Technology and platform selection</li>
-            <li>Digital transformation planning</li>
-            <li>Data migration and architecture</li>
-            <li>IT process improvement and project roadmapping</li>
-          </ul>
-        </article>
+        {serviceCategories.map((category) => (
+          <article class="card" id={category.slug}>
+            <Icon class="icon" name={category.icon} aria-hidden="true" />
+            <h3><a href={`/services/${category.slug}/`}>{category.name}</a></h3>
+            <p>{category.summary}</p>
+            <ul>
+              {category.services.map((service) => <li>{service.name}</li>)}
+            </ul>
+            <a class="card-link" href={`/services/${category.slug}/`}>
+              Explore {category.name}
+              <Icon class="arrow" name="lucide:arrow-right" aria-hidden="true" />
+            </a>
+          </article>
+        ))}
       </div>
     </section>
 

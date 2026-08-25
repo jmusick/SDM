@@ -67,6 +67,11 @@ body {
 }
 
 .site-head {
+	position: relative;
+	/* Lifts the whole header above the positioned .header-hero on each page so the services dropdown
+	   paints over it. backdrop-filter already makes this a stacking context, so z-index has to
+	   sit here rather than on .nav-dropdown, which is trapped inside it. */
+	z-index: 50;
 	width: 100%;
 	border-bottom: 1px solid var(--line);
 	background: rgba(238, 245, 251, 0.72);
@@ -237,6 +242,81 @@ body {
 	width: 0.85rem;
 	height: 0.85rem;
 	flex-shrink: 0;
+}
+
+/* Services submenu — the one nav item with children. It opens on hover and on keyboard focus
+   via CSS alone; the chevron button (see SiteHeader) adds click/tap, which is the only way in
+   on the stacked mobile nav. The parent link still navigates to the /services hub. */
+.nav-group {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.nav-sub-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.3rem;
+	margin-left: -0.3rem;
+	border: none;
+	background: none;
+	color: var(--brand-strong);
+	border-radius: 0.5rem;
+	cursor: pointer;
+}
+
+.nav-sub-toggle .icon {
+	width: 0.85rem;
+	height: 0.85rem;
+	flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.nav-sub-toggle .icon {
+		transition: transform 140ms ease;
+	}
+}
+
+.nav-group:hover .nav-sub-toggle .icon,
+.nav-group:focus-within .nav-sub-toggle .icon,
+.nav-group.is-open .nav-sub-toggle .icon {
+	transform: rotate(180deg);
+}
+
+.nav-dropdown {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 30;
+	min-width: 14.5rem;
+	margin: 0;
+	padding: 0.35rem;
+	list-style: none;
+	display: none;
+	flex-direction: column;
+	gap: 0.1rem;
+	background: #f3f8fd;
+	border: 1px solid var(--line);
+	border-radius: 0.8rem;
+	box-shadow: 0 16px 30px rgba(18, 45, 69, 0.18);
+}
+
+.nav-group:hover .nav-dropdown,
+.nav-group:focus-within .nav-dropdown,
+.nav-group.is-open .nav-dropdown {
+	display: flex;
+}
+
+.site-nav .nav-dropdown a {
+	display: block;
+	padding: 0.5rem 0.7rem;
+	white-space: normal;
+}
+
+.site-nav .nav-dropdown a[aria-current="page"] {
+	background: rgba(31, 79, 119, 0.14);
+	font-weight: 600;
 }
 
 .button {
@@ -466,6 +546,47 @@ body {
 		transform: none;
 		width: auto;
 		height: 1px;
+	}
+
+	.nav-group {
+		flex-wrap: wrap;
+	}
+
+	.nav-group > a {
+		flex: 1;
+	}
+
+	.nav-sub-toggle {
+		width: 2.6rem;
+		height: 2.6rem;
+		margin-left: 0;
+	}
+
+	/* Stacked nav: the submenu becomes an indented block rather than a floating panel, and only
+	   the chevron opens it — hover/focus-within would leave it stuck open while tabbing. */
+	.nav-dropdown {
+		position: static;
+		width: 100%;
+		margin: 0.15rem 0 0.25rem 0.85rem;
+		padding: 0 0 0 0.85rem;
+		background: none;
+		border: none;
+		border-left: 2px solid var(--line);
+		border-radius: 0;
+		box-shadow: none;
+	}
+
+	.nav-group:hover .nav-dropdown,
+	.nav-group:focus-within .nav-dropdown {
+		display: none;
+	}
+
+	.nav-group.is-open .nav-dropdown {
+		display: flex;
+	}
+
+	.site-nav .nav-dropdown a {
+		padding: 0.6rem 0.85rem;
 	}
 
 	.site-head-inner .button {

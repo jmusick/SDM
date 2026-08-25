@@ -14,6 +14,7 @@ interface Props {
   twitterDescription?: string;
   robots?: string;
   breadcrumb?: string;
+  breadcrumbParent?: { name: string; item: string };
   includeGenerator?: boolean;
 }
 
@@ -32,6 +33,7 @@ const {
   twitterDescription,
   robots,
   breadcrumb,
+  breadcrumbParent,
   includeGenerator = false,
 } = Astro.props;
 
@@ -94,7 +96,8 @@ const resolvedTwitterDescription = twitterDescription ?? description;
         "@type": "BreadcrumbList",
         "itemListElement": [
           { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://stonedragonmedia.com/" },
-          { "@type": "ListItem", "position": 2, "name": breadcrumb, "item": canonical }
+          ...(breadcrumbParent ? [{ "@type": "ListItem", "position": 2, "name": breadcrumbParent.name, "item": breadcrumbParent.item }] : []),
+          { "@type": "ListItem", "position": breadcrumbParent ? 3 : 2, "name": breadcrumb, "item": canonical }
         ]
       })} />
     )}

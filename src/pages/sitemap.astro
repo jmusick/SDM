@@ -2,13 +2,30 @@
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { serviceCategories } from "../lib/services";
 
 export const prerender = true;
 
-const pages = [
+interface SitemapEntry {
+  href: string;
+  label: string;
+  description: string;
+  children?: SitemapEntry[];
+}
+
+const pages: SitemapEntry[] = [
   { href: "/", label: "Home", description: "Web design and development studio based in Sandusky, Ohio." },
   { href: "/about/", label: "About", description: "Who we are and how we work." },
-  { href: "/services/", label: "Services", description: "Web design, development, and ongoing support." },
+  {
+    href: "/services/",
+    label: "Services",
+    description: "Web design, development, and ongoing support.",
+    children: serviceCategories.map((category) => ({
+      href: `/services/${category.slug}/`,
+      label: category.name,
+      description: category.summary,
+    })),
+  },
   { href: "/work/", label: "Our Work", description: "Portfolio of recent client projects." },
   { href: "/products/", label: "Products", description: "Products and tools we've built." },
   { href: "/contact/", label: "Contact", description: "Get in touch to start a project." },
@@ -85,6 +102,24 @@ const pages = [
         line-height: 1.6;
       }
 
+      .sitemap-sublist {
+        list-style: none;
+        margin: 0.9rem 0 0;
+        padding: 0 0 0 1rem;
+        border-left: 2px solid var(--line);
+        display: grid;
+        gap: 0.9rem;
+      }
+
+      .sitemap-sublist li {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .sitemap-sublist a {
+        font-size: 1rem;
+      }
+
       .site-footer {
         margin-top: 1.6rem;
       }
@@ -101,6 +136,16 @@ const pages = [
           <li>
             <a href={page.href}>{page.label}</a>
             <p>{page.description}</p>
+            {page.children && (
+              <ul class="sitemap-sublist">
+                {page.children.map((child) => (
+                  <li>
+                    <a href={child.href}>{child.label}</a>
+                    <p>{child.description}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
           </li>
         ))}
       </ul>

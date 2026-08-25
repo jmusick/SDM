@@ -8,7 +8,7 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 
 - Marketing homepage with hero, services summary, areas served, and our-work highlights
 - About page
-- Services page, including a "How Much Does It Cost?" pricing-philosophy section
+- Services hub with four category subpages (design & development, marketing & analytics, hosting & security, branding & consulting), plus a "How Much Does It Cost?" pricing-philosophy section
 - Products page (Tagstash)
 - Our Work portfolio page (Simon Rook, Dorian Black, Pneumaris, Tagstash)
 - Contact form with hCaptcha and Web3Forms submission
@@ -23,7 +23,7 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 | Framework | Astro 6, `output: 'server'` (marketing pages are still individually prerendered to static HTML; only `/login`, `/dashboard/*`, `/admin/*`, `/api/*` are dynamic) |
 | Icons | astro-icon + Lucide icon set (Simple Icons for brand/social marks) |
 | Language | TypeScript |
-| Sitemap | @astrojs/sitemap (`/sitemap-index.xml`) — dashboard/admin/login/api routes are excluded |
+| Sitemap | @astrojs/sitemap (`/sitemap-index.xml`) — thank-you/login/dashboard/admin/api excluded |
 | Analytics | Google Analytics 4 (GA4) — `G-GBG97CSL2Z` via gtag.js |
 | Contact form | Web3Forms API |
 | CAPTCHA | hCaptcha |
@@ -53,7 +53,11 @@ A handful of clients log in at `/login` to see their own projects, invoices, and
 |---|---|
 | `/` | Home |
 | `/about` | About |
-| `/services` | Services (incl. pricing philosophy) |
+| `/services` | Services hub — category summaries, recent work, pricing philosophy |
+| `/services/design-development` | Custom Web Solutions + Custom Application Development |
+| `/services/marketing-analytics` | Marketing + Analytics & Reporting |
+| `/services/hosting-security` | Hosting & Infrastructure + Security & Maintenance |
+| `/services/branding-consulting` | Branding & Design + Consulting & Strategy |
 | `/products` | Products |
 | `/work` | Our Work |
 | `/contact` | Contact |
@@ -70,11 +74,12 @@ A handful of clients log in at `/login` to see their own projects, invoices, and
 ## Key Implementation Notes
 
 - **Shared layout** — `src/layouts/BaseLayout.astro` manages all `<head>` metadata: canonical URLs, Open Graph (each marketing page passes its own `ogImage`/`ogImageAlt` hero), Twitter cards, robots meta, the optional `breadcrumb` JSON-LD, GA4 gtag snippet, and the sitemap `<link>`.
-- **Navigation/footer** — `src/components/SiteHeader.astro`, `src/components/SiteFooter.astro`. The header opens with a slim utility bar carrying the phone number, city, and social icons above the logo/nav row; the nav ends with a Client Login link into the portal and collapses to a hamburger at `max-width: 920px`. The footer carries Privacy Policy and Sitemap links, the business NAP (name, city/state, phone), social profile icons, and the version read from `package.json` at build time.
-- **Social profiles** — `src\lib\social.ts` is the single source of truth for the business's Facebook, X, Nextdoor, and Yelp URLs. It feeds the `SocialLinks.astro` component (used in both the header utility bar and the footer) and the `sameAs` array in the homepage `Organization`/`LocalBusiness` JSON-LD, so they can't drift apart. Brand icons come from `@iconify-json/simple-icons`, except Nextdoor — that set ships the wordmark logotype, which is illegible at icon size, so the square house glyph is vendored at `src\icons\nextdoor.svg`.
+- **Navigation/footer** — `src/components/SiteHeader.astro`, `src/components/SiteFooter.astro`. The header opens with a slim utility bar carrying the phone number, city, and social icons above the logo/nav row; the nav ends with a Client Login link into the portal and collapses to a hamburger at `max-width: 920px`. Services is the one nav item with a submenu — a dropdown of the four service categories, built from `src/lib/services.ts`, which opens on hover, on keyboard focus, and on click/tap of its chevron. The footer carries Privacy Policy and Sitemap links, the business NAP (name, city/state, phone), social profile icons, and the version read from `package.json` at build time.
+- **Social profiles** — `src/lib/social.ts` is the single source of truth for the business's Google Business Profile, Facebook, X, Nextdoor, and Yelp URLs (the Google entry is the canonical `maps?cid=` listing URL, never a `share.google` redirect). It feeds the `SocialLinks.astro` component (used in both the header utility bar and the footer) and the `sameAs` array in the homepage `Organization`/`LocalBusiness` JSON-LD, so they can't drift apart. Brand icons come from `@iconify-json/simple-icons`, except Nextdoor — that set ships the wordmark logotype, which is illegible at icon size, so the square house glyph is vendored at `src/icons/nextdoor.svg`.
+- **Services catalogue** — `src/lib/services.ts` holds the four service categories, the two services inside each, and their copy, icons, and anchor ids. The `/services` hub, the four `[category].astro` subpages, their `Service`/`CollectionPage` JSON-LD, the header dropdown, and the `/sitemap` page are all generated from it, so they can't drift apart.
 - **Global stylesheet** — `public/universal.css` (design tokens, typography, resets).
 - **Sitemap** — Generated entirely by `@astrojs/sitemap` at `/sitemap-index.xml` / `/sitemap-0.xml`. There is no hand-maintained sitemap route — a prior custom `sitemap.xml.ts` route was removed because it went stale (missing pages) and is intentionally not reintroduced. `robots.txt` and the footer/`<link rel="sitemap">` all point at `/sitemap-index.xml`.
-- **Local SEO / structured data** — Every marketing page carries JSON-LD. `src/pages/index.astro` has the `LocalBusiness`/`Organization` block (phone, city/state, `areaServed`); the other pages add `ItemList`/`Service` (services), `CollectionPage` (work), `SoftwareApplication` (products), `AboutPage`, and `ContactPage`. `BreadcrumbList` is emitted by `BaseLayout.astro` from its `breadcrumb` prop. The business is home-based, so no street address is published anywhere on the site or in structured data — only city/state. `areaServed` and the visible "Areas We Serve" list are kept in sync, and cover the in-person ring only; farther cities are described as remote.
+- **Local SEO / structured data** — Every marketing page carries JSON-LD. `src/pages/index.astro` has the `LocalBusiness`/`Organization` block (phone, city/state, `areaServed`); the other pages add `CollectionPage` (services hub, work), `ItemList`/`Service` (services category subpages), `SoftwareApplication` (products), `AboutPage`, and `ContactPage`. `BreadcrumbList` is emitted by `BaseLayout.astro` from its `breadcrumb` prop, with an optional `breadcrumbParent` for the three-level trail on service subpages. The business is home-based, so no street address is published anywhere on the site or in structured data — only city/state. `areaServed` and the visible "Areas We Serve" list are kept in sync, and cover the in-person ring only; farther cities are described as remote.
 - **Images** — Hero/portfolio images are compressed WebP; the logo and favicon are palette-compressed PNG (to preserve transparency) via `sharp` (already a transitive dependency of Astro). Keep new image assets small — avoid committing multi-MB source screenshots/exports directly.
 - **Analytics** — `BaseLayout.astro` loads GA4 only on `stonedragonmedia.com`/`www.stonedragonmedia.com`, so local and Cloudflare preview traffic do not contaminate production reporting. The contact form emits a `generate_lead` event only after Web3Forms confirms a successful submission; form contents are never included.
 - **Contact form** — Posts to `https://api.web3forms.com/submit` via fetch; hCaptcha response is validated before submission. Keys (`access_key`, hCaptcha `sitekey`) are currently inlined in `contact.astro`.
@@ -169,15 +174,19 @@ npm run d1:migrate:remote   # apply to production D1
 │   │   ├── SiteFooter.astro
 │   │   ├── SocialLinks.astro    # shared social icon row (header utility bar + footer)
 │   │   └── SettingsForm.astro   # shared profile/password forms for both settings pages
+│   ├── icons/
+│   │   └── nextdoor.svg         # vendored square glyph (the simple-icons entry is a wordmark)
 │   ├── layouts/
 │   │   ├── BaseLayout.astro     # marketing pages
 │   │   ├── AdminLayout.astro    # admin shell (sidebar nav, shared table/form/badge styles)
 │   │   └── DashboardLayout.astro # client dashboard shell (+ impersonation banner)
 │   ├── lib/                     # D1 data access + auth (db, auth, http, users, clients, projects, tasks, notes, timeEntries, invoices, tickets)
+│   │                            # + marketing content: services.ts (catalogue), social.ts (profile URLs)
 │   ├── middleware.ts            # resolves session/user/impersonated-client on every request
 │   ├── env.d.ts                 # App.Locals typing (UserRecord, SessionRecord, ClientRecord)
 │   └── pages/
-│       ├── index.astro / about.astro / contact.astro / services.astro / products.astro / work.astro / privacy-policy.astro / 404.astro / thank-you.astro
+│       ├── index.astro / about.astro / contact.astro / products.astro / work.astro / privacy-policy.astro / 404.astro / thank-you.astro
+│       ├── services/             # index.astro (hub) + [category].astro (four prerendered subpages)
 │       ├── login.astro
 │       ├── admin/                # setup.astro, index.astro, settings.astro, clients/, projects/ (board + task modal), billing/, tickets/
 │       ├── dashboard/             # index.astro, projects.astro, projects/[id].astro, billing.astro, settings.astro, tickets/

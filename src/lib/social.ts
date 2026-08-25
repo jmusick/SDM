@@ -13,6 +13,14 @@ export interface SocialProfile {
 
 export const socialProfiles: SocialProfile[] = [
   {
+    name: "Google",
+    // Canonical Maps listing URL. The CID is the stable numeric listing id (hex
+    // 0x448575372c0a2cd8 in the /maps/place/ URL); share.google and maps.app.goo.gl
+    // links are redirects and Google has retired shorteners before, so don't use those.
+    url: "https://www.google.com/maps?cid=4937481446304132312",
+    icon: "simple-icons:googlemaps",
+  },
+  {
     name: "Facebook",
     url: "https://www.facebook.com/people/Stone-Dragon-Media/61592914063909/",
     icon: "simple-icons:facebook",

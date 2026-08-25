@@ -1,0 +1,479 @@
+---
+import { Icon } from "astro-icon/components";
+import SiteHeader from "../../components/SiteHeader.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { serviceCategories, type ServiceCategory } from "../../lib/services";
+
+export const prerender = true;
+
+// One template, four prerendered pages — the copy, icons, and JSON-LD all come from
+// src/lib/services.ts so the hub and these subpages can't drift apart.
+export function getStaticPaths() {
+  return serviceCategories.map((category) => ({
+    params: { category: category.slug },
+    props: { category },
+  }));
+}
+
+interface Props {
+  category: ServiceCategory;
+}
+
+const { category } = Astro.props;
+const canonical = `https://stonedragonmedia.com/services/${category.slug}/`;
+const siblings = serviceCategories.filter((other) => other.slug !== category.slug);
+---
+
+<BaseLayout
+  title={`${category.title} | Stone Dragon Media`}
+  description={category.description}
+  canonical={canonical}
+  ogUrl={canonical}
+  breadcrumb={category.name}
+  breadcrumbParent={{ name: "Services", item: "https://stonedragonmedia.com/services/" }}
+  ogImage="https://stonedragonmedia.com/services-header.webp"
+  ogImageAlt="Stone Dragon Media digital services — web design, development, marketing, and consulting"
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": `${category.name} services from Stone Dragon Media`,
+      "itemListElement": category.services.map((service, i) => ({
+        "@type": "ListItem",
+        "position": i + 1,
+        "item": {
+          "@type": "Service",
+          "name": service.name,
+          "description": service.summary,
+          "url": `${canonical}#${service.id}`,
+          "serviceType": service.name,
+          "provider": {
+            "@type": "Organization",
+            "name": "Stone Dragon Media",
+            "url": "https://stonedragonmedia.com"
+          },
+          "areaServed": { "@type": "AdministrativeArea", "name": "Erie County, OH" }
+        }
+      }))
+    })} />
+    <style>
+      .page {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 1rem clamp(1.1rem, 2.5vw, 2.4rem) 0;
+      }
+
+      .footer-wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
+      }
+
+      .header-hero {
+        position: relative;
+        width: 100vw;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        height: 420px;
+        max-width: 100vw;
+        border-radius: 0;
+        overflow: hidden;
+        box-shadow: none;
+        margin-bottom: 1rem;
+        background: #122238;
+      }
+
+      .header-hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        object-position: center 70%;
+      }
+
+      .header-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 3.5rem 3.5rem 3.5rem max(8vw, calc((100vw - 1280px) / 2 + clamp(1.1rem, 2.5vw, 2.4rem)));
+        color: #fff;
+        background: linear-gradient(90deg, rgba(18, 34, 56, 0.82) 0%, rgba(18, 34, 56, 0.32) 60%, rgba(18, 34, 56, 0) 100%);
+        font-family: "Sora", sans-serif;
+        pointer-events: none;
+        box-sizing: border-box;
+      }
+
+      .header-overlay .about-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: 0.13em;
+        margin-bottom: 0.7rem;
+        opacity: 0.92;
+        border-bottom: 3px solid #7fa6d9;
+        display: inline-block;
+        padding-bottom: 0.2rem;
+      }
+
+      .header-overlay .hero-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin-bottom: 1.2rem;
+        line-height: 1.1;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
+      }
+
+      .header-overlay .hero-desc {
+        font-size: 1.25rem;
+        font-weight: 400;
+        max-width: 32rem;
+        line-height: 1.5;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
+      }
+
+      /* Visible trail back to the hub. Labelled, so it isn't a second unnamed nav landmark
+         alongside the header's primary nav. */
+      .crumbs {
+        font-family: "Sora", sans-serif;
+        font-size: 0.85rem;
+        color: var(--ink);
+        margin-bottom: 0.9rem;
+      }
+
+      .crumbs a {
+        color: var(--brand-strong);
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .crumbs a:hover {
+        text-decoration: underline;
+      }
+
+      .crumbs span {
+        opacity: 0.75;
+      }
+
+      .crumbs .sep {
+        margin: 0 0.4rem;
+      }
+
+      h1 {
+        font-family: "Sora", sans-serif;
+        color: var(--brand-strong);
+        margin: 0 0 1rem;
+      }
+
+      .lead {
+        color: var(--ink);
+        max-width: 70ch;
+      }
+
+      .card {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: 0.95rem;
+        padding: 1rem;
+      }
+
+      /* Same watermark treatment as the hub — see /services for the opacity rationale. */
+      .card .icon {
+        position: absolute;
+        right: -0.5rem;
+        bottom: -0.6rem;
+        font-size: 9rem;
+        height: 82%;
+        width: auto;
+        aspect-ratio: 1 / 1;
+        margin: 0;
+        color: var(--brand-strong);
+        opacity: 0.05;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .card h2,
+      .card h3,
+      .card p,
+      .card ul,
+      .card .card-link {
+        position: relative;
+        z-index: 1;
+      }
+
+      .card p {
+        margin: 0;
+        color: var(--ink-soft);
+        line-height: 1.55;
+      }
+
+      .card h3 {
+        margin: 0 0 0.45rem;
+        font-size: 1.06rem;
+        color: var(--brand-strong);
+        font-family: "Sora", sans-serif;
+      }
+
+      .card h3 a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .card h3 a:hover {
+        text-decoration: underline;
+      }
+
+      /* The two services in this category, given the full width rather than the hub's paired
+         cards — this is the page that should actually spell each one out. */
+      .services {
+        margin-top: 2.2rem;
+        display: grid;
+        gap: 1rem;
+      }
+
+      .service-card {
+        padding: 1.4rem 1.5rem;
+        scroll-margin-top: 1.5rem;
+      }
+
+      .service-card h2 {
+        margin: 0 0 0.5rem;
+        font-family: "Sora", sans-serif;
+        font-size: clamp(1.25rem, 1.8vw, 1.5rem);
+        color: var(--brand-strong);
+      }
+
+      .service-card p {
+        max-width: 70ch;
+      }
+
+      .service-card ul {
+        margin: 0.9rem 0 0 1.1rem;
+        padding: 0;
+        color: var(--ink-soft);
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.4rem 1.6rem;
+      }
+
+      .service-card li {
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      .related {
+        margin-top: 3rem;
+      }
+
+      .related > h2 {
+        font-family: "Sora", sans-serif;
+        color: var(--brand-strong);
+        font-size: clamp(1.4rem, 2vw, 1.8rem);
+        margin: 0 0 1rem;
+      }
+
+      .related-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .card-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-top: 0.7rem;
+        font-family: "Sora", sans-serif;
+        font-weight: 600;
+        font-size: 0.92rem;
+        color: var(--brand-strong);
+        text-decoration: none;
+      }
+
+      .card-link:hover {
+        text-decoration: underline;
+      }
+
+      /* Not .icon — that class is the corner watermark on these cards. */
+      .card-link .arrow {
+        width: 0.9rem;
+        height: 0.9rem;
+        flex-shrink: 0;
+      }
+
+      .related-more {
+        margin-top: 1.2rem;
+        color: var(--ink);
+      }
+
+      .cta-banner {
+        position: relative;
+        width: 100vw;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        margin-top: 3rem;
+        padding: 4rem 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1.2rem;
+        background: linear-gradient(120deg, #0e2133 0%, #1a3d5c 60%, #0e2133 100%);
+        color: #fff;
+      }
+
+      .cta-banner h2 {
+        margin: 0;
+        font-family: "Sora", sans-serif;
+        font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -0.01em;
+      }
+
+      .cta-banner p {
+        margin: 0;
+        color: rgba(220, 237, 255, 0.85);
+        max-width: 54ch;
+        line-height: 1.65;
+        font-size: 1.05rem;
+      }
+
+      .cta-banner .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.8rem 1.5rem;
+        border-radius: 0.75rem;
+        font-family: "Sora", sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+        text-decoration: none;
+        background: #fff;
+        color: #1a3d5c;
+        border: none;
+        margin-top: 0.4rem;
+      }
+
+      .cta-banner .button .icon {
+        width: 1rem;
+        height: 1rem;
+      }
+
+      .site-footer {
+        margin-top: 2rem;
+      }
+
+      @media (max-width: 920px) {
+        .related-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .header-hero {
+          height: 340px;
+        }
+
+        .header-overlay {
+          padding: 2rem 1.2rem 2rem 1.2rem;
+          align-items: flex-start;
+        }
+
+        .header-overlay .hero-title {
+          font-size: 2rem;
+        }
+
+        .header-overlay .hero-desc {
+          font-size: 1rem;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .service-card ul {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </Fragment>
+
+  <SiteHeader active="services" />
+
+  <div class="header-hero">
+    <img src="/services-header.webp" alt="Stone Dragon Media digital services — web design, development, marketing, and consulting" />
+    <div class="header-overlay">
+      <span class="about-label">{category.heroLabel}</span>
+      <span class="hero-title">{category.heroTitle}</span>
+      <span class="hero-desc">{category.heroDesc}</span>
+    </div>
+  </div>
+
+  <main class="page" id="main-content">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/services/">Services</a>
+      <span class="sep" aria-hidden="true">/</span>
+      <span aria-current="page">{category.name}</span>
+    </nav>
+
+    <h1>{category.h1}</h1>
+    <p class="lead">{category.intro}</p>
+
+    <div class="services">
+      {category.services.map((service) => (
+        <article class="card service-card" id={service.id}>
+          <Icon class="icon" name={service.icon} aria-hidden="true" />
+          <h2>{service.name}</h2>
+          <p>{service.summary}</p>
+          <ul>
+            {service.bullets.map((bullet) => <li>{bullet}</li>)}
+          </ul>
+        </article>
+      ))}
+    </div>
+
+    <section class="related">
+      <h2>Other Services</h2>
+      <div class="related-grid">
+        {siblings.map((other) => (
+          <article class="card">
+            <Icon class="icon" name={other.icon} aria-hidden="true" />
+            <h3><a href={`/services/${other.slug}/`}>{other.name}</a></h3>
+            <p>{other.summary}</p>
+            <a class="card-link" href={`/services/${other.slug}/`}>
+              Explore {other.name}
+              <Icon class="arrow" name="lucide:arrow-right" aria-hidden="true" />
+            </a>
+          </article>
+        ))}
+      </div>
+      <p class="related-more">
+        See everything we offer on our <a href="/services/">services overview</a>, or browse
+        <a href="/work/">recent projects</a> in our portfolio.
+      </p>
+    </section>
+
+    <div class="cta-banner">
+      <h2>Ready to start your next project?</h2>
+      <p>Whether you need a new website, a custom application, or a full digital strategy, we are here to help. Let us talk through your goals and build something great together.</p>
+      <a class="button" href="/contact/">
+        <Icon class="icon" name="lucide:send" aria-hidden="true" />
+        Get in Touch
+      </a>
+    </div>
+  </main>
+
+  <div class="footer-wrap">
+    <SiteFooter />
+  </div>
+</BaseLayout>

@@ -1,6 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
 import SocialLinks from "./SocialLinks.astro";
+import { serviceCategoryLinks } from "../lib/services";
 
 interface Props {
 	active?: "home" | "about" | "services" | "work" | "products" | "contact" | "login";
@@ -8,6 +9,9 @@ interface Props {
 }
 
 const { active = "home", showCta = false } = Astro.props;
+
+// Trailing slash normalised so the dropdown item for the page you are on can be marked current.
+const currentPath = Astro.url.pathname.endsWith("/") ? Astro.url.pathname : `${Astro.url.pathname}/`;
 ---
 
 <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -48,7 +52,25 @@ const { active = "home", showCta = false } = Astro.props;
 			<nav class="site-nav" aria-label="Primary">
 				<a class={active === "home" ? "active" : undefined} href="/">Home</a>
 				<a class={active === "about" ? "active" : undefined} href="/about/">About</a>
-				<a class={active === "services" ? "active" : undefined} href="/services/">Services</a>
+				<div class="nav-group">
+					<a class={active === "services" ? "active" : undefined} href="/services/">Services</a>
+					<button
+						class="nav-sub-toggle"
+						type="button"
+						aria-expanded="false"
+						aria-controls="nav-services-menu"
+						aria-label="Toggle services submenu"
+					>
+						<Icon class="icon" name="lucide:chevron-down" aria-hidden="true" />
+					</button>
+					<ul class="nav-dropdown" id="nav-services-menu">
+						{serviceCategoryLinks.map((item) => (
+							<li>
+								<a href={item.href} aria-current={currentPath === item.href ? "page" : undefined}>{item.label}</a>
+							</li>
+						))}
+					</ul>
+				</div>
 				<a class={active === "work" ? "active" : undefined} href="/work/">Our Work</a>
 				<a class={active === "products" ? "active" : undefined} href="/products/">Products</a>
 				<a class={active === "contact" ? "active" : undefined} href="/contact/">Contact</a>
@@ -83,6 +105,39 @@ const { active = "home", showCta = false } = Astro.props;
 				toggle.setAttribute("aria-expanded", "false");
 				panel.classList.remove("is-open");
 			});
+		});
+	}
+
+	// Services submenu. CSS already opens it on hover and on keyboard focus; this covers the
+	// chevron being clicked or tapped, which is the only way in on the stacked mobile nav.
+	const navGroup = document.querySelector(".nav-group") as HTMLElement | null;
+	const subToggle = navGroup?.querySelector(".nav-sub-toggle") as HTMLElement | null;
+
+	if (navGroup && subToggle) {
+		const setOpen = (open: boolean) => {
+			subToggle.setAttribute("aria-expanded", String(open));
+			navGroup.classList.toggle("is-open", open);
+		};
+
+		subToggle.addEventListener("click", () => {
+			setOpen(subToggle.getAttribute("aria-expanded") !== "true");
+		});
+
+		document.addEventListener("click", (event) => {
+			if (!navGroup.contains(event.target as Node)) {
+				setOpen(false);
+			}
+		});
+
+		document.addEventListener("keydown", (event) => {
+			if (event.key === "Escape" && subToggle.getAttribute("aria-expanded") === "true") {
+				setOpen(false);
+				subToggle.focus();
+			}
+		});
+
+		navGroup.querySelectorAll(".nav-dropdown a").forEach((link) => {
+			link.addEventListener("click", () => setOpen(false));
 		});
 	}
 </script>
