@@ -45,3 +45,6 @@ Desktop.ini
 
 # coverage output
 coverage/
+
+# local scratch notes
+TODO.md

@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { createSession, verifyPassword } from "../../../lib/auth";
 import { ensureDB } from "../../../lib/db";
+import { getLoginLockout, recordFailedLogin, resetLoginLockout } from "../../../lib/users";
 import { SESSION_COOKIE } from "../../../middleware";
 
 export const prerender = false;
@@ -24,10 +25,18 @@ export const POST: APIRoute = async ({ request, locals, cookies, url, redirect }
     return redirect("/login?error=invalid");
   }
 
+  const lockedUntil = await getLoginLockout(locals, user.id);
+  if (lockedUntil) {
+    return redirect("/login?error=locked");
+  }
+
   const ok = await verifyPassword(password, user.password_hash);
   if (!ok) {
+    await recordFailedLogin(locals, user.id);
     return redirect("/login?error=invalid");
   }
+
+  await resetLoginLockout(locals, user.id);
 
   const session = await createSession(locals, user.id);
   cookies.set(SESSION_COOKIE, session.id, {

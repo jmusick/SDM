@@ -10,7 +10,12 @@ if (user) {
 }
 
 const errorParam = Astro.url.searchParams.get("error");
-const errorMessage = errorParam === "invalid" ? "Incorrect email or password." : null;
+const errorMessage =
+  errorParam === "invalid"
+    ? "Incorrect email or password."
+    : errorParam === "locked"
+      ? "Too many failed attempts. Try again in a few minutes."
+      : null;
 ---
 
 <BaseLayout
