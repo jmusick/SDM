@@ -87,13 +87,20 @@ expect. Don't change those paths to fix it; serve `dist/` statically, or use `np
 - **Account settings are self-service only** — `/admin/settings` and `/dashboard/settings` share
   `SettingsForm.astro`, posting to `/api/settings/{profile,password}`, which always act on
   `context.locals.user.id`, never a `userId` from input. `/dashboard/settings` redirects non-`client`
-  users to `/admin/settings`; password changes don't invalidate other sessions.
+  users to `/admin/settings`. A password change/reset evicts the account's other sessions
+  (`updateUserPassword`/`resetClientPassword`).
+- **Temporary passwords** (client create + admin reset) never travel in the URL — the plaintext is
+  written to `password_flash` (one-time read, 15-min TTL) and the redirect carries only an opaque
+  `?pwflash=<id>`, consumed on render in `admin/clients/[id].astro`. Such accounts get
+  `users.must_change_password = 1`; middleware pins them to `/dashboard/settings?mustchange=1` (or
+  `/admin/settings`) until they set a real password, which clears the flag.
 
 ## Database migrations
 
 Add a new numbered file under `migrations/` — never edit an applied one — then `npm run
-d1:migrate:local` (`:remote` for production). `0001_initial` → `0005_user_names`; notably `0003`
-renamed `project_features` to `tasks` and added the notes/time tables. Rebuilds that change `CHECK`
+d1:migrate:local` (`:remote` for production). `0001_initial` → `0007_temp_password_flow`; notably
+`0003` renamed `project_features` to `tasks` and added the notes/time tables, `0006` added the login
+lockout columns, and `0007` added `must_change_password` + the `password_flash` table. Rebuilds that change `CHECK`
 constraints or rename columns follow `PRAGMA foreign_keys=OFF` → create replacement → copy → drop →
 rename → reindex → `PRAGMA foreign_keys=ON`, per `0002`.
 

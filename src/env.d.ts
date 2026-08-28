@@ -7,6 +7,7 @@ interface UserRecord {
   id: string;
   email: string;
   role: UserRole;
+  mustChangePassword: boolean;
 }
 
 interface SessionRecord {

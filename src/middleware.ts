@@ -25,6 +25,24 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
+  // A client with a temporary password (admin-created account, or admin-reset
+  // password) must set a real one before using the portal. Pin them to the
+  // settings page — and the password + logout endpoints — until they do.
+  const user = context.locals.user;
+  if (user?.mustChangePassword) {
+    const path = context.url.pathname;
+    const allowed =
+      path === "/dashboard/settings" ||
+      path === "/admin/settings" ||
+      path === "/api/settings/password" ||
+      path === "/api/auth/logout";
+    const guarded = path.startsWith("/dashboard") || path.startsWith("/admin") || path.startsWith("/api/");
+    if (guarded && !allowed) {
+      const target = user.role === "admin" ? "/admin/settings" : "/dashboard/settings";
+      return context.redirect(`${target}?mustchange=1`);
+    }
+  }
+
   return next();
 });
 

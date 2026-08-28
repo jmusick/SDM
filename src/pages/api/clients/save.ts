@@ -30,8 +30,8 @@ export const POST: APIRoute = async (context) => {
   }
 
   try {
-    const { clientId: newId, temporaryPassword } = await createClient(locals, { email, companyName, contactName, phone });
-    return redirect(`/admin/clients/${newId}?tempPassword=${encodeURIComponent(temporaryPassword)}`);
+    const { clientId: newId, flashId } = await createClient(locals, { email, companyName, contactName, phone });
+    return redirect(`/admin/clients/${newId}?pwflash=${flashId}`);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (message.includes("UNIQUE")) {

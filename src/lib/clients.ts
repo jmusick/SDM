@@ -86,10 +86,42 @@ function generateTempPassword(): string {
   return btoa(String.fromCharCode(...bytes)).replace(/[+/=]/g, "").slice(0, 12);
 }
 
+const PASSWORD_FLASH_TTL_MS = 1000 * 60 * 15;
+
+/**
+ * Stores a temporary password for a single later reveal on the client page,
+ * returning an opaque id to carry in the redirect URL instead of the plaintext
+ * credential. The row is deleted the first time it's read (`consumePasswordFlash`)
+ * and expires after {@link PASSWORD_FLASH_TTL_MS} regardless.
+ */
+async function createPasswordFlash(db: D1Database, userId: string, tempPassword: string): Promise<string> {
+  const id = crypto.randomUUID();
+  await db
+    .prepare("INSERT INTO password_flash (id, user_id, temp_password, expires_at) VALUES (?, ?, ?, ?)")
+    .bind(id, userId, tempPassword, Date.now() + PASSWORD_FLASH_TTL_MS)
+    .run();
+  return id;
+}
+
+/** Reads and deletes a one-time temp-password flash. Returns null if missing or expired. */
+export async function consumePasswordFlash(locals: App.Locals, id: string): Promise<string | null> {
+  const db = ensureDB(locals);
+  const now = Date.now();
+  const row = await db
+    .prepare("SELECT temp_password, expires_at FROM password_flash WHERE id = ? LIMIT 1")
+    .bind(id)
+    .first<{ temp_password: string; expires_at: number }>();
+  await db.batch([
+    db.prepare("DELETE FROM password_flash WHERE id = ?").bind(id),
+    db.prepare("DELETE FROM password_flash WHERE expires_at < ?").bind(now),
+  ]);
+  return row && row.expires_at > now ? row.temp_password : null;
+}
+
 export async function createClient(
   locals: App.Locals,
   input: { email: string; companyName: string; contactName?: string; phone?: string }
-): Promise<{ clientId: string; temporaryPassword: string }> {
+): Promise<{ clientId: string; flashId: string }> {
   const db = ensureDB(locals);
   const email = input.email.trim().toLowerCase();
   const temporaryPassword = generateTempPassword();
@@ -100,14 +132,15 @@ export async function createClient(
 
   await db.batch([
     db
-      .prepare("INSERT INTO users (id, email, password_hash, role, is_active, created_at) VALUES (?, ?, ?, 'client', 1, ?)")
+      .prepare("INSERT INTO users (id, email, password_hash, role, is_active, must_change_password, created_at) VALUES (?, ?, ?, 'client', 1, 1, ?)")
       .bind(userId, email, passwordHash, now),
     db
       .prepare("INSERT INTO clients (id, user_id, company_name, contact_name, phone, created_at) VALUES (?, ?, ?, ?, ?, ?)")
       .bind(clientId, userId, input.companyName.trim(), input.contactName?.trim() || null, input.phone?.trim() || null, now),
   ]);
 
-  return { clientId, temporaryPassword };
+  const flashId = await createPasswordFlash(db, userId, temporaryPassword);
+  return { clientId, flashId };
 }
 
 export async function updateClient(
@@ -144,10 +177,11 @@ export async function resetClientPassword(locals: App.Locals, userId: string): P
   const temporaryPassword = generateTempPassword();
   const passwordHash = await hashPassword(temporaryPassword);
   // Kill every session for this account — an admin reset is a response to a lost
-  // or compromised credential, so any existing login must not survive it.
+  // or compromised credential, so any existing login must not survive it. The
+  // client must set a new password on their next login.
   await db.batch([
-    db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").bind(passwordHash, userId),
+    db.prepare("UPDATE users SET password_hash = ?, must_change_password = 1 WHERE id = ?").bind(passwordHash, userId),
     db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(userId),
   ]);
-  return temporaryPassword;
+  return createPasswordFlash(db, userId, temporaryPassword);
 }

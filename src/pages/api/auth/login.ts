@@ -17,9 +17,9 @@ export const POST: APIRoute = async ({ request, locals, cookies, url, redirect }
 
   const db = ensureDB(locals);
   const user = await db
-    .prepare("SELECT id, password_hash, role, is_active FROM users WHERE email = ? LIMIT 1")
+    .prepare("SELECT id, password_hash, role, is_active, must_change_password FROM users WHERE email = ? LIMIT 1")
     .bind(email)
-    .first<{ id: string; password_hash: string; role: UserRole; is_active: number }>();
+    .first<{ id: string; password_hash: string; role: UserRole; is_active: number; must_change_password: number }>();
 
   if (!user || user.is_active === 0) {
     return redirect("/login?error=invalid");
@@ -46,6 +46,10 @@ export const POST: APIRoute = async ({ request, locals, cookies, url, redirect }
     secure: url.protocol === "https:",
     expires: new Date(session.expiresAt),
   });
+
+  if (user.must_change_password === 1) {
+    return redirect(user.role === "admin" ? "/admin/settings?mustchange=1" : "/dashboard/settings?mustchange=1");
+  }
 
   return redirect(user.role === "admin" ? "/admin" : "/dashboard");
 };

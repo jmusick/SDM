@@ -107,7 +107,8 @@ export async function getSessionAndUserByToken(locals: App.Locals, sessionId: st
         sessions.impersonating_client_id as impersonating_client_id,
         users.email as email,
         users.role as role,
-        users.is_active as is_active
+        users.is_active as is_active,
+        users.must_change_password as must_change_password
       FROM sessions
       INNER JOIN users ON users.id = sessions.user_id
       WHERE sessions.id = ?
@@ -122,6 +123,7 @@ export async function getSessionAndUserByToken(locals: App.Locals, sessionId: st
       email: string;
       role: UserRole;
       is_active: number;
+      must_change_password: number;
     }>();
 
   if (!row || row.is_active === 0) {
@@ -139,6 +141,7 @@ export async function getSessionAndUserByToken(locals: App.Locals, sessionId: st
       id: row.user_id,
       email: row.email,
       role: row.role,
+      mustChangePassword: row.must_change_password === 1,
     },
   };
 }

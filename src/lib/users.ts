@@ -109,7 +109,7 @@ export async function updateUserPassword(
   const db = ensureDB(locals);
   const passwordHash = await hashPassword(newPassword);
   await db.batch([
-    db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").bind(passwordHash, userId),
+    db.prepare("UPDATE users SET password_hash = ?, must_change_password = 0 WHERE id = ?").bind(passwordHash, userId),
     keepSessionId
       ? db.prepare("DELETE FROM sessions WHERE user_id = ? AND id != ?").bind(userId, keepSessionId)
       : db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(userId),

@@ -4,11 +4,13 @@ interface Props {
   backTo: "/admin/settings" | "/dashboard/settings";
   errorMessage: string | null;
   successMessage: string | null;
+  noticeMessage?: string | null;
 }
 
-const { user, backTo, errorMessage, successMessage } = Astro.props;
+const { user, backTo, errorMessage, successMessage, noticeMessage } = Astro.props;
 ---
 
+{noticeMessage && <div class="notice notice-error">{noticeMessage}</div>}
 {errorMessage && <div class="notice notice-error">{errorMessage}</div>}
 {successMessage && <div class="notice notice-success">{successMessage}</div>}
 

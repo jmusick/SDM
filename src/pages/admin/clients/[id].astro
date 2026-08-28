@@ -2,7 +2,7 @@
 import { Icon } from "astro-icon/components";
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { ensureRole } from "../../../lib/http";
-import { getClientWithAccountById } from "../../../lib/clients";
+import { getClientWithAccountById, consumePasswordFlash } from "../../../lib/clients";
 import { listProjectsByClient } from "../../../lib/projects";
 import { listInvoicesByClient } from "../../../lib/invoices";
 import { listTicketsByClient } from "../../../lib/tickets";
@@ -24,7 +24,8 @@ const [projects, invoices, tickets] = await Promise.all([
   listTicketsByClient(Astro.locals, client.id),
 ]);
 
-const tempPassword = Astro.url.searchParams.get("tempPassword");
+const flashId = Astro.url.searchParams.get("pwflash");
+const tempPassword = flashId ? await consumePasswordFlash(Astro.locals, flashId) : null;
 const errorParam = Astro.url.searchParams.get("error");
 const errorMessage =
   errorParam === "invalid" ? "Company name is required." : errorParam === "password" ? "Incorrect password. Client was not deleted." : null;

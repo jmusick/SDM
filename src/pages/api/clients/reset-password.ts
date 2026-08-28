@@ -17,6 +17,6 @@ export const POST: APIRoute = async (context) => {
     return redirect("/admin/clients");
   }
 
-  const temporaryPassword = await resetClientPassword(locals, client.userId);
-  return redirect(`/admin/clients/${client.id}?tempPassword=${encodeURIComponent(temporaryPassword)}`);
+  const flashId = await resetClientPassword(locals, client.userId);
+  return redirect(`/admin/clients/${client.id}?pwflash=${flashId}`);
 };

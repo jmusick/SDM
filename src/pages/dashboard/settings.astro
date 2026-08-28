@@ -34,8 +34,13 @@ const errorMessage = errorParam ? errorMessages[errorParam] ?? "Something went w
 
 const savedParam = Astro.url.searchParams.get("saved");
 const successMessage = savedParam === "password" ? "Password updated." : savedParam === "1" ? "Profile saved." : null;
+
+const noticeMessage =
+  Astro.url.searchParams.get("mustchange") === "1"
+    ? "Set a new password to continue — your current one is temporary."
+    : null;
 ---
 
 <DashboardLayout title="Settings">
-  <SettingsForm user={user} backTo="/dashboard/settings" errorMessage={errorMessage} successMessage={successMessage} />
+  <SettingsForm user={user} backTo="/dashboard/settings" errorMessage={errorMessage} successMessage={successMessage} noticeMessage={noticeMessage} />
 </DashboardLayout>
