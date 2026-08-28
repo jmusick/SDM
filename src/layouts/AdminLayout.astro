@@ -98,6 +98,34 @@ const navItems = [
         padding-top: 1rem;
       }
 
+      .admin-viewsite {
+        margin-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.14);
+        padding-top: 1rem;
+      }
+
+      .admin-viewsite a {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        color: rgba(237, 246, 255, 0.82);
+        text-decoration: none;
+        padding: 0.55rem 0.7rem;
+        border-radius: 0.55rem;
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+
+      .admin-viewsite a:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .admin-viewsite .icon {
+        width: 1.05rem;
+        height: 1.05rem;
+        flex-shrink: 0;
+      }
+
       .admin-logout button {
         width: 100%;
         display: flex;
@@ -593,6 +621,12 @@ const navItems = [
             </a>
           ))}
         </nav>
+        <div class="admin-viewsite">
+          <a href="/" target="_blank" rel="noopener">
+            <Icon class="icon" name="lucide:external-link" aria-hidden="true" />
+            View Public Site
+          </a>
+        </div>
         <div class="admin-logout">
           <form method="post" action="/api/auth/logout">
             <button type="submit">

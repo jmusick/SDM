@@ -96,6 +96,26 @@ const isActive = (prefix: string) => currentPath === prefix || currentPath.start
         color: #fff;
       }
 
+      .dash-viewsite {
+        margin-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.14);
+        padding-top: 1rem;
+      }
+
+      .dash-viewsite a {
+        display: block;
+        color: rgba(237, 246, 255, 0.82);
+        text-decoration: none;
+        padding: 0.55rem 0.7rem;
+        border-radius: 0.55rem;
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+
+      .dash-viewsite a:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
       .dash-logout {
         margin-top: 1rem;
         border-top: 1px solid rgba(255, 255, 255, 0.14);
@@ -467,6 +487,9 @@ const isActive = (prefix: string) => currentPath === prefix || currentPath.start
             <a href="/dashboard/settings" class={isActive("/dashboard/settings") ? "active" : undefined}>Settings</a>
           )}
         </nav>
+        <div class="dash-viewsite">
+          <a href="/" target="_blank" rel="noopener">View Public Site &#8599;</a>
+        </div>
         {!impersonatedClient && user && (
           <div class="dash-logout">
             <form method="post" action="/api/auth/logout">
