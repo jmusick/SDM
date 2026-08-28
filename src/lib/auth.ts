@@ -16,6 +16,17 @@ function fromBase64(value: string): Uint8Array {
   return bytes;
 }
 
+/**
+ * The `sessions.id` column stores the SHA-256 of the cookie token, never the
+ * token itself — a D1 dump, backup, or stray `wrangler d1 execute` output then
+ * can't be replayed as a live session. The raw token lives only in the client's
+ * cookie; every lookup hashes the incoming value first.
+ */
+export async function hashSessionToken(token: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token));
+  return toBase64(new Uint8Array(digest));
+}
+
 async function pbkdf2(password: string, salt: Uint8Array, iterations: number): Promise<Uint8Array> {
   const keyMaterial = await crypto.subtle.importKey(
     "raw",
@@ -63,9 +74,30 @@ export async function verifyPassword(password: string, stored: string): Promise<
   return diff === 0;
 }
 
-export async function createSession(locals: App.Locals, userId: string): Promise<{ id: string; expiresAt: number }> {
+// A syntactically valid stored hash (random salt + hash, PASSWORD_ITERATIONS).
+// Matches no real password — its only use is burning the same PBKDF2 time on a
+// login for an unknown/inactive email as for a real one, so response latency
+// isn't a user-enumeration oracle.
+const DUMMY_PASSWORD_HASH = `pbkdf2$${PASSWORD_ITERATIONS}$${toBase64(
+  new Uint8Array([
+    0x8f, 0x2a, 0x1c, 0x74, 0x33, 0xd9, 0x60, 0x0b, 0x4e, 0xa1, 0x22, 0x9c, 0x55, 0x7d, 0x3f, 0xe0,
+  ])
+)}$${toBase64(
+  new Uint8Array([
+    0x2f, 0x70, 0x9f, 0x1f, 0x5a, 0x89, 0xad, 0x26, 0x7d, 0x21, 0x1f, 0x5c, 0x99, 0x04, 0xb8, 0x3e,
+    0x11, 0x88, 0x33, 0x2a, 0x50, 0x06, 0xf2, 0xa5, 0x0c, 0x74, 0x33, 0xd9, 0x60, 0x0b, 0x4e, 0xa1,
+  ])
+)}`;
+
+/** Runs a full PBKDF2 verify against a fixed dummy hash; always returns false. */
+export async function verifyPasswordDummy(password: string): Promise<boolean> {
+  return verifyPassword(password, DUMMY_PASSWORD_HASH);
+}
+
+export async function createSession(locals: App.Locals, userId: string): Promise<{ token: string; expiresAt: number }> {
   const db = ensureDB(locals);
-  const id = crypto.randomUUID();
+  const token = crypto.randomUUID();
+  const id = await hashSessionToken(token);
   const expiresAt = Date.now() + SESSION_DURATION_MS;
 
   await db
@@ -73,12 +105,13 @@ export async function createSession(locals: App.Locals, userId: string): Promise
     .bind(id, userId, expiresAt, Date.now())
     .run();
 
-  return { id, expiresAt };
+  return { token, expiresAt };
 }
 
-export async function invalidateSession(locals: App.Locals, sessionId: string): Promise<void> {
+/** Takes the raw cookie token (as `logout` has it), hashes it, and deletes the row. */
+export async function invalidateSession(locals: App.Locals, token: string): Promise<void> {
   const db = ensureDB(locals);
-  await db.prepare("DELETE FROM sessions WHERE id = ?").bind(sessionId).run();
+  await db.prepare("DELETE FROM sessions WHERE id = ?").bind(await hashSessionToken(token)).run();
 }
 
 export async function setImpersonation(locals: App.Locals, sessionId: string, clientId: string | null): Promise<void> {
@@ -89,12 +122,13 @@ export async function setImpersonation(locals: App.Locals, sessionId: string, cl
     .run();
 }
 
-export async function getSessionAndUserByToken(locals: App.Locals, sessionId: string): Promise<{
+export async function getSessionAndUserByToken(locals: App.Locals, token: string): Promise<{
   session: SessionRecord | null;
   user: UserRecord | null;
 }> {
   const db = ensureDB(locals);
   const now = Date.now();
+  const sessionId = await hashSessionToken(token);
 
   await db.prepare("DELETE FROM sessions WHERE expires_at < ?").bind(now).run();
 

@@ -2,11 +2,22 @@ import type { APIRoute } from "astro";
 import { createSession, hashPassword } from "../../../lib/auth";
 import { ensureDB } from "../../../lib/db";
 import { getUserCount } from "../../../lib/users";
+import { isSetupEnabled } from "../../../lib/setup";
+import { assertSameOrigin } from "../../../lib/http";
 import { SESSION_COOKIE } from "../../../middleware";
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request, locals, cookies, url, redirect }) => {
+export const POST: APIRoute = async (context) => {
+  const { request, locals, cookies, url, redirect } = context;
+
+  const csrf = assertSameOrigin(context);
+  if (csrf) return csrf;
+
+  if (!isSetupEnabled()) {
+    return redirect("/login");
+  }
+
   const existingCount = await getUserCount(locals);
   if (existingCount > 0) {
     return redirect("/login");
@@ -30,7 +41,7 @@ export const POST: APIRoute = async ({ request, locals, cookies, url, redirect }
     .run();
 
   const session = await createSession(locals, userId);
-  cookies.set(SESSION_COOKIE, session.id, {
+  cookies.set(SESSION_COOKIE, session.token, {
     path: "/",
     httpOnly: true,
     sameSite: "lax",

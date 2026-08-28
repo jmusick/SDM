@@ -1,12 +1,18 @@
 import type { APIRoute } from "astro";
-import { createSession, verifyPassword } from "../../../lib/auth";
+import { createSession, verifyPassword, verifyPasswordDummy } from "../../../lib/auth";
 import { ensureDB } from "../../../lib/db";
 import { getLoginLockout, recordFailedLogin, resetLoginLockout } from "../../../lib/users";
+import { assertSameOrigin } from "../../../lib/http";
 import { SESSION_COOKIE } from "../../../middleware";
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request, locals, cookies, url, redirect }) => {
+export const POST: APIRoute = async (context) => {
+  const { request, locals, cookies, url, redirect } = context;
+
+  const csrf = assertSameOrigin(context);
+  if (csrf) return csrf;
+
   const form = await request.formData();
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   const password = String(form.get("password") ?? "");
@@ -22,6 +28,9 @@ export const POST: APIRoute = async ({ request, locals, cookies, url, redirect }
     .first<{ id: string; password_hash: string; role: UserRole; is_active: number; must_change_password: number }>();
 
   if (!user || user.is_active === 0) {
+    // Burn the same PBKDF2 time as a real verify so login latency doesn't
+    // reveal whether the email belongs to an account.
+    await verifyPasswordDummy(password);
     return redirect("/login?error=invalid");
   }
 
@@ -39,7 +48,7 @@ export const POST: APIRoute = async ({ request, locals, cookies, url, redirect }
   await resetLoginLockout(locals, user.id);
 
   const session = await createSession(locals, user.id);
-  cookies.set(SESSION_COOKIE, session.id, {
+  cookies.set(SESSION_COOKIE, session.token, {
     path: "/",
     httpOnly: true,
     sameSite: "lax",

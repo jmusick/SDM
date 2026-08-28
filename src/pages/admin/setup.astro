@@ -1,8 +1,13 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getUserCount } from "../../lib/users";
+import { isSetupEnabled } from "../../lib/setup";
 
 export const prerender = false;
+
+if (!isSetupEnabled()) {
+  return Astro.redirect("/login");
+}
 
 const userCount = await getUserCount(Astro.locals);
 if (userCount > 0) {

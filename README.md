@@ -35,13 +35,13 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 
 A handful of clients log in at `/login` to see their own projects, invoices, and support tickets (and can open new tickets). The business owner manages everything through `/admin` — clients, projects, billing, and ticket replies — including a **"View as client"** action that lets the owner see the dashboard exactly as a given client does (read-only; can't post messages while impersonating).
 
-- **First-time setup**: visit `/admin/setup` once — it only works while zero users exist in the database, and creates the owner's admin account.
-- **Auth model**: `users` table holds both `admin` and `client` roles; `clients` holds the business-facing profile for client accounts. Sessions live in the `sessions` table (14-day expiry), cookie is httpOnly/SameSite=Lax.
+- **First-time setup**: visit `/admin/setup` once to create the owner's admin account. It works only while zero users exist **and** the env var `ADMIN_SETUP_ENABLED` is set to `"true"` (set it in the Cloudflare Pages dashboard for the bootstrap, then unset it).
+- **Auth model**: `users` table holds both `admin` and `client` roles; `clients` holds the business-facing profile for client accounts. Sessions live in the `sessions` table (14-day expiry), cookie is httpOnly/SameSite=Lax; the `sessions.id` column stores the SHA-256 of the cookie token, not the token itself. Mutating requests are also checked for a same-origin `Origin`/`Referer` (CSRF backstop).
 - **Data model**: see `migrations/*.sql` for the full schema — `users`, `sessions`, `clients`, `projects`, `tasks`, `project_notes`, `task_notes`, `time_entries`, `invoices`, `tickets`, `ticket_messages`.
 - **Internal projects**: `projects.client_id` is nullable — a project with no client is an internal (Stone Dragon Media's own) project. It's shown with an "Internal" badge in the admin UI and is filtered out of anything client-facing by construction (client pages always query by a specific `clientId`).
 - **Project task board**: each project has a drag-and-drop Kanban board (lanes: planning / to do / in progress / QA / done) on `/admin/projects/[id]`. Tasks carry a type (story/bug/task/chore), priority, and an optional assignee (admin users only). Everything about a task — details, notes, and time entries — is edited in a single modal on that page; there is no separate task page. Projects also have their own notes thread, and time is logged per task as add/delete-only entries (stored in minutes; the form accepts hours or minutes).
 - **Client-side project view**: clients see the same board read-only at `/dashboard/projects/[id]` — no drag handles, no note or time forms. Every write endpoint under `/api/tasks/*`, `/api/project-notes/*`, `/api/task-notes/*`, and `/api/time-entries/*` is admin-only regardless.
-- **Account settings**: both roles manage their own name, email, and password at `/admin/settings` / `/dashboard/settings` (shared `SettingsForm.astro`). These are strictly self-service — the API routes always act on the logged-in user, never on a `userId` from form input. Changing a password does not sign out the user's other sessions.
+- **Account settings**: both roles manage their own name, email, and password at `/admin/settings` / `/dashboard/settings` (shared `SettingsForm.astro`). These are strictly self-service — the API routes always act on the logged-in user, never on a `userId` from form input. A password change (or an admin reset) signs out the account's other sessions.
 - **Client lifecycle**: clients can be **archived** (reversible — blocks login, keeps all data) or **deleted** (irreversible — permanently removes their login and cascades through all of their projects, invoices, tickets, and ticket messages via `ON DELETE CASCADE`). Deletion requires the admin to re-enter their own password.
 - **Filtering/sorting**: the admin Projects and Clients list pages support status/client filters and sortable columns via query params, following the same pattern (see either page for the template).
 - **Library code**: `src/lib/{db,auth,http,users,clients,projects,tasks,notes,timeEntries,invoices,tickets}.ts`. `src/middleware.ts` resolves the session/user/impersonated-client on every request. `src/lib/http.ts`'s `ensureRole`/`ensureClientContext` guards **return** a redirect `Response` rather than throwing one — Astro page frontmatter only short-circuits via `return <Response>`, a thrown Response is not caught by the renderer. Every call site does `if (result instanceof Response) return result;`.
@@ -67,7 +67,7 @@ A handful of clients log in at `/login` to see their own projects, invoices, and
 | `/sitemap-index.xml` | Astro-generated sitemap (submitted to Search Console) |
 | `/robots.txt` | Crawl rules + sitemap reference |
 | `/login` | Client/admin login (noindex) |
-| `/admin/setup` | One-time admin account bootstrap — only reachable while no users exist (noindex) |
+| `/admin/setup` | One-time admin account bootstrap — only reachable while no users exist *and* `ADMIN_SETUP_ENABLED="true"` (noindex) |
 | `/dashboard/*` | Client dashboard: overview, projects (read-only task board), billing, tickets, settings (noindex, auth required) |
 | `/admin/*` | Admin area: clients, projects (task board, notes, time), billing, tickets, settings (noindex, auth required) |
 
@@ -118,7 +118,7 @@ npx wrangler d1 create sdm-db   # paste the returned database_id into wrangler.t
 npm run d1:migrate:local
 ```
 
-Then visit `/admin/setup` to create the owner's admin account.
+Then set `ADMIN_SETUP_ENABLED="true"` (locally, a `[vars]` entry in `wrangler.toml`; in production, a Pages dashboard variable) and visit `/admin/setup` to create the owner's admin account. Unset it once the admin exists.
 
 ### Build
 

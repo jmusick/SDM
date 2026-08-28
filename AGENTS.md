@@ -61,12 +61,22 @@ expect. Don't change those paths to fix it; serve `dist/` statically, or use `np
 - **Auth guards return, never throw.** `src/lib/http.ts`'s `ensureRole`/`requireUser`/
   `ensureClientContext` return a redirect `Response` on failure — a *thrown* one isn't caught by the
   renderer. Every call site must do `if (result instanceof Response) return result;`.
+- **CSRF backstop behind `SameSite=Lax`:** `assertSameOrigin(context)` (`src/lib/http.ts`) 403s any
+  non-GET/HEAD request whose `Origin`/`Referer` isn't same-origin. It's folded into `requireUser`, so
+  every guarded route has it; the unguarded auth/setup POST routes call it directly. A new mutating
+  route that uses none of the guards must call it itself.
 - **D1 access** goes through `src/lib/db.ts`'s `ensureDB(locals)` (`cloudflare:workers`' `env`, not
   `Astro.locals.runtime.env`). `src/middleware.ts` resolves session/user/impersonated client per
   request. SQL lives in `src/lib/*.ts`, not in pages (`services.ts`/`social.ts` are content, not SQL).
 - **Auth model**: `users` holds both `admin`/`client` roles; `clients` holds the client business
   profile. Sessions are a first-party cookie (`sdm_session`, httpOnly/SameSite=Lax, 14 days), PBKDF2
-  via Web Crypto, no external provider. `/admin/setup` bootstraps the first admin, only while 0 users.
+  via Web Crypto, no external provider. The cookie holds a raw token; `sessions.id` stores only its
+  SHA-256 (`hashSessionToken`) — a D1 dump can't be replayed. Login runs a dummy PBKDF2
+  (`verifyPasswordDummy`) on an unknown/inactive email so latency isn't a user-enumeration oracle.
+- `/admin/setup` + `/api/setup/create-admin` bootstrap the first admin. Gated on **both** 0 users
+  **and** env var `ADMIN_SETUP_ENABLED === "true"` (`src/lib/setup.ts`) — normally unset, so both
+  302 → `/login`. Set it in the Cloudflare Pages dashboard only for a deliberate re-bootstrap, then
+  unset it.
 - **Impersonation** ("View as client") is strictly read-only — write forms are hidden and API routes
   reject writes whenever `Astro.locals.impersonatedClient` is set. Repeat that check in new mutations.
   `projects.client_id` is nullable (`NULL` = internal project) — use `LEFT JOIN`, not `INNER JOIN`.
@@ -98,9 +108,10 @@ expect. Don't change those paths to fix it; serve `dist/` statically, or use `np
 ## Database migrations
 
 Add a new numbered file under `migrations/` — never edit an applied one — then `npm run
-d1:migrate:local` (`:remote` for production). `0001_initial` → `0007_temp_password_flow`; notably
+d1:migrate:local` (`:remote` for production). `0001_initial` → `0008_hash_session_tokens`; notably
 `0003` renamed `project_features` to `tasks` and added the notes/time tables, `0006` added the login
-lockout columns, and `0007` added `must_change_password` + the `password_flash` table. Rebuilds that change `CHECK`
+lockout columns, `0007` added `must_change_password` + the `password_flash` table, and `0008` clears
+`sessions` (the id column changed from raw token to its SHA-256). Rebuilds that change `CHECK`
 constraints or rename columns follow `PRAGMA foreign_keys=OFF` → create replacement → copy → drop →
 rename → reindex → `PRAGMA foreign_keys=ON`, per `0002`.
 
