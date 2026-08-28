@@ -63,12 +63,14 @@ const isActive = (prefix: string) => currentPath === prefix || currentPath.start
       }
 
       .dash-brand {
-        font-family: "Sora", sans-serif;
-        font-weight: 700;
-        font-size: 1.05rem;
+        display: block;
         margin-bottom: 1.6rem;
-        color: #fff;
-        text-decoration: none;
+      }
+
+      .dash-brand img {
+        display: block;
+        width: 100%;
+        height: auto;
       }
 
       .dash-nav {
@@ -477,7 +479,9 @@ const isActive = (prefix: string) => currentPath === prefix || currentPath.start
     )}
     <div class="dash-shell">
       <aside class="dash-sidebar">
-        <a class="dash-brand" href="/dashboard">Stone Dragon Media</a>
+        <a class="dash-brand" href="/dashboard">
+          <img src="/dashboard-logo.png" alt="Stone Dragon Media" width="800" height="307" />
+        </a>
         <nav class="dash-nav">
           <a href="/dashboard" class={isActive("/dashboard") && currentPath === "/dashboard" ? "active" : undefined}>Overview</a>
           <a href="/dashboard/projects" class={isActive("/dashboard/projects") ? "active" : undefined}>Projects</a>

@@ -50,12 +50,14 @@ const navItems = [
       }
 
       .admin-brand {
-        font-family: "Sora", sans-serif;
-        font-weight: 700;
-        font-size: 1.05rem;
+        display: block;
         margin-bottom: 1.6rem;
-        color: #fff;
-        text-decoration: none;
+      }
+
+      .admin-brand img {
+        display: block;
+        width: 100%;
+        height: auto;
       }
 
       .admin-nav {
@@ -609,7 +611,9 @@ const navItems = [
   <body>
     <div class="admin-shell">
       <aside class="admin-sidebar">
-        <a class="admin-brand" href="/admin">Stone Dragon Media</a>
+        <a class="admin-brand" href="/admin">
+          <img src="/dashboard-logo.png" alt="Stone Dragon Media" width="800" height="307" />
+        </a>
         <nav class="admin-nav">
           {navItems.map((item) => (
             <a
