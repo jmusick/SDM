@@ -2,6 +2,7 @@ import { defineMiddleware } from "astro:middleware";
 import { env as workerEnv } from "cloudflare:workers";
 import { getSessionAndUserByToken } from "./lib/auth";
 import { getClientById } from "./lib/clients";
+import { applySecurityHeaders } from "./lib/security-headers";
 
 const SESSION_COOKIE = "sdm_session";
 
@@ -39,11 +40,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const guarded = path.startsWith("/dashboard") || path.startsWith("/admin") || path.startsWith("/api/");
     if (guarded && !allowed) {
       const target = user.role === "admin" ? "/admin/settings" : "/dashboard/settings";
-      return context.redirect(`${target}?mustchange=1`);
+      return applySecurityHeaders(context.redirect(`${target}?mustchange=1`));
     }
   }
 
-  return next();
+  return applySecurityHeaders(await next());
 });
 
 export { SESSION_COOKIE };
