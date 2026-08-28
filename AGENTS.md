@@ -65,6 +65,13 @@ expect. Don't change those paths to fix it; serve `dist/` statically, or use `np
   non-GET/HEAD request whose `Origin`/`Referer` isn't same-origin. It's folded into `requireUser`, so
   every guarded route has it; the unguarded auth/setup POST routes call it directly. A new mutating
   route that uses none of the guards must call it itself.
+- **Security response headers** live in two places kept in sync by hand: `public/_headers` (`/*`
+  rule) covers the prerendered marketing pages Pages serves from asset storage; portal SSR responses
+  get the same set from `src/lib/security-headers.ts`'s `applySecurityHeaders`, called in
+  `src/middleware.ts`. The TS module is the source of truth for the CSP string — change both together.
+  CSP uses `'unsafe-inline'` for script/style (Astro inlines per-build-hashed scripts + component
+  styles; a static `_headers` can't carry a nonce) and allow-lists Google Fonts, GA/gtag, hCaptcha,
+  and the Web3Forms fetch.
 - **D1 access** goes through `src/lib/db.ts`'s `ensureDB(locals)` (`cloudflare:workers`' `env`, not
   `Astro.locals.runtime.env`). `src/middleware.ts` resolves session/user/impersonated client per
   request. SQL lives in `src/lib/*.ts`, not in pages (`services.ts`/`social.ts` are content, not SQL).

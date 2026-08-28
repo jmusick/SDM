@@ -29,22 +29,24 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 | CAPTCHA | hCaptcha |
 | Hosting | Cloudflare Pages project `sdm` (via `@astrojs/cloudflare`), git-integrated — pushing to `master` deploys to production |
 | Database | Cloudflare D1 (`sdm-db`), binding `DB` — client/project/task/note/time-entry/invoice/ticket data |
-| Auth | Cookie-based sessions (`sdm_session`), PBKDF2 password hashing via Web Crypto — no external auth provider |
+| Auth | Cookie-based sessions (`sdm_session`), PBKDF2 password hashing via Web Crypto — no external auth provider. Session tokens are stored in D1 as SHA-256 hashes, login has an 8-attempt / 15-min account lockout, and temp passwords force a change on first login |
+| Security headers | `public/_headers` (`/*` rule: CSP, HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Cross-Origin-Opener-Policy`, `Permissions-Policy`) for prerendered pages; `src/lib/security-headers.ts` applies the same set to portal SSR responses via middleware |
 
 ## Client Dashboard & Admin Area
 
 A handful of clients log in at `/login` to see their own projects, invoices, and support tickets (and can open new tickets). The business owner manages everything through `/admin` — clients, projects, billing, and ticket replies — including a **"View as client"** action that lets the owner see the dashboard exactly as a given client does (read-only; can't post messages while impersonating).
 
 - **First-time setup**: visit `/admin/setup` once to create the owner's admin account. It works only while zero users exist **and** the env var `ADMIN_SETUP_ENABLED` is set to `"true"` (set it in the Cloudflare Pages dashboard for the bootstrap, then unset it).
-- **Auth model**: `users` table holds both `admin` and `client` roles; `clients` holds the business-facing profile for client accounts. Sessions live in the `sessions` table (14-day expiry), cookie is httpOnly/SameSite=Lax; the `sessions.id` column stores the SHA-256 of the cookie token, not the token itself. Mutating requests are also checked for a same-origin `Origin`/`Referer` (CSRF backstop).
-- **Data model**: see `migrations/*.sql` for the full schema — `users`, `sessions`, `clients`, `projects`, `tasks`, `project_notes`, `task_notes`, `time_entries`, `invoices`, `tickets`, `ticket_messages`.
+- **Auth model**: `users` table holds both `admin` and `client` roles; `clients` holds the business-facing profile for client accounts. Sessions live in the `sessions` table (14-day expiry), cookie is httpOnly/SameSite=Lax; the `sessions.id` column stores the SHA-256 of the cookie token, not the token itself. Mutating requests are also checked for a same-origin `Origin`/`Referer` (CSRF backstop). Login enforces an 8-failed-attempt / 15-minute account lockout (`users.failed_attempts` / `locked_until`) and runs a dummy PBKDF2 hash on unknown emails so response time isn't a user-enumeration oracle.
+- **Temporary passwords**: client creation and admin-triggered resets set a temp password that never travels in the URL — the plaintext is written to a one-time `password_flash` row (15-min TTL) and the redirect carries only an opaque id. Such accounts get `users.must_change_password = 1`; middleware pins them to the settings page until they set a real password.
+- **Data model**: see `migrations/*.sql` for the full schema — `users`, `sessions`, `clients`, `projects`, `tasks`, `project_notes`, `task_notes`, `time_entries`, `invoices`, `tickets`, `ticket_messages`, `password_flash`.
 - **Internal projects**: `projects.client_id` is nullable — a project with no client is an internal (Stone Dragon Media's own) project. It's shown with an "Internal" badge in the admin UI and is filtered out of anything client-facing by construction (client pages always query by a specific `clientId`).
 - **Project task board**: each project has a drag-and-drop Kanban board (lanes: planning / to do / in progress / QA / done) on `/admin/projects/[id]`. Tasks carry a type (story/bug/task/chore), priority, and an optional assignee (admin users only). Everything about a task — details, notes, and time entries — is edited in a single modal on that page; there is no separate task page. Projects also have their own notes thread, and time is logged per task as add/delete-only entries (stored in minutes; the form accepts hours or minutes).
 - **Client-side project view**: clients see the same board read-only at `/dashboard/projects/[id]` — no drag handles, no note or time forms. Every write endpoint under `/api/tasks/*`, `/api/project-notes/*`, `/api/task-notes/*`, and `/api/time-entries/*` is admin-only regardless.
 - **Account settings**: both roles manage their own name, email, and password at `/admin/settings` / `/dashboard/settings` (shared `SettingsForm.astro`). These are strictly self-service — the API routes always act on the logged-in user, never on a `userId` from form input. A password change (or an admin reset) signs out the account's other sessions.
 - **Client lifecycle**: clients can be **archived** (reversible — blocks login, keeps all data) or **deleted** (irreversible — permanently removes their login and cascades through all of their projects, invoices, tickets, and ticket messages via `ON DELETE CASCADE`). Deletion requires the admin to re-enter their own password.
 - **Filtering/sorting**: the admin Projects and Clients list pages support status/client filters and sortable columns via query params, following the same pattern (see either page for the template).
-- **Library code**: `src/lib/{db,auth,http,users,clients,projects,tasks,notes,timeEntries,invoices,tickets}.ts`. `src/middleware.ts` resolves the session/user/impersonated-client on every request. `src/lib/http.ts`'s `ensureRole`/`ensureClientContext` guards **return** a redirect `Response` rather than throwing one — Astro page frontmatter only short-circuits via `return <Response>`, a thrown Response is not caught by the renderer. Every call site does `if (result instanceof Response) return result;`.
+- **Library code**: `src/lib/{db,auth,http,setup,security-headers,users,clients,projects,tasks,notes,timeEntries,invoices,tickets}.ts`. `src/middleware.ts` resolves the session/user/impersonated-client on every request, enforces the forced-password-change redirect, and applies the security headers to SSR responses. `src/lib/http.ts`'s `ensureRole`/`ensureClientContext` guards **return** a redirect `Response` rather than throwing one — Astro page frontmatter only short-circuits via `return <Response>`, a thrown Response is not caught by the renderer. Every call site does `if (result instanceof Response) return result;`.
 - **Not wired to a real billing/accounting system** — invoices are a simple manually-entered record (description, amount, status, dates) in D1, not synced from Stripe/QuickBooks/etc.
 
 ## Site Pages
@@ -83,6 +85,7 @@ A handful of clients log in at `/login` to see their own projects, invoices, and
 - **Images** — Hero/portfolio images are compressed WebP; the logo and favicon are palette-compressed PNG (to preserve transparency) via `sharp` (already a transitive dependency of Astro). Keep new image assets small — avoid committing multi-MB source screenshots/exports directly.
 - **Analytics** — `BaseLayout.astro` loads GA4 only on `stonedragonmedia.com`/`www.stonedragonmedia.com`, so local and Cloudflare preview traffic do not contaminate production reporting. The contact form emits a `generate_lead` event only after Web3Forms confirms a successful submission; form contents are never included.
 - **Contact form** — Posts to `https://api.web3forms.com/submit` via fetch; hCaptcha response is validated before submission. Keys (`access_key`, hCaptcha `sitekey`) are currently inlined in `contact.astro`.
+- **Security headers** — `public/_headers` sets CSP, HSTS (2-year, preload), `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options: DENY`, `Cross-Origin-Opener-Policy`, and `Permissions-Policy` on the prerendered pages Cloudflare serves from asset storage. Portal SSR responses get the same set from `src/lib/security-headers.ts` (`applySecurityHeaders`), called in middleware; the CSP string is kept in sync between the two by hand, with the TS module as the source of truth.
 
 ## Development
 
@@ -153,6 +156,7 @@ npm run d1:migrate:remote   # apply to production D1
 │   ├── logo.png / logo-cropped.png
 │   ├── universal.css
 │   ├── robots.txt
+│   ├── _headers                  # security headers (/*) + Astro's /_astro/* cache rule
 │   ├── work/                     # portfolio thumbnails, 1180x615 .webp
 │   │   ├── dorianblack.webp
 │   │   ├── pneumaris.webp
@@ -164,7 +168,10 @@ npm run d1:migrate:remote   # apply to production D1
 │   ├── 0002_project_features.sql # projects.client_id made nullable (internal projects) + project_features table
 │   ├── 0003_tasks_notes_time.sql # project_features -> tasks (type/lane/priority) + project_notes, task_notes, time_entries
 │   ├── 0004_task_lanes_assignee.sql # adds the planning/to_do lanes + tasks.assigned_to_user_id
-│   └── 0005_user_names.sql       # users.first_name / users.last_name
+│   ├── 0005_user_names.sql       # users.first_name / users.last_name
+│   ├── 0006_login_lockout.sql   # users.failed_attempts / locked_until
+│   ├── 0007_temp_password_flow.sql # password_flash table + users.must_change_password
+│   └── 0008_hash_session_tokens.sql # sessions.id now stores SHA-256 of the token (clears sessions)
 ├── scripts/
 │   ├── seed-local.mjs           # generates local test-data SQL (not in package.json — pipe into wrangler d1 execute --local)
 │   └── seed-local.sql
@@ -180,9 +187,9 @@ npm run d1:migrate:remote   # apply to production D1
 │   │   ├── BaseLayout.astro     # marketing pages
 │   │   ├── AdminLayout.astro    # admin shell (sidebar nav, shared table/form/badge styles)
 │   │   └── DashboardLayout.astro # client dashboard shell (+ impersonation banner)
-│   ├── lib/                     # D1 data access + auth (db, auth, http, users, clients, projects, tasks, notes, timeEntries, invoices, tickets)
+│   ├── lib/                     # D1 data access + auth (db, auth, http, setup, security-headers, users, clients, projects, tasks, notes, timeEntries, invoices, tickets)
 │   │                            # + marketing content: services.ts (catalogue), social.ts (profile URLs)
-│   ├── middleware.ts            # resolves session/user/impersonated-client on every request
+│   ├── middleware.ts            # resolves session/user/impersonated-client, forced-password-change redirect, SSR security headers
 │   ├── env.d.ts                 # App.Locals typing (UserRecord, SessionRecord, ClientRecord)
 │   └── pages/
 │       ├── index.astro / about.astro / contact.astro / products.astro / work.astro / privacy-policy.astro / 404.astro / thank-you.astro
