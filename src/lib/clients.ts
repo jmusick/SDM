@@ -143,6 +143,11 @@ export async function resetClientPassword(locals: App.Locals, userId: string): P
   const db = ensureDB(locals);
   const temporaryPassword = generateTempPassword();
   const passwordHash = await hashPassword(temporaryPassword);
-  await db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").bind(passwordHash, userId).run();
+  // Kill every session for this account — an admin reset is a response to a lost
+  // or compromised credential, so any existing login must not survive it.
+  await db.batch([
+    db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").bind(passwordHash, userId),
+    db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(userId),
+  ]);
   return temporaryPassword;
 }

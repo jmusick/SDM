@@ -2,7 +2,10 @@ import { ensureDB } from "./db";
 import { getDisplayName } from "./users";
 
 export type TaskType = "story" | "bug" | "task" | "chore";
-export type TaskLane = "planning" | "to_do" | "in_progress" | "qa" | "done";
+
+/** The kanban lanes, in board order. Must match the `0004` CHECK constraint. */
+export const TASK_LANES = ["planning", "to_do", "in_progress", "qa", "done"] as const;
+export type TaskLane = (typeof TASK_LANES)[number];
 export type TaskPriority = "low" | "normal" | "high";
 
 export interface TaskRecord {

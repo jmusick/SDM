@@ -27,6 +27,6 @@ export const POST: APIRoute = async (context) => {
     return redirect(`${backTo}?error=wrong_password`);
   }
 
-  await updateUserPassword(locals, user.id, newPassword);
+  await updateUserPassword(locals, user.id, newPassword, locals.session?.id);
   return redirect(`${backTo}?saved=password`);
 };

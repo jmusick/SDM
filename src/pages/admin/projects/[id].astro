@@ -511,10 +511,10 @@ const taskTypeBadge: Record<TaskType, string> = {
             body: JSON.stringify({ taskId, lane }),
           });
           if (!res.ok) throw new Error(`http_${res.status}`);
-          const data = await res.json();
+          const data = (await res.json()) as { ok?: boolean; error?: string };
           if (!data.ok) throw new Error(data.error ?? "update_failed");
         } catch {
-          originZone.appendChild(el);
+          originZone?.appendChild(el);
           alert("Could not move task. Please try again.");
         }
       });

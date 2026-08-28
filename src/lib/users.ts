@@ -94,10 +94,26 @@ export async function updateUserProfile(
   return { ok: true };
 }
 
-export async function updateUserPassword(locals: App.Locals, userId: string, newPassword: string): Promise<void> {
+/**
+ * Changes a user's password and evicts every other session they hold, so a
+ * password change on suspicion of compromise actually logs the attacker out.
+ * Pass the acting request's own session id as `keepSessionId` to avoid logging
+ * the user out of the browser they just changed it in.
+ */
+export async function updateUserPassword(
+  locals: App.Locals,
+  userId: string,
+  newPassword: string,
+  keepSessionId?: string
+): Promise<void> {
   const db = ensureDB(locals);
   const passwordHash = await hashPassword(newPassword);
-  await db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").bind(passwordHash, userId).run();
+  await db.batch([
+    db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").bind(passwordHash, userId),
+    keepSessionId
+      ? db.prepare("DELETE FROM sessions WHERE user_id = ? AND id != ?").bind(userId, keepSessionId)
+      : db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(userId),
+  ]);
 }
 
 const LOGIN_LOCK_THRESHOLD = 8;

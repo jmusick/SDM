@@ -1,10 +1,8 @@
 import type { APIRoute } from "astro";
 import { ensureRole } from "../../../lib/http";
-import { getTaskById, updateTaskLane, type TaskLane } from "../../../lib/tasks";
+import { getTaskById, updateTaskLane, TASK_LANES, type TaskLane } from "../../../lib/tasks";
 
 export const prerender = false;
-
-const VALID_LANES: TaskLane[] = ["planned", "in_progress", "qa", "done"];
 
 /**
  * Called via fetch() from the kanban board's drag-drop handler, not a form
@@ -26,7 +24,7 @@ export const POST: APIRoute = async (context) => {
   const taskId = String(body.taskId ?? "");
   const lane = String(body.lane ?? "") as TaskLane;
 
-  if (!taskId || !VALID_LANES.includes(lane)) {
+  if (!taskId || !TASK_LANES.includes(lane)) {
     return new Response(JSON.stringify({ ok: false, error: "invalid_input" }), { status: 400 });
   }
 

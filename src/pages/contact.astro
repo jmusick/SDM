@@ -501,7 +501,7 @@ export const prerender = true;
           throw new Error(`HTTP ${response.status}`);
         }
 
-        const result = await response.json();
+        const result = (await response.json()) as { success?: boolean; message?: string };
         if (result.success) {
           const analytics = (window as Window & {
             gtag?: (...args: unknown[]) => void;
