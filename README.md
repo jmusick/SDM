@@ -10,7 +10,7 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 - About page
 - Services hub with four category subpages (design & development, marketing & analytics, hosting & security, branding & consulting), plus a "How Much Does It Cost?" pricing-philosophy section
 - Products page (Tagstash)
-- Our Work portfolio page (Simon Rook, Dorian Black, Pneumaris, Tagstash)
+- Our Work portfolio page (JD Musick, Simon Rook, Dorian Black, Pneumaris, Tagstash)
 - Contact form with hCaptcha and Web3Forms submission
 - Privacy policy
 - Auto-generated sitemap
