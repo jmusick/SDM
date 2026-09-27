@@ -21,10 +21,12 @@ Astro 6, TypeScript, `output: 'server'` via `@astrojs/cloudflare`. No UI framewo
 
 ```bash
 npm install                # install deps (Node >= 22.12.0)
-npm run dev:astro          # fast dev server, hot reload — marketing pages only, no D1/auth/sitemap
+npm run dev:astro          # astro dev, hot reload — currently 500s on page routes (see below)
 npm run dev                # full Cloudflare runtime via wrangler dev (D1, cookies, auth)
                            #   builds first; NO hot reload — re-run after each change
-npm run build              # astro build + fix-wrangler.js -> dist/
+npm run build              # astro build -> dist/client (static assets) + dist/server (worker)
+npm run preview            # astro preview of the built worker (workerd + local D1)
+npm run deploy             # build + wrangler deploy (manual deploy; normally git push does it)
 npm run d1:migrate:local   # apply migrations/*.sql to local D1
 npm run d1:migrate:remote  # apply migrations/*.sql to production D1
 npm run cf:types           # regenerate worker-configuration.d.ts
@@ -37,22 +39,21 @@ missing D1 binding. `astro check` has 6 pre-existing errors; check your file, no
 `scripts/seed-local.mjs` generates local test-data SQL (real PBKDF2 hashes) and is **not** wired into
 `package.json` — pipe its output into `npx wrangler d1 execute sdm-db --local`. Local only.
 
-**`npm run preview` is broken** ("No build output found") — `astro.config.mjs` sets `build.client`/
-`build.server` to the layout that produces the Pages-compatible `_worker.js/`, which preview doesn't
-expect. Don't change those paths to fix it; serve `dist/` statically, or use `npm run dev`.
+**`npm run dev:astro` 500s on every page route** (`module is not defined` in the workerd dev runner,
+from a CJS dependency) — pre-existing, not caused by the Workers migration. API routes still work.
+Use `npm run dev` or `npm run preview` until it's fixed.
 
 ## Deployment
 
-- Cloudflare **Pages** project `sdm`, git-integrated with GitHub `jmusick/SDM` — pushing to `master`
-  auto-deploys. `wrangler pages deploy dist` works but registers as an untethered "direct upload".
-- **Git-integrated Pages builds do not read bindings from `wrangler.toml`.** The D1 binding must be
-  added in the Cloudflare dashboard (Pages project → Settings → Bindings → D1, variable `DB`), taking
-  effect on the *next* deploy. If portal routes 500 after a schema/config change, check this first.
-- `fix-wrangler.js` runs at the end of every build: deletes `.wrangler/deploy/config.json` and
-  `dist/_worker.js/wrangler.json`, writes `dist/_worker.js/index.js` re-exporting `entry.mjs`.
-- **`wrangler.toml` has no `main` field, deliberately** — adding one breaks `astro build` (the
-  Cloudflare Vite plugin resolves it against a not-yet-existing build path). `npm run dev` passes the
-  worker entry and `--assets dist` as CLI flags instead.
+- Cloudflare **Worker** `sdm` (Workers Builds), git-integrated with GitHub `jmusick/SDM` — pushing
+  to `master` builds (`npm run build`) and deploys (`npx wrangler deploy`). Migrated from a Pages
+  project in v2.17.0; `@astrojs/cloudflare` v13+ doesn't support Pages for SSR.
+- **`wrangler.toml` is the source of truth for bindings and runtime config** (D1 `DB`, compatibility
+  date/flags) — no dashboard step. `main` is `@astrojs/cloudflare/entrypoints/server`; `astro build`
+  writes the real deploy config to `dist/server/wrangler.json` and points `.wrangler/deploy/config.json`
+  at it, which is what `wrangler deploy`/`wrangler dev` pick up.
+- Dashboard-only settings: plain env vars/secrets (e.g. `ADMIN_SETUP_ENABLED`, `NODE_VERSION` for the
+  build) and the `stonedragonmedia.com` custom domain.
 
 ## Portal / admin architecture
 
@@ -82,7 +83,7 @@ expect. Don't change those paths to fix it; serve `dist/` statically, or use `np
   (`verifyPasswordDummy`) on an unknown/inactive email so latency isn't a user-enumeration oracle.
 - `/admin/setup` + `/api/setup/create-admin` bootstrap the first admin. Gated on **both** 0 users
   **and** env var `ADMIN_SETUP_ENABLED === "true"` (`src/lib/setup.ts`) — normally unset, so both
-  302 → `/login`. Set it in the Cloudflare Pages dashboard only for a deliberate re-bootstrap, then
+  302 → `/login`. Set it on the Worker (dashboard → Variables and Secrets) only for a deliberate re-bootstrap, then
   unset it.
 - **Impersonation** ("View as client") is strictly read-only — write forms are hidden and API routes
   reject writes whenever `Astro.locals.impersonatedClient` is set. Repeat that check in new mutations.

@@ -27,7 +27,7 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 | Analytics | Google Analytics 4 (GA4) — `G-GBG97CSL2Z` via gtag.js |
 | Contact form | Web3Forms API |
 | CAPTCHA | hCaptcha |
-| Hosting | Cloudflare Pages project `sdm` (via `@astrojs/cloudflare`), git-integrated — pushing to `master` deploys to production |
+| Hosting | Cloudflare Worker `sdm` with static assets (via `@astrojs/cloudflare`), git-integrated through Workers Builds — pushing to `master` deploys to production |
 | Database | Cloudflare D1 (`sdm-db`), binding `DB` — client/project/task/note/time-entry/invoice/ticket data |
 | Auth | Cookie-based sessions (`sdm_session`), PBKDF2 password hashing via Web Crypto — no external auth provider. Session tokens are stored in D1 as SHA-256 hashes, login has an 8-attempt / 15-min account lockout, and temp passwords force a change on first login |
 | Security headers | `public/_headers` (`/*` rule: CSP, HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Cross-Origin-Opener-Policy`, `Permissions-Policy`) for prerendered pages; `src/lib/security-headers.ts` applies the same set to portal SSR responses via middleware |
@@ -36,7 +36,7 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 
 A handful of clients log in at `/login` to see their own projects, invoices, and support tickets (and can open new tickets). The business owner manages everything through `/admin` — clients, projects, billing, and ticket replies — including a **"View as client"** action that lets the owner see the dashboard exactly as a given client does (read-only; can't post messages while impersonating).
 
-- **First-time setup**: visit `/admin/setup` once to create the owner's admin account. It works only while zero users exist **and** the env var `ADMIN_SETUP_ENABLED` is set to `"true"` (set it in the Cloudflare Pages dashboard for the bootstrap, then unset it).
+- **First-time setup**: visit `/admin/setup` once to create the owner's admin account. It works only while zero users exist **and** the env var `ADMIN_SETUP_ENABLED` is set to `"true"` (set it on the Cloudflare Worker's Variables and Secrets for the bootstrap, then unset it).
 - **Auth model**: `users` table holds both `admin` and `client` roles; `clients` holds the business-facing profile for client accounts. Sessions live in the `sessions` table (14-day expiry), cookie is httpOnly/SameSite=Lax; the `sessions.id` column stores the SHA-256 of the cookie token, not the token itself. Mutating requests are also checked for a same-origin `Origin`/`Referer` (CSRF backstop). Login enforces an 8-failed-attempt / 15-minute account lockout (`users.failed_attempts` / `locked_until`) and runs a dummy PBKDF2 hash on unknown emails so response time isn't a user-enumeration oracle.
 - **Temporary passwords**: client creation and admin-triggered resets set a temp password that never travels in the URL — the plaintext is written to a one-time `password_flash` row (15-min TTL) and the redirect carries only an opaque id. Such accounts get `users.must_change_password = 1`; middleware pins them to the settings page until they set a real password.
 - **Data model**: see `migrations/*.sql` for the full schema — `users`, `sessions`, `clients`, `projects`, `tasks`, `project_notes`, `task_notes`, `time_entries`, `invoices`, `tickets`, `ticket_messages`, `password_flash`.
@@ -102,13 +102,7 @@ npm install
 
 ### Run Dev Server
 
-For marketing-page work only (fast, hot-reloading, but no D1/auth — those routes will error without the `DB` binding):
-
-```bash
-npm run dev:astro
-```
-
-For dashboard/admin/auth work, run the full Cloudflare runtime (D1, cookies, everything) — builds first, then serves via `wrangler dev`; re-run after each change since it doesn't hot-reload:
+Run the full Cloudflare runtime (D1, cookies, everything) — builds first, then serves via `wrangler dev`; re-run after each change since it doesn't hot-reload:
 
 ```bash
 npm run dev
@@ -121,7 +115,7 @@ npx wrangler d1 create sdm-db   # paste the returned database_id into wrangler.t
 npm run d1:migrate:local
 ```
 
-Then set `ADMIN_SETUP_ENABLED="true"` (locally, a `[vars]` entry in `wrangler.toml`; in production, a Pages dashboard variable) and visit `/admin/setup` to create the owner's admin account. Unset it once the admin exists.
+Then set `ADMIN_SETUP_ENABLED="true"` (locally, a `[vars]` entry in `wrangler.toml`; in production, a Worker variable in the Cloudflare dashboard) and visit `/admin/setup` to create the owner's admin account. Unset it once the admin exists.
 
 ### Build
 
@@ -131,14 +125,19 @@ npm run build
 
 ### Preview Build
 
-> **`npm run preview` does not currently work.** `astro preview` exits with `No build output found`
-> even immediately after a successful build, because `astro.config.mjs` sets `build.client: './'` and
-> `build.server: './_worker.js'` — a layout the Cloudflare adapter's preview doesn't expect. Those
-> paths are what produce the Pages-compatible `_worker.js/`, so they shouldn't be changed to satisfy
-> preview.
->
-> To inspect the built output, either run `npm run dev` (full Cloudflare runtime) or serve `dist/`
-> with any static file server.
+```bash
+npm run preview
+```
+
+Serves the built worker in workerd against local D1.
+
+### Deploy
+
+Pushing to `master` deploys via Workers Builds. To deploy manually from a local checkout:
+
+```bash
+npm run deploy
+```
 
 ### Database Migrations
 
@@ -211,9 +210,8 @@ npm run d1:migrate:remote   # apply to production D1
 │           ├── tickets/ (create.ts, reply.ts, update-status.ts)
 │           └── admin/impersonate/ (start.ts, stop.ts)
 ├── astro.config.mjs
-├── wrangler.toml                 # D1 binding + assets config (no `main` — see AGENTS.md)
+├── wrangler.toml                 # worker entry, D1 binding, assets config
 ├── worker-configuration.d.ts      # generated by `npm run cf:types`
-├── fix-wrangler.js                # post-build worker entry patch (run by `npm run build`)
 ├── tsconfig.json
 ├── package.json
 ├── AGENTS.md

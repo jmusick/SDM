@@ -9,10 +9,6 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
 	site: 'https://stonedragonmedia.com',
 	output: 'server',
-	build: {
-		client: './',
-		server: './_worker.js',
-	},
 	session: {
 		// This app uses custom cookie-session auth, use lruCache to avoid an auto KV binding
 		driver: sessionDrivers.lruCache(),
