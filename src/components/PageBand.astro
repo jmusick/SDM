@@ -1,0 +1,54 @@
+---
+// Title band for interior pages. Renders the page's <h1> plus one line of context, full-bleed,
+// so it goes first inside <main class="page">. Home keeps its own image hero.
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<header class="page-band">
+  <div class="page-band-inner">
+    <h1>{title}</h1>
+    {description && <p>{description}</p>}
+  </div>
+</header>
+
+<style>
+  .page-band {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    margin-left: -50vw;
+    margin-top: -1rem;
+    margin-bottom: 1.6rem;
+    background: var(--brand-strong);
+    color: #fff;
+  }
+
+  .page-band-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2.4rem clamp(1.1rem, 2.5vw, 2.4rem) 2.6rem;
+  }
+
+  .page-band h1 {
+    margin: 0;
+    max-width: 30ch;
+    font-family: "Sora", sans-serif;
+    font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+    font-weight: 700;
+    line-height: 1.15;
+    color: #fff;
+  }
+
+  .page-band p {
+    margin: 0.8rem 0 0;
+    max-width: 44rem;
+    font-size: 1.12rem;
+    line-height: 1.55;
+    color: rgba(230, 242, 255, 0.92);
+  }
+</style>

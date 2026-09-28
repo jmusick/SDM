@@ -1,7 +1,7 @@
 ---
-import { Icon } from "astro-icon/components";
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
+import PageBand from "../components/PageBand.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 export const prerender = true;
@@ -9,12 +9,10 @@ export const prerender = true;
 
 <BaseLayout
   title="Products: Tagstash Bookmarking Tool | Stone Dragon Media"
-  description="Explore products built by Stone Dragon Media, including Tagstash — a modern bookmarking and resource organization tool built for productivity."
+  description="Explore products built by Stone Dragon Media, including Tagstash, a tag-first bookmarking tool for saving and finding links."
   canonical="https://stonedragonmedia.com/products/"
   ogUrl="https://stonedragonmedia.com/products/"
   breadcrumb="Products"
-  ogImage="https://stonedragonmedia.com/products-header.webp"
-  ogImageAlt="Stone Dragon Media products — practical tools for productivity and workflow"
 >
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -45,86 +43,6 @@ export const prerender = true;
         padding: 0 clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
       }
 
-      .header-hero {
-        position: relative;
-        width: 100vw;
-        left: 50%;
-        right: 50%;
-        margin-left: -50vw;
-        margin-right: -50vw;
-        height: 520px;
-        max-width: 100vw;
-        border-radius: 0;
-        overflow: hidden;
-        box-shadow: none;
-        margin-bottom: 1rem;
-        background: #122238;
-      }
-
-      .header-hero img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-        object-position: center 70%;
-      }
-
-      .header-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-start;
-        padding: 3.5rem 3.5rem 3.5rem max(8vw, calc((100vw - 1280px) / 2 + clamp(1.1rem, 2.5vw, 2.4rem)));
-        color: #fff;
-        background: linear-gradient(90deg, rgba(18, 34, 56, 0.82) 0%, rgba(18, 34, 56, 0.32) 60%, rgba(18, 34, 56, 0) 100%);
-        font-family: "Sora", sans-serif;
-        pointer-events: none;
-        box-sizing: border-box;
-      }
-
-      .header-overlay .about-label {
-        font-size: 1.1rem;
-        font-weight: 600;
-        letter-spacing: 0.13em;
-        margin-bottom: 0.7rem;
-        opacity: 0.92;
-        border-bottom: 3px solid #7fa6d9;
-        display: inline-block;
-        padding-bottom: 0.2rem;
-      }
-
-      .header-overlay .hero-title {
-        font-size: 2.8rem;
-        font-weight: 800;
-        margin-bottom: 1.2rem;
-        line-height: 1.1;
-        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
-      }
-
-      .header-overlay .hero-desc {
-        font-size: 1.25rem;
-        font-weight: 400;
-        max-width: 32rem;
-        line-height: 1.5;
-        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
-      }
-
-      h1 {
-        font-family: "Sora", sans-serif;
-        color: var(--brand-strong);
-        margin: 0 0 1rem;
-      }
-
-      .lead {
-        color: var(--ink);
-        max-width: 70ch;
-      }
-
       .product {
         margin-top: 1.2rem;
         border: 1px solid var(--line);
@@ -144,11 +62,6 @@ export const prerender = true;
         font-size: 0.82rem;
         font-weight: 600;
         padding: 0.35rem 0.65rem;
-      }
-
-      .badge .icon {
-        width: 0.92rem;
-        height: 0.92rem;
       }
 
       h2 {
@@ -231,48 +144,21 @@ export const prerender = true;
         margin-top: 2rem;
       }
 
-      @media (max-width: 920px) {
-        .header-overlay {
-          padding: 2rem 1.2rem 2rem 1.2rem;
-          align-items: flex-start;
-        }
-
-        .header-overlay .hero-title {
-          font-size: 2rem;
-        }
-
-        .header-overlay .hero-desc {
-          font-size: 1rem;
-        }
-      }
     </style>
   </Fragment>
 
   <SiteHeader active="products" />
 
-  <div class="header-hero">
-    <img src="/products-header.webp" alt="Stone Dragon Media products — practical tools for productivity and workflow" />
-    <div class="header-overlay">
-      <span class="about-label">PRODUCTS</span>
-      <span class="hero-title">Our Products</span>
-      <span class="hero-desc">
-        Practical tools designed to solve real workflow problems and boost productivity.
-      </span>
-    </div>
-  </div>
-
   <main class="page" id="main-content">
-    <h1>Products Built by Stone Dragon Media</h1>
-    <p class="lead">Stone Dragon Media builds practical products that solve real workflow problems.</p>
+    <PageBand title="Products Built by Stone Dragon Media" description="Tools we build and run ourselves, starting with Tagstash." />
     <section class="product" aria-label="Featured product">
       <div class="badge">
-        <Icon class="icon" name="lucide:star" aria-hidden="true" />
         Featured Product
       </div>
       <h2>Tagstash</h2>
       <p>
-        Tagstash is a tag-first bookmarking and reference tool designed to make it easy to capture,
-        tag, and retrieve important links fast &mdash; no folder trees to maintain, and no digging
+        Tagstash is a tag-first bookmarking and reference tool for capturing,
+        tag, and retrieve important links fast. There are no folder trees to maintain and no digging
         through a browser bookmark bar to find the one page you saved last month.
       </p>
       <div class="product-media">
@@ -293,16 +179,14 @@ export const prerender = true;
         <li>A companion Firefox extension for one-click saving, plus a sidebar for browsing, searching, editing, and tagging without leaving the page</li>
       </ul>
       <p class="product-note">
-        Tagstash is built and run entirely in house &mdash; see the <a href="/work/#tagstash">build
+        Tagstash is built and run entirely in house. See the <a href="/work/#tagstash">build
         breakdown</a> alongside our client work.
       </p>
       <div class="actions">
         <a class="button button-primary" href="https://tagsta.sh/" target="_blank" rel="noreferrer noopener">
-          <Icon class="icon" name="lucide:external-link" aria-hidden="true" />
           Visit Tagstash
         </a>
         <a class="button button-secondary" href="/contact/">
-          <Icon class="icon" name="lucide:messages-square" aria-hidden="true" />
           Ask About Product Development
         </a>
       </div>

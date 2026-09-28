@@ -2,6 +2,7 @@
 import { Icon } from "astro-icon/components";
 import SiteHeader from "../../components/SiteHeader.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
+import PageBand from "../../components/PageBand.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { serviceCategories } from "../../lib/services";
 
@@ -10,12 +11,10 @@ export const prerender = true;
 
 <BaseLayout
   title="Web Design Services in Sandusky, OH | Stone Dragon Media"
-  description="Stone Dragon Media offers custom web solutions, application development, SEO, PPC, branding, hosting, and consulting services for businesses of all sizes."
+  description="Stone Dragon Media builds custom websites and web applications, and handles hosting, SEO, PPC, branding, and consulting for businesses of all sizes."
   canonical="https://stonedragonmedia.com/services/"
   ogUrl="https://stonedragonmedia.com/services/"
   breadcrumb="Services"
-  ogImage="https://stonedragonmedia.com/services-header.webp"
-  ogImageAlt="Stone Dragon Media digital services — web design, development, marketing, and consulting"
 >
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -44,81 +43,6 @@ export const prerender = true;
         max-width: 1280px;
         margin: 0 auto;
         padding: 0 clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
-      }
-
-      .header-hero {
-        position: relative;
-        width: 100vw;
-        left: 50%;
-        right: 50%;
-        margin-left: -50vw;
-        margin-right: -50vw;
-        height: 520px;
-        max-width: 100vw;
-        border-radius: 0;
-        overflow: hidden;
-        box-shadow: none;
-        margin-bottom: 1rem;
-        background: #122238;
-      }
-
-      .header-hero img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-        object-position: center 70%;
-      }
-
-      .header-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-start;
-        padding: 3.5rem 3.5rem 3.5rem max(8vw, calc((100vw - 1280px) / 2 + clamp(1.1rem, 2.5vw, 2.4rem)));
-        color: #fff;
-        background: linear-gradient(90deg, rgba(18, 34, 56, 0.82) 0%, rgba(18, 34, 56, 0.32) 60%, rgba(18, 34, 56, 0) 100%);
-        font-family: "Sora", sans-serif;
-        pointer-events: none;
-        box-sizing: border-box;
-      }
-
-      .header-overlay .about-label {
-        font-size: 1.1rem;
-        font-weight: 600;
-        letter-spacing: 0.13em;
-        margin-bottom: 0.7rem;
-        opacity: 0.92;
-        border-bottom: 3px solid #7fa6d9;
-        display: inline-block;
-        padding-bottom: 0.2rem;
-      }
-
-      .header-overlay .hero-title {
-        font-size: 2.8rem;
-        font-weight: 800;
-        margin-bottom: 1.2rem;
-        line-height: 1.1;
-        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
-      }
-
-      .header-overlay .hero-desc {
-        font-size: 1.25rem;
-        font-weight: 400;
-        max-width: 32rem;
-        line-height: 1.5;
-        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
-      }
-
-      h1 {
-        font-family: "Sora", sans-serif;
-        color: var(--brand-strong);
-        margin: 0 0 1rem;
       }
 
       .categories > h2,
@@ -269,12 +193,11 @@ export const prerender = true;
         border-radius: 0.95rem;
         overflow: hidden;
         text-decoration: none;
-        transition: transform 160ms ease, box-shadow 160ms ease;
+        transition: border-color 160ms ease;
       }
 
       .proof-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 24px rgba(18, 45, 69, 0.16);
+        border-color: var(--brand);
       }
 
       .proof-card img {
@@ -389,11 +312,6 @@ export const prerender = true;
         margin-top: 0.4rem;
       }
 
-      .cta-banner .button .icon {
-        width: 1rem;
-        height: 1rem;
-      }
-
       .site-footer {
         margin-top: 2rem;
       }
@@ -403,38 +321,15 @@ export const prerender = true;
           grid-template-columns: 1fr;
         }
 
-        .header-overlay {
-          padding: 2rem 1.2rem 2rem 1.2rem;
-          align-items: flex-start;
-        }
-
-        .header-overlay .hero-title {
-          font-size: 2rem;
-        }
-
-        .header-overlay .hero-desc {
-          font-size: 1rem;
-        }
       }
     </style>
   </Fragment>
 
   <SiteHeader active="services" />
 
-  <div class="header-hero">
-    <img src="/services-header.webp" alt="Stone Dragon Media digital services — web design, development, marketing, and consulting" />
-    <div class="header-overlay">
-      <span class="about-label">SERVICES</span>
-      <span class="hero-title">Our Solutions</span>
-      <span class="hero-desc">
-        End-to-end digital services including web design, application development, marketing, hosting, branding, and consulting.
-      </span>
-    </div>
-  </div>
-
   <main class="page" id="main-content">
-    <h1>Web Design &amp; Development Services in Sandusky, Ohio</h1>
-    <p class="lead">Stone Dragon Media offers end-to-end digital services from strategy through launch and long-term support, including website solutions built for speed and reliability. Based in Sandusky, Ohio, we work in person across Erie County and northern Ohio, from Toledo in the west to Cleveland in the east, and remotely with clients anywhere.</p>
+    <PageBand title="Web Design &amp; Development Services in Sandusky, Ohio" description="Websites, applications, hosting, marketing, branding, and consulting, from planning through long-term support." />
+    <p class="lead">We plan, build, host, and maintain websites and web applications. Based in Sandusky, Ohio, we work in person across Erie County and northern Ohio, from Toledo in the west to Cleveland in the east, and remotely with clients anywhere.</p>
 
     <section class="categories">
       <h2>What We Do</h2>
@@ -484,7 +379,7 @@ export const prerender = true;
       <h2>How Much Does a Website Cost?</h2>
       <p class="lead">
         Every business is different, so we don&rsquo;t work off a fixed price sheet. We build custom
-        pricing and payment arrangements around your budget, timeline, and goals &mdash; not the
+        pricing and payment arrangements around your budget, timeline, and goals, not the
         other way around.
       </p>
       <div class="pricing-grid">
@@ -492,7 +387,7 @@ export const prerender = true;
           <Icon class="icon" name="lucide:badge-dollar-sign" aria-hidden="true" />
           <h3>One-Time Development</h3>
           <p>
-            Pay a single project cost, and once it&rsquo;s settled the code is fully yours &mdash; a
+            Pay a single project cost, and once it&rsquo;s settled the code is fully yours. It&rsquo;s a
             complete license transfer with no ongoing fees, subscriptions, or dependency on us to
             keep running.
           </p>
@@ -521,10 +416,9 @@ export const prerender = true;
     </section>
 
     <div class="cta-banner">
-      <h2>Ready to start your next project?</h2>
-      <p>Whether you need a new website, a custom application, or a full digital strategy, we are here to help. Let us talk through your goals and build something great together.</p>
+      <h2>Have a project in mind?</h2>
+      <p>Tell us what you are trying to build or fix, and we will reply within one business day.</p>
       <a class="button" href="/contact/">
-        <Icon class="icon" name="lucide:send" aria-hidden="true" />
         Get in Touch
       </a>
     </div>
