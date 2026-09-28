@@ -169,7 +169,7 @@ Actively worked for local SEO, targeting "Sandusky Ohio web design" and the regi
   (excludes thank-you/login/dashboard/admin/api) — no hand-maintained duplicate. Its `serialize` stamps
   `<lastmod>` from the last git commit touching the page's source file (plus `services.ts` for
   `/services/*`); a new marketing page outside `src/pages/<route>.astro` needs a case in
-  `sourceFilesFor()`. A shallow clone skips `lastmod` rather than guess. `/sitemap` is a
+  `sourceFilesFor()`. A shallow clone skips `lastmod` rather than guess; the `prebuild` script (`scripts/unshallow.mjs`) unshallows Workers Builds' clone first so production still gets it. `/sitemap` is a
   separate human-facing HTML page with its own `pages` array; update it when a marketing page changes.
 - `noindex, nofollow`: `404`, `thank-you`, `login`, `admin/setup`, and everything under
   `AdminLayout`/`DashboardLayout`. `/privacy-policy` is intentionally indexable. Every real page
