@@ -20,7 +20,7 @@ Astro 7, TypeScript, `output: 'server'` via `@astrojs/cloudflare` (v14). No UI f
 ## Commands
 
 ```bash
-npm install                # install deps (Node >= 22.12.0)
+npm install                # install deps (Node >= 22.19.0)
 npm run dev:astro          # astro dev in workerd, hot reload, local D1 — the fast loop
 npm run dev                # full Cloudflare runtime via wrangler dev (D1, cookies, auth)
                            #   builds first; NO hot reload — re-run after each change
@@ -52,7 +52,7 @@ v2.19.0 kept the v6 behaviour (prerendered text verified identical) rather than 
   date/flags) — no dashboard step. `main` is `@astrojs/cloudflare/entrypoints/server`; `astro build`
   writes the real deploy config to `dist/server/wrangler.json` and points `.wrangler/deploy/config.json`
   at it, which is what `wrangler deploy`/`wrangler dev` pick up.
-- Dashboard-only settings: plain env vars/secrets (e.g. `ADMIN_SETUP_ENABLED`, `NODE_VERSION` for the
+- Dashboard-only settings: plain env vars/secrets (e.g. `ADMIN_SETUP_ENABLED`, `NODE_VERSION` overrides `.node-version` for the
   build) and the `stonedragonmedia.com` custom domain.
 
 ## Portal / admin architecture

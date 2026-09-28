@@ -91,7 +91,7 @@ A handful of clients log in at `/login` to see their own projects, invoices, and
 
 ### Prerequisites
 
-- Node.js `>=22.12.0`
+- Node.js `>=22.19.0`
 - npm
 
 ### Install
