@@ -1,19 +1,4 @@
-/* Self-hosted variable fonts (SIL OFL, licenses alongside in /fonts). Latin subset only. */
-@font-face {
-	font-family: "Sora";
-	font-style: normal;
-	font-weight: 100 800;
-	font-display: swap;
-	src: url("/fonts/sora-latin-wght-normal.woff2") format("woff2");
-}
-
-@font-face {
-	font-family: "Outfit";
-	font-style: normal;
-	font-weight: 100 900;
-	font-display: swap;
-	src: url("/fonts/outfit-latin-wght-normal.woff2") format("woff2");
-}
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap");
 
 :root {
 	--ink: #10263b;
@@ -77,6 +62,21 @@ body {
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-attachment: fixed;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	body {
+		animation: page-enter 260ms ease-out;
+	}
+}
+
+@keyframes page-enter {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 .site-head {
@@ -342,19 +342,23 @@ body {
 	font-weight: 600;
 	text-decoration: none;
 	font-family: "Sora", sans-serif;
-	transition: background-color 160ms ease, border-color 160ms ease;
+	transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
 }
 
-.button-primary:hover {
-	background-color: var(--brand-strong);
+.button .icon {
+	width: 1rem;
+	height: 1rem;
+	margin-right: 0.45rem;
+	flex-shrink: 0;
 }
 
-.button-secondary:hover {
-	border-color: var(--brand-strong);
+.button:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 18px rgba(14, 46, 73, 0.2);
 }
 
 .button-primary {
-	background: var(--brand);
+	background: linear-gradient(125deg, #1f5a89, #2f709f);
 	color: #edf6ff;
 }
 
@@ -471,6 +475,14 @@ body {
 
 .site-footer a:hover {
 	text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.button:hover,
+	.about-cta-link:hover,
+	.proof-card:hover {
+		transform: none;
+	}
 }
 
 @media (max-width: 920px) {

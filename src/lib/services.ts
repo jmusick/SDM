@@ -3,7 +3,7 @@
 // visible cards the way two hand-maintained copies did.
 
 export interface ServiceItem {
-  /** Anchor id on the category page. Keep stable, these are linked from / and /about. */
+  /** Anchor id on the category page — keep stable, these are linked from / and /about. */
   id: string;
   name: string;
   /** astro-icon name, rendered as the card watermark. */
@@ -15,18 +15,19 @@ export interface ServiceItem {
 export interface ServiceCategory {
   /** URL segment under /services/. */
   slug: string;
-  /** Category name: nav dropdown, hub card heading, breadcrumb. */
+  /** Category name — nav dropdown, hub card heading, breadcrumb. */
   name: string;
   icon: string;
   /** One-line summary shown on the hub card. */
   summary: string;
-  /** Page <title> minus the " | Stone Dragon Media" suffix. Keep the whole thing under ~65 chars. */
+  /** Page <title> minus the " | Stone Dragon Media" suffix — keep the whole thing under ~65 chars. */
   title: string;
   description: string;
   h1: string;
   /** Lead paragraph under the H1. */
   intro: string;
-  /** One line shown in the title band under the H1. */
+  heroLabel: string;
+  heroTitle: string;
   heroDesc: string;
   services: ServiceItem[];
 }
@@ -36,20 +37,22 @@ export const serviceCategories: ServiceCategory[] = [
     slug: "design-development",
     name: "Design & Development",
     icon: "lucide:layout-template",
-    summary: "Websites, eCommerce, and custom software built around how your business runs.",
+    summary: "Websites, eCommerce, and custom software built around how your business actually works.",
     title: "Web Design & App Development in Sandusky, OH",
     description:
       "Custom websites, eCommerce, landing pages, client portals, internal tools, and API integrations built for speed and reliability by Stone Dragon Media in Sandusky, Ohio.",
     h1: "Web Design & Application Development in Sandusky, Ohio",
     intro:
-      "Whether you need a website that brings in inquiries or software no off-the-shelf product covers, we design and build it from scratch. Every project is built to load fast, work for everyone, and stay easy to maintain. We work in person across Erie County and northern Ohio, and remotely with clients anywhere.",
-    heroDesc: "Custom websites and web applications, built around your workflow.",
+      "Whether you need a website that converts or a piece of software no off-the-shelf product covers, we design and build it from scratch. Every project is built for speed, accessibility, and long-term maintainability. We work in person across Erie County and northern Ohio, and remotely with clients anywhere.",
+    heroLabel: "DESIGN & DEVELOPMENT",
+    heroTitle: "Design & Development",
+    heroDesc: "Custom websites and web systems, plus tailored software built around your workflow.",
     services: [
       {
         id: "custom-web-solutions",
-        name: "Custom Websites",
+        name: "Custom Web Solutions",
         icon: "lucide:layout-template",
-        summary: "Websites that explain what you do, make the next step obvious, and load quickly on any device.",
+        summary: "Custom websites and web systems built to communicate value, drive action, and stay lightning fast.",
         bullets: [
           "eCommerce and informational websites",
           "Landing pages and microsites",
@@ -61,7 +64,7 @@ export const serviceCategories: ServiceCategory[] = [
         id: "application-development",
         name: "Custom Application Development",
         icon: "lucide:cpu",
-        summary: "Software built around your workflow, not the other way around.",
+        summary: "Tailored software solutions built around your workflow, not the other way around.",
         bullets: [
           "Internal tools and dashboards",
           "Customer and client portals",
@@ -82,13 +85,15 @@ export const serviceCategories: ServiceCategory[] = [
     h1: "Digital Marketing & Analytics in Sandusky, Ohio",
     intro:
       "Getting found is half of it; knowing what worked is the other half. We run campaigns that put your business in front of the right audience at the right time, then measure them so your budget goes where it earns its keep.",
-    heroDesc: "Campaigns paired with the tracking and reporting that show what they returned.",
+    heroLabel: "MARKETING & ANALYTICS",
+    heroTitle: "Marketing & Analytics",
+    heroDesc: "Data-driven campaigns paired with the tracking and reporting that show what they returned.",
     services: [
       {
         id: "marketing",
         name: "Marketing",
         icon: "lucide:megaphone",
-        summary: "Campaigns that put your business in front of the right audience at the right time.",
+        summary: "Data-driven campaigns that put your business in front of the right audience at the right time.",
         bullets: [
           "Search Engine Optimization (SEO)",
           "Pay Per Click (PPC) management",
@@ -100,7 +105,7 @@ export const serviceCategories: ServiceCategory[] = [
         id: "analytics-reporting",
         name: "Analytics & Reporting",
         icon: "lucide:bar-chart-2",
-        summary: "Clear reporting on how your site and campaigns are performing, so you can decide what to do next.",
+        summary: "Turn your data into decisions with clear, actionable insight into how your digital presence is performing.",
         bullets: [
           "Google Analytics setup and configuration",
           "Conversion tracking and goal setup",
@@ -121,13 +126,15 @@ export const serviceCategories: ServiceCategory[] = [
     h1: "Website Hosting, Security & Maintenance in Sandusky, Ohio",
     intro:
       "A site is only as good as the platform underneath it. We set up hosting configured for performance, then keep it patched, monitored, and backed up long after launch, so problems get caught before your customers find them.",
-    heroDesc: "Hosting we set up and maintain: updates, monitoring, and backups you can restore from.",
+    heroLabel: "HOSTING & SECURITY",
+    heroTitle: "Hosting & Security",
+    heroDesc: "Reliable hosting environments plus proactive maintenance, monitoring, and recovery planning.",
     services: [
       {
         id: "hosting-infrastructure",
         name: "Hosting & Infrastructure",
         icon: "lucide:server",
-        summary: "Secure hosting configured for speed, with backups and a recovery plan in place.",
+        summary: "Reliable, secure hosting environments configured for performance and peace of mind.",
         bullets: [
           "Domain registration and SSL management",
           "Cloud and VPS server setup",
@@ -139,7 +146,7 @@ export const serviceCategories: ServiceCategory[] = [
         id: "security-maintenance",
         name: "Security & Maintenance",
         icon: "lucide:shield",
-        summary: "Updates, monitoring, and security checks that keep your site safe and running long after launch.",
+        summary: "Proactive care to keep your site secure, up to date, and running smoothly long after launch.",
         bullets: [
           "Security hardening and monitoring",
           "Software and plugin updates",
@@ -156,17 +163,19 @@ export const serviceCategories: ServiceCategory[] = [
     summary: "A visual identity people trust, and clear-headed guidance on where to take it next.",
     title: "Branding & Digital Strategy in Sandusky, OH",
     description:
-      "Logo and brand identity design, style guides, color and typography systems, technology selection, and process planning from Stone Dragon Media in Sandusky, Ohio.",
+      "Logo and brand identity design, style guides, color and typography systems, technology selection, and digital transformation planning from Stone Dragon Media in Sandusky, Ohio.",
     h1: "Branding, Design & Digital Strategy in Sandusky, Ohio",
     intro:
-      "How you look and what you decide to build both come before a single line of code. We shape the visual identity your audience recognizes, and help you choose the technology and process behind it.",
-    heroDesc: "A visual identity, plus straight advice on technology and process.",
+      "How you look and what you decide to build both come before a single line of code. We shape the visual identity your audience recognizes, and help you make confident decisions about the technology and process behind it.",
+    heroLabel: "BRANDING & CONSULTING",
+    heroTitle: "Branding & Consulting",
+    heroDesc: "A cohesive visual identity, plus expert guidance on technology, process, and digital growth.",
     services: [
       {
         id: "branding-design",
         name: "Branding & Design",
         icon: "lucide:palette",
-        summary: "A visual identity that shows who you are and gives your audience a reason to trust you.",
+        summary: "A cohesive visual identity that communicates who you are and builds trust with your audience.",
         bullets: [
           "Logo design and brand mark creation",
           "Brand style guide development",
@@ -178,10 +187,10 @@ export const serviceCategories: ServiceCategory[] = [
         id: "consulting-strategy",
         name: "Consulting & Strategy",
         icon: "lucide:compass",
-        summary: "Straight advice on technology, process, and where to spend your next dollar online.",
+        summary: "Expert guidance to help you make confident decisions about technology, process, and digital growth.",
         bullets: [
           "Technology and platform selection",
-          "Moving manual processes onto software",
+          "Digital transformation planning",
           "Data migration and architecture",
           "IT process improvement and project roadmapping",
         ],

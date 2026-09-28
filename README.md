@@ -75,7 +75,7 @@ A handful of clients log in at `/login` to see their own projects, invoices, and
 
 ## Key Implementation Notes
 
-- **Shared layout** — `src/layouts/BaseLayout.astro` manages all `<head>` metadata: canonical URLs, Open Graph (pages pass `ogImage`/`ogImageAlt` when they have a real image; the default is the logo), Twitter cards, robots meta, the optional `breadcrumb` JSON-LD, GA4 gtag snippet, and the sitemap `<link>`.
+- **Shared layout** — `src/layouts/BaseLayout.astro` manages all `<head>` metadata: canonical URLs, Open Graph (each marketing page passes its own `ogImage`/`ogImageAlt` hero), Twitter cards, robots meta, the optional `breadcrumb` JSON-LD, GA4 gtag snippet, and the sitemap `<link>`.
 - **Navigation/footer** — `src/components/SiteHeader.astro`, `src/components/SiteFooter.astro`. The header opens with a slim utility bar carrying the phone number, city, and social icons above the logo/nav row; the nav ends with a Client Login link into the portal and collapses to a hamburger at `max-width: 920px`. Services is the one nav item with a submenu — a dropdown of the four service categories, built from `src/lib/services.ts`, which opens on hover, on keyboard focus, and on click/tap of its chevron. The footer carries Privacy Policy and Sitemap links, the business NAP (name, city/state, phone), social profile icons, and the version read from `package.json` at build time.
 - **Social profiles** — `src/lib/social.ts` is the single source of truth for the business's Google Business Profile, Facebook, X, Nextdoor, and Yelp URLs (the Google entry is the canonical `maps?cid=` listing URL, never a `share.google` redirect). It feeds the `SocialLinks.astro` component (used in both the header utility bar and the footer) and the `sameAs` array in the homepage `Organization`/`LocalBusiness` JSON-LD, so they can't drift apart. Brand icons come from `@iconify-json/simple-icons`, except Nextdoor — that set ships the wordmark logotype, which is illegible at icon size, so the square house glyph is vendored at `src/icons/nextdoor.svg`.
 - **Services catalogue** — `src/lib/services.ts` holds the four service categories, the two services inside each, and their copy, icons, and anchor ids. The `/services` hub, the four `[category].astro` subpages, their `Service`/`CollectionPage` JSON-LD, the header dropdown, and the `/sitemap` page are all generated from it, so they can't drift apart.
@@ -161,8 +161,7 @@ npm run d1:migrate:remote   # apply to production D1
 │   │   ├── pneumaris.webp
 │   │   ├── simonrook.webp
 │   │   └── tagstash.webp
-│   ├── fonts/            (self-hosted Sora + Outfit, woff2 + OFL licenses)
-│   └── (home hero image, .webp)
+│   └── (page hero images, .webp)
 ├── migrations/
 │   ├── 0001_initial.sql         # D1 schema: users, sessions, clients, projects, invoices, tickets, ticket_messages
 │   ├── 0002_project_features.sql # projects.client_id made nullable (internal projects) + project_features table

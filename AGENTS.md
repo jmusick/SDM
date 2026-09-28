@@ -73,7 +73,7 @@ v2.19.0 kept the v6 behaviour (prerendered text verified identical) rather than 
   CSP string — change both together. Middleware also sets `Cache-Control: private, no-store` on every
   `/admin`, `/dashboard`, `/api/`, and `/login` response — portal pages must never be cached.
   CSP uses `'unsafe-inline'` for script/style (Astro inlines per-build-hashed scripts + component
-  styles; a static `_headers` can't carry a nonce) and allow-lists GA/gtag, hCaptcha (fonts are self-hosted in `public/fonts`),
+  styles; a static `_headers` can't carry a nonce) and allow-lists Google Fonts, GA/gtag, hCaptcha,
   and the Web3Forms fetch.
 - **D1 access** goes through `src/lib/db.ts`'s `ensureDB(locals)` (`cloudflare:workers`' `env`, not
   `Astro.locals.runtime.env`). `src/middleware.ts` resolves session/user/impersonated client per
@@ -146,8 +146,8 @@ a table with live cascade children, back up and reinsert their rows rather than 
 Actively worked for local SEO, targeting "Sandusky Ohio web design" and the region around it.
 
 - Every marketing page goes through `BaseLayout.astro` (all `<head>` metadata, GA4 gtag) — always
-  pass `title`/`description`/`canonical`/`ogUrl`. Only home has its own `ogImage` (`header-bg.webp`) and
-  work uses a real project screenshot; other pages fall back to `logo.png` until real photos exist. **Titles and H1s must carry keywords, not bare
+  pass `title`/`description`/`canonical`/`ogUrl` and a page-specific `ogImage`/`ogImageAlt` (its own
+  hero `.webp`; `logo.png` is only the fallback). **Titles and H1s must carry keywords, not bare
   labels** ("Web Design Services in Sandusky, OH"), title + `| Stone Dragon Media` under ~65 chars.
 - **Every marketing page carries JSON-LD**: `BreadcrumbList` from `BaseLayout`'s `breadcrumb` prop
   (its optional `breadcrumbParent` makes that trail three-level for pages under a hub, like the
@@ -177,11 +177,11 @@ Actively worked for local SEO, targeting "Sandusky Ohio web design" and the regi
 
 ## Page conventions
 
-Marketing pages (`about`/`services`/`products`/`work`/`contact`) share one shape: `SiteHeader`/
+Marketing pages (`about`/`services`/`products`/`work`/`contact`) share one shape: `Icon`/`SiteHeader`/
 `SiteFooter`/`BaseLayout` imports → `prerender = true` → `<BaseLayout>` with `title`/`description`/
 `canonical`/`ogUrl` → `<Fragment slot="head"><style>` with page-scoped CSS (each page owns its own
 block rather than a shared library — intentional) → `<SiteHeader active="…" />`, a full-bleed
-`<main class="page">` (which opens with `<PageBand title description />`, the shared title band that renders the page's `<h1>`; home is the only page with an image hero), then a **sibling** `<div class="footer-wrap">` + `<SiteFooter />`.
+`.header-hero`, `<main class="page">`, then a **sibling** `<div class="footer-wrap">` + `<SiteFooter />`.
 
 The four service category pages are the one exception to "a page per file": a single
 `src/pages/services/[category].astro` with `getStaticPaths()` over `serviceCategories`, so that shape
@@ -206,7 +206,7 @@ the page's first element — a skip-to-`#main-content` link, so every `<main>` m
 Services is the only nav item with a submenu: `.nav-group` opens on hover and `:focus-within`, its
 chevron button adding click/tap — the only way in on the stacked mobile nav, where those two rules are
 forced off. **`.site-head`'s `backdrop-filter` makes it a stacking context**, so the `z-index` lifting
-the header over the page content sits on `.site-head`, not on `.nav-dropdown`.
+the header over a page's positioned `.header-hero` sits on `.site-head`, not on `.nav-dropdown`.
 
 ## Code style
 

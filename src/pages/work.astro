@@ -1,7 +1,7 @@
 ---
+import { Icon } from "astro-icon/components";
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
-import PageBand from "../components/PageBand.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 export const prerender = true;
@@ -13,8 +13,8 @@ export const prerender = true;
   canonical="https://stonedragonmedia.com/work/"
   ogUrl="https://stonedragonmedia.com/work/"
   breadcrumb="Our Work"
-  ogImage="https://stonedragonmedia.com/work/simonrook.webp"
-  ogImageAlt="The Simon Rook author website, built by Stone Dragon Media"
+  ogImage="https://stonedragonmedia.com/our-work-header.webp"
+  ogImageAlt="Stone Dragon Media portfolio — web design and development work"
 >
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -76,6 +76,87 @@ export const prerender = true;
         max-width: 1280px;
         margin: 0 auto;
         padding: 0 clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
+      }
+
+      .header-hero {
+        position: relative;
+        width: 100vw;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        height: 520px;
+        max-width: 100vw;
+        border-radius: 0;
+        overflow: hidden;
+        box-shadow: none;
+        margin-bottom: 1rem;
+        background: #122238;
+      }
+
+      .header-hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        object-position: center 35%;
+      }
+
+      .header-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 3.5rem 3.5rem 3.5rem max(8vw, calc((100vw - 1280px) / 2 + clamp(1.1rem, 2.5vw, 2.4rem)));
+        color: #fff;
+        background: linear-gradient(90deg, rgba(18, 34, 56, 0.82) 0%, rgba(18, 34, 56, 0.32) 60%, rgba(18, 34, 56, 0) 100%);
+        font-family: "Sora", sans-serif;
+        pointer-events: none;
+        box-sizing: border-box;
+      }
+
+      .header-overlay .about-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: 0.13em;
+        margin-bottom: 0.7rem;
+        opacity: 0.92;
+        border-bottom: 3px solid #7fa6d9;
+        display: inline-block;
+        padding-bottom: 0.2rem;
+      }
+
+      .header-overlay .hero-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin-bottom: 1.2rem;
+        line-height: 1.1;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
+      }
+
+      .header-overlay .hero-desc {
+        font-size: 1.25rem;
+        font-weight: 400;
+        max-width: 32rem;
+        line-height: 1.5;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
+      }
+
+      h1 {
+        font-family: "Sora", sans-serif;
+        color: var(--brand-strong);
+        margin: 0 0 1rem;
+      }
+
+      .lead {
+        color: var(--ink);
+        max-width: 70ch;
+        margin: 0 0 1.4rem;
       }
 
       .work-grid {
@@ -161,6 +242,18 @@ export const prerender = true;
       }
 
       @media (max-width: 920px) {
+        .header-overlay {
+          padding: 2rem 1.2rem 2rem 1.2rem;
+          align-items: flex-start;
+        }
+
+        .header-overlay .hero-title {
+          font-size: 2rem;
+        }
+
+        .header-overlay .hero-desc {
+          font-size: 1rem;
+        }
       }
 
       @media (max-width: 640px) {
@@ -173,8 +266,20 @@ export const prerender = true;
 
   <SiteHeader active="work" />
 
+  <div class="header-hero">
+    <img src="/our-work-header.webp" alt="Stone Dragon Media portfolio — web design and development work" />
+    <div class="header-overlay">
+      <span class="about-label">OUR WORK</span>
+      <span class="hero-title">Recent Projects</span>
+      <span class="hero-desc">
+        A look at sites and products we’ve designed and built.
+      </span>
+    </div>
+  </div>
+
   <main class="page" id="main-content">
-    <PageBand title="Our Work: Web Design Portfolio" description="Recent projects, from client sites to our own products." />
+    <h1>Our Work &mdash; Web Design Portfolio</h1>
+    <p class="lead">A sample of recent projects, from client sites to our own products.</p>
     <div class="work-grid">
       <article class="work-card" id="jd-musick">
         <div class="work-thumb">
@@ -184,7 +289,7 @@ export const prerender = true;
           <h2>JD Musick</h2>
           <p>
             An album-focused home for blues and soul artist JD Musick, built around the debut record
-            <em>The Road Still Knows</em>: its late-night visual world, eleven songs, and clear
+            <em>The Road Still Knows</em> &mdash; its late-night visual world, eleven songs, and clear
             paths to listen and get in touch.
           </p>
           <ul>
@@ -195,6 +300,7 @@ export const prerender = true;
             <li>Music artist and album markup gives search engines structured details about the release</li>
           </ul>
           <a class="button button-secondary" href="https://jdmusick.band/" target="_blank" rel="noreferrer noopener" aria-label="Visit the JD Musick site (opens in a new tab)">
+            <Icon class="icon" name="lucide:external-link" aria-hidden="true" />
             Visit Site
           </a>
         </div>
@@ -206,17 +312,18 @@ export const prerender = true;
         <div class="work-body">
           <h2>Simon Rook</h2>
           <p>
-            An author site built around the launch of <em>The Stoic Mind for Overthinkers</em>:
+            An author site built around the launch of <em>The Stoic Mind for Overthinkers</em> &mdash;
             the book, the full chapter breakdown, and one clear path to buy it.
           </p>
           <ul>
-            <li>Custom design system drawn straight from the book cover, with deep navy, bronze, and bone type carried across every page</li>
-            <li>The whole catalogue runs from a single file: adding a title creates its own page with the chapter breakdown, what readers will take away, and buy links, with no new pages to build</li>
+            <li>Custom design system drawn straight from the book cover &mdash; deep navy, bronze, and bone type carried across every page</li>
+            <li>The whole catalogue runs from a single file: adding a title creates its own page with the chapter breakdown, what readers will take away, and buy links &mdash; no new pages to build</li>
             <li>Book and author markup for search engines, so titles can surface as rich results with cover art and format</li>
             <li>Buy links pointing readers to Amazon Kindle, with slots ready for more stores and author profiles as they open</li>
-            <li>Static site on a global CDN that loads fast anywhere, with an auto-generated sitemap for search engines</li>
+            <li>Static site on a global CDN &mdash; loads fast anywhere, with an auto-generated sitemap for search engines</li>
           </ul>
           <a class="button button-secondary" href="https://simonrook.com/" target="_blank" rel="noreferrer noopener" aria-label="Visit the Simon Rook site (opens in a new tab)">
+            <Icon class="icon" name="lucide:external-link" aria-hidden="true" />
             Visit Site
           </a>
         </div>
@@ -229,17 +336,18 @@ export const prerender = true;
           <h2>Dorian Black</h2>
           <p>
             A neon-lit launch site for synth-pop artist Dorian Black, built around the debut album
-            <em>After Tonight</em>: late-night visuals, the full record, and one place to send
+            <em>After Tonight</em> &mdash; late-night visuals, the full record, and one place to send
             every listener.
           </p>
           <ul>
             <li>Custom neon-and-chrome design system built to match the album’s late-night mood</li>
-            <li>Music page with album art and the full track listing, runtimes, and liner notes, all driven from one file the artist can update</li>
+            <li>Music page with album art and the full track listing, runtimes, and liner notes &mdash; all driven from one file the artist can update</li>
             <li>Streaming links to Spotify and Apple Music site-wide, with slots ready for YouTube, SoundCloud, and socials as they go live</li>
             <li>Album and artist markup for search engines, so the release can surface as a rich result</li>
-            <li>Static site on a global CDN that loads fast anywhere and handles a release-day traffic spike</li>
+            <li>Static site on a global CDN &mdash; loads fast anywhere and handles a release-day traffic spike</li>
           </ul>
           <a class="button button-secondary" href="https://dorianblack.com/" target="_blank" rel="noreferrer noopener" aria-label="Visit the Dorian Black site (opens in a new tab)">
+            <Icon class="icon" name="lucide:external-link" aria-hidden="true" />
             Visit Site
           </a>
         </div>
@@ -251,7 +359,7 @@ export const prerender = true;
         <div class="work-body">
           <h2>Pneumaris</h2>
           <p>
-            A brooding, atmospheric artist site for the metal project Pneumaris, with immersive
+            A brooding, atmospheric artist site for the metal project Pneumaris &mdash; immersive
             dark visuals, streaming links, and a home base for their sound.
           </p>
           <ul>
@@ -262,6 +370,7 @@ export const prerender = true;
             <li>Built-in visitor analytics to track traffic and engagement</li>
           </ul>
           <a class="button button-secondary" href="https://pneumarisband.com/" target="_blank" rel="noreferrer noopener" aria-label="Visit the Pneumaris site (opens in a new tab)">
+            <Icon class="icon" name="lucide:external-link" aria-hidden="true" />
             Visit Site
           </a>
         </div>
@@ -274,7 +383,7 @@ export const prerender = true;
           <h2>Tagstash</h2>
           <p>
             Our own tag-first bookmarking and resource-organization tool, built to capture, tag, and
-            retrieve important links fast, with no folder trees required.
+            retrieve important links fast &mdash; no folder trees required.
           </p>
           <ul>
             <li>Clean, easy-to-use interface for organizing and finding saved links</li>
@@ -284,6 +393,7 @@ export const prerender = true;
             <li>Shareable public pages so users can showcase their saved links</li>
           </ul>
           <a class="button button-secondary" href="https://tagsta.sh/" target="_blank" rel="noreferrer noopener" aria-label="Visit the Tagstash site (opens in a new tab)">
+            <Icon class="icon" name="lucide:external-link" aria-hidden="true" />
             Visit Site
           </a>
         </div>

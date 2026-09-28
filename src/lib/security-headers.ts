@@ -7,6 +7,7 @@
  * truth; `_headers` is a hand-copy of it.
  *
  * CSP allowances in use:
+ *   - Google Fonts       — styles from fonts.googleapis.com, files from fonts.gstatic.com
  *   - Google Analytics   — gtag from googletagmanager.com, beacons to google-analytics.com
  *   - hCaptcha           — contact form widget (script + challenge iframe + styles)
  *   - Web3Forms          — contact form submission (fetch to api.web3forms.com)
@@ -20,8 +21,8 @@ const CSP = [
   "frame-ancestors 'none'",
   "form-action 'self'",
   "img-src 'self' data: https://www.googletagmanager.com https://www.google-analytics.com",
-  "font-src 'self'",
-  "style-src 'self' 'unsafe-inline' https://hcaptcha.com https://*.hcaptcha.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://hcaptcha.com https://*.hcaptcha.com",
   "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://js.hcaptcha.com https://hcaptcha.com https://*.hcaptcha.com",
   "connect-src 'self' https://api.web3forms.com https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://hcaptcha.com https://*.hcaptcha.com",
   "frame-src https://hcaptcha.com https://*.hcaptcha.com",
