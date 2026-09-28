@@ -7,6 +7,32 @@ import { SESSION_COOKIE } from "../../../middleware";
 
 export const prerender = false;
 
+/**
+ * Failed sign-ins are written to Workers Logs (enabled via `[observability]` in
+ * wrangler.toml) as one JSON line each, so they're searchable in the dashboard
+ * under Workers → sdm → Logs — filter on `event = "login_failed"`. The D1
+ * counter only drives the lockout; this is the record of who tried what.
+ * Never log the password.
+ */
+function logFailedLogin(
+  request: Request,
+  email: string,
+  reason: "unknown_or_inactive" | "bad_password" | "locked",
+  extra: Record<string, unknown> = {}
+) {
+  console.warn(
+    JSON.stringify({
+      event: "login_failed",
+      reason,
+      email,
+      ip: request.headers.get("CF-Connecting-IP"),
+      country: request.headers.get("CF-IPCountry"),
+      userAgent: request.headers.get("User-Agent"),
+      ...extra,
+    })
+  );
+}
+
 export const POST: APIRoute = async (context) => {
   const { request, locals, cookies, url, redirect } = context;
 
@@ -31,17 +57,23 @@ export const POST: APIRoute = async (context) => {
     // Burn the same PBKDF2 time as a real verify so login latency doesn't
     // reveal whether the email belongs to an account.
     await verifyPasswordDummy(password);
+    logFailedLogin(request, email, "unknown_or_inactive");
     return redirect("/login?error=invalid");
   }
 
   const lockedUntil = await getLoginLockout(locals, user.id);
   if (lockedUntil) {
+    logFailedLogin(request, email, "locked", { lockedUntil: new Date(lockedUntil).toISOString() });
     return redirect("/login?error=locked");
   }
 
   const ok = await verifyPassword(password, user.password_hash);
   if (!ok) {
-    await recordFailedLogin(locals, user.id);
+    const { attempts, lockedUntil: nowLockedUntil } = await recordFailedLogin(locals, user.id);
+    logFailedLogin(request, email, "bad_password", {
+      attempts,
+      lockedUntil: nowLockedUntil ? new Date(nowLockedUntil).toISOString() : null,
+    });
     return redirect("/login?error=invalid");
   }
 

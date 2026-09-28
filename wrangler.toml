@@ -11,3 +11,7 @@ binding = "DB"
 database_name = "sdm-db"
 database_id = "028a86b5-617f-4faf-9e9b-6778d89cb442"
 migrations_dir = "migrations"
+
+# Workers Logs — failed sign-ins are logged here (see src/pages/api/auth/login.ts).
+[observability]
+enabled = true

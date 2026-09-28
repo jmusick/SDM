@@ -6,6 +6,18 @@ import { applySecurityHeaders } from "./lib/security-headers";
 
 const SESSION_COOKIE = "sdm_session";
 
+// Everything the Worker renders under these prefixes is per-user (or an auth
+// flow), so no browser or shared cache may keep it — otherwise Back after
+// Log Out, or a shared machine, can resurface portal pages.
+const PRIVATE_PREFIXES = ["/admin", "/dashboard", "/api/", "/login"];
+
+function finalize(path: string, response: Response): Response {
+  if (PRIVATE_PREFIXES.some((prefix) => path === prefix || path.startsWith(prefix.endsWith("/") ? prefix : `${prefix}/`))) {
+    response.headers.set("Cache-Control", "private, no-store");
+  }
+  return applySecurityHeaders(response);
+}
+
 export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.user = null;
   context.locals.session = null;
@@ -40,11 +52,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const guarded = path.startsWith("/dashboard") || path.startsWith("/admin") || path.startsWith("/api/");
     if (guarded && !allowed) {
       const target = user.role === "admin" ? "/admin/settings" : "/dashboard/settings";
-      return applySecurityHeaders(context.redirect(`${target}?mustchange=1`));
+      return finalize(path, context.redirect(`${target}?mustchange=1`));
     }
   }
 
-  return applySecurityHeaders(await next());
+  return finalize(context.url.pathname, await next());
 });
 
 export { SESSION_COOKIE };

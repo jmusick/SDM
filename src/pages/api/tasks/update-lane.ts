@@ -5,7 +5,7 @@ import { getTaskById, updateTaskLane, TASK_LANES, type TaskLane } from "../../..
 export const prerender = false;
 
 /**
- * Called via fetch() from the kanban board's drag-drop handler, not a form
+ * Called via fetch() from the kanban board (drag-drop and the per-card lane select), not a form
  * submission — there's no full-page navigation to redirect, so this returns
  * JSON instead of following the rest of the app's redirect convention.
  */

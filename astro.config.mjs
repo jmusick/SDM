@@ -4,6 +4,38 @@ import { sessionDrivers } from 'astro/config';
 import icon from 'astro-icon';
 import sitemap from '@astrojs/sitemap';
 import cloudflare from '@astrojs/cloudflare';
+import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+
+// Sitemap <lastmod> = the last git commit touching a page's source file (plus the
+// services catalogue for /services/*), not the build time — a lastmod that changes
+// on every deploy is one crawlers learn to ignore. If git history isn't available
+// (no git, or a shallow clone where every file looks last-touched by one commit),
+// lastmod is left out rather than guessed.
+const gitHistory = (() => {
+	try {
+		return execFileSync('git', ['rev-parse', '--is-shallow-repository'], { encoding: 'utf8' }).trim() === 'false';
+	} catch {
+		return false;
+	}
+})();
+
+function lastCommitDate(files) {
+	try {
+		const out = execFileSync('git', ['log', '-1', '--format=%cI', '--', ...files], { encoding: 'utf8' }).trim();
+		return out || undefined;
+	} catch {
+		return undefined;
+	}
+}
+
+function sourceFilesFor(pathname) {
+	const route = pathname.replace(/^\/|\/$/g, '');
+	if (route === 'services') return ['src/pages/services/index.astro', 'src/lib/services.ts'];
+	if (route.startsWith('services/')) return ['src/pages/services/[category].astro', 'src/lib/services.ts'];
+	const candidates = route === '' ? ['src/pages/index.astro'] : [`src/pages/${route}.astro`, `src/pages/${route}/index.astro`];
+	return candidates.filter((file) => existsSync(file));
+}
 
 // https://astro.build/config
 export default defineConfig({
@@ -34,6 +66,12 @@ export default defineConfig({
 				!page.includes("/dashboard") &&
 				!page.includes("/admin") &&
 				!page.includes("/api"),
+			serialize(item) {
+				if (!gitHistory) return item;
+				const files = sourceFilesFor(new URL(item.url).pathname);
+				const lastmod = files.length ? lastCommitDate(files) : undefined;
+				return lastmod ? { ...item, lastmod } : item;
+			},
 		}),
 	],
 });

@@ -136,7 +136,10 @@ export async function getLoginLockout(locals: App.Locals, userId: string): Promi
  * Increments the failed-attempt counter and locks the account once it hits
  * LOGIN_LOCK_THRESHOLD. Call on every wrong-password login attempt.
  */
-export async function recordFailedLogin(locals: App.Locals, userId: string): Promise<void> {
+export async function recordFailedLogin(
+  locals: App.Locals,
+  userId: string
+): Promise<{ attempts: number; lockedUntil: number | null }> {
   const db = ensureDB(locals);
   const row = await db.prepare("SELECT failed_attempts FROM users WHERE id = ? LIMIT 1").bind(userId).first<{ failed_attempts: number }>();
   const attempts = (row?.failed_attempts ?? 0) + 1;
@@ -145,6 +148,7 @@ export async function recordFailedLogin(locals: App.Locals, userId: string): Pro
     .prepare("UPDATE users SET failed_attempts = ?, locked_until = ? WHERE id = ?")
     .bind(attempts, lockedUntil, userId)
     .run();
+  return { attempts, lockedUntil };
 }
 
 /** Call on a successful login to clear any accumulated failed attempts. */

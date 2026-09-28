@@ -67,9 +67,11 @@ Use `npm run dev` or `npm run preview` until it's fixed.
   every guarded route has it; the unguarded auth/setup POST routes call it directly. A new mutating
   route that uses none of the guards must call it itself.
 - **Security response headers** live in two places kept in sync by hand: `public/_headers` (`/*`
-  rule) covers the prerendered marketing pages Pages serves from asset storage; portal SSR responses
-  get the same set from `src/lib/security-headers.ts`'s `applySecurityHeaders`, called in
-  `src/middleware.ts`. The TS module is the source of truth for the CSP string — change both together.
+  rule) covers the prerendered marketing pages Workers serves straight from static assets (never
+  reaching the Worker); portal SSR responses get the same set from `src/lib/security-headers.ts`'s
+  `applySecurityHeaders`, called in `src/middleware.ts`. The TS module is the source of truth for the
+  CSP string — change both together. Middleware also sets `Cache-Control: private, no-store` on every
+  `/admin`, `/dashboard`, `/api/`, and `/login` response — portal pages must never be cached.
   CSP uses `'unsafe-inline'` for script/style (Astro inlines per-build-hashed scripts + component
   styles; a static `_headers` can't carry a nonce) and allow-lists Google Fonts, GA/gtag, hCaptcha,
   and the Web3Forms fetch.
@@ -81,6 +83,9 @@ Use `npm run dev` or `npm run preview` until it's fixed.
   via Web Crypto, no external provider. The cookie holds a raw token; `sessions.id` stores only its
   SHA-256 (`hashSessionToken`) — a D1 dump can't be replayed. Login runs a dummy PBKDF2
   (`verifyPasswordDummy`) on an unknown/inactive email so latency isn't a user-enumeration oracle.
+  Every failed sign-in is logged as one JSON line (`event: "login_failed"`, reason, email, IP,
+  country, UA — never the password) to Workers Logs, enabled by `[observability]` in `wrangler.toml`;
+  the privacy policy discloses this with a 7-day retention, so keep them in step.
 - `/admin/setup` + `/api/setup/create-admin` bootstrap the first admin. Gated on **both** 0 users
   **and** env var `ADMIN_SETUP_ENABLED === "true"` (`src/lib/setup.ts`) — normally unset, so both
   302 → `/login`. Set it on the Worker (dashboard → Variables and Secrets) only for a deliberate re-bootstrap, then
@@ -96,10 +101,18 @@ Use `npm run dev` or `npm run preview` until it's fixed.
 - **Kanban task board** (`/admin/projects/[id].astro`): tasks have `type`, `priority`, optional
   `assignedToUserId` (admins only), and a `lane` (planning/to_do/in_progress/qa/done, starting in
   `planning`). Drag-and-drop goes through `/api/tasks/update-lane`, the app's only non-redirect JSON
-  write route — don't extend that pattern. Task details/notes/time are edited in **one shared
+  write route — don't extend that pattern. **Drag-and-drop isn't keyboard-operable**, so every card also
+  has a lane `<select>` that calls the same `moveTask()` path; keep the two in step (WCAG 2.1.1). Columns
+  are `<section>`s with an `<h3>`, cards are `<li>`s in a `<ul>`, and each card link carries a
+  visually hidden "in <lane>" label kept in sync on move. Task details/notes/time are edited in **one shared
   `<dialog>` modal**, not a separate page; notes/time are pre-rendered per-task into `<template>`
   elements and cloned in on open. Writes stay plain POST + redirect back to `?openTask={id}`, which
   reopens the modal on load. Time entries are add/delete-only, stored in minutes.
+- **Screen-reader announcements**: `AdminLayout`/`DashboardLayout` each render one visually hidden
+  polite live region (`#portal-announcer`). Any change a page makes without a navigation must report
+  its result — failure included — through `announce()` from `src/lib/announce.ts`. The layouts also
+  announce any server-rendered `main .notice` on load (the result of a POST + redirect).
+  `.visually-hidden` lives in `public/universal.css`.
 - **Client dashboard task views are read-only by omission** (same markup, no drag/write forms) — the
   guarantee is every `/api/{tasks,project-notes,task-notes,time-entries}/*` route being admin-gated.
 - **Account settings are self-service only** — `/admin/settings` and `/dashboard/settings` share
@@ -153,7 +166,10 @@ Actively worked for local SEO, targeting "Sandusky Ohio web design" and the regi
   icons come from `@iconify-json/simple-icons`, not `lucide` — check aspect ratio first, several are
   illegible wordmarks (Nextdoor's square glyph is vendored at `src/icons/nextdoor.svg`).
 - `/sitemap-index.xml` is generated entirely by `@astrojs/sitemap`, filtered in `astro.config.mjs`
-  (excludes thank-you/login/dashboard/admin/api) — no hand-maintained duplicate. `/sitemap` is a
+  (excludes thank-you/login/dashboard/admin/api) — no hand-maintained duplicate. Its `serialize` stamps
+  `<lastmod>` from the last git commit touching the page's source file (plus `services.ts` for
+  `/services/*`); a new marketing page outside `src/pages/<route>.astro` needs a case in
+  `sourceFilesFor()`. A shallow clone skips `lastmod` rather than guess. `/sitemap` is a
   separate human-facing HTML page with its own `pages` array; update it when a marketing page changes.
 - `noindex, nofollow`: `404`, `thank-you`, `login`, `admin/setup`, and everything under
   `AdminLayout`/`DashboardLayout`. `/privacy-policy` is intentionally indexable. Every real page

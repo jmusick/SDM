@@ -80,24 +80,24 @@ const statusBadge: Record<string, string> = {
     <h2 style="margin: 0 0 1rem; font-family: 'Sora', sans-serif; font-size: 1rem; color: var(--brand-strong);">Tasks</h2>
     <div class="kanban">
       {lanes.map((lane) => (
-        <div class="kanban-column">
-          <div class="kanban-column-header">
+        <section class="kanban-column" aria-labelledby={`lane-heading-${lane}`}>
+          <h3 class="kanban-column-header" id={`lane-heading-${lane}`}>
             {laneLabel[lane]}
-            <span class="kanban-count">{tasksByLane[lane].length}</span>
-          </div>
-          <div class="kanban-drop-zone">
+            <span class="kanban-count">{tasksByLane[lane].length}<span class="visually-hidden"> tasks</span></span>
+          </h3>
+          <ul class="kanban-drop-zone" role="list">
             {tasksByLane[lane].map((task) => (
-              <div class="kanban-card">
+              <li class="kanban-card">
                 <span class={`badge ${taskTypeBadge[task.type]}`}>{task.type}</span>
                 <span class="kanban-card-title">{task.title}</span>
                 <div class="kanban-card-footer">
-                  <span class={`kanban-priority kanban-priority-${task.priority}`}>{task.priority}</span>
+                  <span class={`kanban-priority kanban-priority-${task.priority}`}>{task.priority}<span class="visually-hidden"> priority,</span></span>
                   <span class="kanban-assignee">{task.assignedToName ?? "Unassigned"}</span>
                 </div>
-              </div>
+              </li>
             ))}
-          </div>
-        </div>
+          </ul>
+        </section>
       ))}
     </div>
   </div>

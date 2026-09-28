@@ -4,7 +4,7 @@ import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { ensureRole } from "../../../lib/http";
 import { getProjectById } from "../../../lib/projects";
 import { getClientById } from "../../../lib/clients";
-import { listTasksByProject, type TaskLane, type TaskType } from "../../../lib/tasks";
+import { listTasksByProject, TASK_LANES, type TaskLane, type TaskType } from "../../../lib/tasks";
 import { listNotes } from "../../../lib/notes";
 import { listAdminUsers } from "../../../lib/users";
 import { listTimeEntriesByTask, getTaskTimeTotalMinutes } from "../../../lib/timeEntries";
@@ -59,7 +59,7 @@ const errorMessages: Record<string, string> = {
 };
 const errorMessage = errorParam ? (errorMessages[errorParam] ?? null) : null;
 
-const lanes: TaskLane[] = ["planning", "to_do", "in_progress", "qa", "done"];
+const lanes = TASK_LANES;
 const laneLabel: Record<TaskLane, string> = {
   planning: "Planning",
   to_do: "To Do",
@@ -191,37 +191,47 @@ const taskTypeBadge: Record<TaskType, string> = {
         Add Task
       </button>
     </div>
+    <div class="notice notice-error" data-board-error hidden></div>
     <div class="kanban" data-kanban>
       {lanes.map((lane) => (
-        <div class="kanban-column">
-          <div class="kanban-column-header">
+        <section class="kanban-column" aria-labelledby={`lane-heading-${lane}`}>
+          <h3 class="kanban-column-header" id={`lane-heading-${lane}`}>
             {laneLabel[lane]}
-            <span class="kanban-count">{tasksByLane[lane].length}</span>
-          </div>
-          <div class="kanban-drop-zone" data-lane-dropzone={lane}>
+            <span class="kanban-count"><span data-lane-count>{tasksByLane[lane].length}</span><span class="visually-hidden"> tasks</span></span>
+          </h3>
+          <ul class="kanban-drop-zone" role="list" data-lane-dropzone={lane}>
             {tasksByLane[lane].map((task) => (
-              <a
+              <li
                 class="kanban-card"
-                href={`/admin/projects/${project.id}?openTask=${task.id}`}
                 draggable="true"
                 data-task-id={task.id}
-                data-open-task-modal="edit"
                 data-task-title={task.title}
                 data-task-description={task.description ?? ""}
                 data-task-type={task.type}
                 data-task-priority={task.priority}
                 data-task-assignee={task.assignedToUserId ?? ""}
               >
-                <span class={`badge ${taskTypeBadge[task.type]}`}>{task.type}</span>
-                <span class="kanban-card-title">{task.title}</span>
-                <div class="kanban-card-footer">
-                  <span class={`kanban-priority kanban-priority-${task.priority}`}>{task.priority}</span>
-                  <span class="kanban-assignee">{task.assignedToName ?? "Unassigned"}</span>
-                </div>
-              </a>
+                {/* draggable=false so a drag started on the link moves the whole card, not a URL */}
+                <a class="kanban-card-link" href={`/admin/projects/${project.id}?openTask=${task.id}`} draggable="false">
+                  <span class={`badge ${taskTypeBadge[task.type]}`}>{task.type}</span>
+                  <span class="kanban-card-title">{task.title}</span>
+                  <span class="kanban-card-footer">
+                    <span class={`kanban-priority kanban-priority-${task.priority}`}>{task.priority}<span class="visually-hidden"> priority,</span></span>
+                    <span class="kanban-assignee">{task.assignedToName ?? "Unassigned"}</span>
+                  </span>
+                  <span class="visually-hidden" data-card-lane>, in {laneLabel[lane]}</span>
+                </a>
+                {/* Keyboard/screen-reader equivalent of drag-and-drop (WCAG 2.1.1) — same endpoint. */}
+                <label class="visually-hidden" for={`lane-select-${task.id}`}>Lane for {task.title}</label>
+                <select class="kanban-lane-select" id={`lane-select-${task.id}`} data-lane-select>
+                  {lanes.map((option) => (
+                    <option value={option} selected={option === lane}>{laneLabel[option]}</option>
+                  ))}
+                </select>
+              </li>
             ))}
-          </div>
-        </div>
+          </ul>
+        </section>
       ))}
     </div>
   </div>
@@ -428,6 +438,8 @@ const taskTypeBadge: Record<TaskType, string> = {
 </AdminLayout>
 
 <script>
+  import { announce } from "../../../lib/announce";
+
   document.querySelectorAll<HTMLElement>("[data-note-edit-form]").forEach((form) => {
     const message = form.closest(".thread-message");
     if (!message) return;
@@ -450,8 +462,67 @@ const taskTypeBadge: Record<TaskType, string> = {
   });
 
   const board = document.querySelector<HTMLElement>("[data-kanban]");
+  const boardError = document.querySelector<HTMLElement>("[data-board-error]");
   if (board) {
     let draggedEl: HTMLElement | null = null;
+
+    const laneName = (lane: string) =>
+      board.querySelector(`[data-lane-select] option[value="${lane}"]`)?.textContent?.trim() ?? lane;
+
+    // Sync everything derived from a card's position: the lane counts, the card's
+    // screen-reader lane label, and its lane <select>.
+    function syncCard(card: HTMLElement, lane: string) {
+      const label = card.querySelector<HTMLElement>("[data-card-lane]");
+      if (label) label.textContent = `, in ${laneName(lane)}`;
+      const select = card.querySelector("[data-lane-select]") as HTMLSelectElement | null;
+      if (select) select.value = lane;
+      board!.querySelectorAll<HTMLElement>("[data-lane-dropzone]").forEach((zone) => {
+        const count = zone.closest(".kanban-column")?.querySelector<HTMLElement>("[data-lane-count]");
+        if (count) count.textContent = String(zone.children.length);
+      });
+    }
+
+    // The one path for changing a task's lane, whether from a drop or the lane <select>:
+    // move the card optimistically, persist, and revert on failure. The result is announced
+    // either way (see src/lib/announce.ts).
+    async function moveTask(card: HTMLElement, lane: string) {
+      const taskId = card.dataset.taskId;
+      const originZone = card.parentElement;
+      const originLane = originZone?.dataset.laneDropzone;
+      const zone = board!.querySelector<HTMLElement>(`[data-lane-dropzone="${lane}"]`);
+      if (!taskId || !zone || !originZone || !originLane || originLane === lane) return;
+
+      const title = card.dataset.taskTitle ?? "Task";
+      const hadFocus = card.contains(document.activeElement) ? (document.activeElement as HTMLElement) : null;
+      if (boardError) boardError.hidden = true;
+
+      zone.appendChild(card);
+      syncCard(card, lane);
+      // Re-parenting a focused element drops its focus; put it back.
+      hadFocus?.focus();
+
+      try {
+        const res = await fetch("/api/tasks/update-lane", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ taskId, lane }),
+        });
+        if (!res.ok) throw new Error(`http_${res.status}`);
+        const data = (await res.json()) as { ok?: boolean; error?: string };
+        if (!data.ok) throw new Error(data.error ?? "update_failed");
+        announce(`Moved “${title}” to ${laneName(lane)}.`);
+      } catch {
+        originZone.appendChild(card);
+        syncCard(card, originLane);
+        hadFocus?.focus();
+        const message = `Could not move “${title}” to ${laneName(lane)}. It is still in ${laneName(originLane)}. Please try again.`;
+        if (boardError) {
+          boardError.textContent = message;
+          boardError.hidden = false;
+        }
+        announce(message);
+      }
+    }
 
     board.querySelectorAll<HTMLElement>(".kanban-card[draggable]").forEach((card) => {
       card.addEventListener("dragstart", (e) => {
@@ -463,18 +534,18 @@ const taskTypeBadge: Record<TaskType, string> = {
         card.classList.remove("dragging");
         draggedEl = null;
       });
-      card.addEventListener("click", (e) => {
-        if (card.dataset.justDropped === "true") {
-          e.preventDefault();
-          delete card.dataset.justDropped;
-          return;
-        }
+
+      const link = card.querySelector<HTMLElement>(".kanban-card-link");
+      link?.addEventListener("click", (e) => {
         // Modifier/middle clicks should still open the real task page in a
         // new tab as normal — only a plain click opens the modal instead.
         if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
         e.preventDefault();
         openTaskModal("edit", card);
       });
+
+      const select = card.querySelector("[data-lane-select]") as HTMLSelectElement | null;
+      select?.addEventListener("change", () => moveTask(card, select.value));
     });
 
     board.querySelectorAll<HTMLElement>("[data-lane-dropzone]").forEach((zone) => {
@@ -483,40 +554,16 @@ const taskTypeBadge: Record<TaskType, string> = {
         zone.classList.add("drag-over");
       });
       zone.addEventListener("dragleave", () => zone.classList.remove("drag-over"));
-      zone.addEventListener("drop", async (e) => {
+      zone.addEventListener("drop", (e) => {
         e.preventDefault();
         zone.classList.remove("drag-over");
 
         // Capture the dragged element up front: `dragend` fires on the source
-        // card right after `drop`, and since this handler awaits a fetch, the
-        // shared `draggedEl` variable is very likely already null by the time
-        // we'd reach the catch block below — which silently skipped the
-        // revert-on-failure while the alert still fired unconditionally,
-        // making a real failure look like "it worked anyway."
+        // card right after `drop` and nulls the shared `draggedEl`.
         const el = draggedEl;
-        if (!el) return;
-
-        const taskId = el.dataset.taskId;
         const lane = zone.dataset.laneDropzone;
-        const originZone = el.parentElement;
-        if (!taskId || !lane) return;
-
-        el.dataset.justDropped = "true";
-        zone.appendChild(el);
-
-        try {
-          const res = await fetch("/api/tasks/update-lane", {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({ taskId, lane }),
-          });
-          if (!res.ok) throw new Error(`http_${res.status}`);
-          const data = (await res.json()) as { ok?: boolean; error?: string };
-          if (!data.ok) throw new Error(data.error ?? "update_failed");
-        } catch {
-          originZone?.appendChild(el);
-          alert("Could not move task. Please try again.");
-        }
+        if (!el || !lane) return;
+        moveTask(el, lane);
       });
     });
   }
