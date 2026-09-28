@@ -1,7 +1,7 @@
 {
   "name": "sdm",
   "type": "module",
-  "version": "2.18.0",
+  "version": "2.19.0",
   "license": "SEE LICENSE IN LICENSE.md",
   "engines": {
     "node": ">=22.12.0"
@@ -18,23 +18,23 @@
     "cf:types": "wrangler types"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^13.7.0",
-    "@astrojs/sitemap": "^3.7.2",
+    "@astrojs/cloudflare": "^14.3.3",
+    "@astrojs/sitemap": "^3.7.4",
     "@iconify-json/lucide": "^1.2.105",
     "@iconify-json/simple-icons": "^1.2.93",
-    "astro": "^6.2.2",
+    "astro": "^7.3.5",
     "astro-icon": "^1.1.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "typescript": "^6.0.3",
-    "wrangler": "^4.122.0"
+    "wrangler": "^4.143.0"
   },
   "allowScripts": {
-    "esbuild@0.27.7": true,
     "esbuild@0.28.1": true,
     "sharp@0.34.5": true,
     "sharp@0.35.2": true,
-    "workerd@1.20260811.1": true
+    "workerd@1.20260926.1": true,
+    "esbuild@0.28.2": true
   }
 }

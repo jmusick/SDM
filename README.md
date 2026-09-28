@@ -20,7 +20,7 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 
 | Layer | Technology |
 |---|---|
-| Framework | Astro 6, `output: 'server'` (marketing pages are still individually prerendered to static HTML; only `/login`, `/dashboard/*`, `/admin/*`, `/api/*` are dynamic) |
+| Framework | Astro 7, `output: 'server'` (marketing pages are still individually prerendered to static HTML; only `/login`, `/dashboard/*`, `/admin/*`, `/api/*` are dynamic) |
 | Icons | astro-icon + Lucide icon set (Simple Icons for brand/social marks) |
 | Language | TypeScript |
 | Sitemap | @astrojs/sitemap (`/sitemap-index.xml`) — thank-you/login/dashboard/admin/api excluded |

@@ -14,14 +14,14 @@ Ohio, live at [stonedragonmedia.com](https://stonedragonmedia.com). It is two th
 2. **Client portal + admin** (`/login`, `/dashboard/*`, `/admin/*`, `/api/*`) — server-rendered per
    request, backed by Cloudflare D1.
 
-Astro 6, TypeScript, `output: 'server'` via `@astrojs/cloudflare`. No UI framework — everything is
+Astro 7, TypeScript, `output: 'server'` via `@astrojs/cloudflare` (v14). No UI framework — everything is
 `.astro` with inline `<style>`/`<script>`.
 
 ## Commands
 
 ```bash
 npm install                # install deps (Node >= 22.12.0)
-npm run dev:astro          # astro dev, hot reload — currently 500s on page routes (see below)
+npm run dev:astro          # astro dev in workerd, hot reload, local D1 — the fast loop
 npm run dev                # full Cloudflare runtime via wrangler dev (D1, cookies, auth)
                            #   builds first; NO hot reload — re-run after each change
 npm run build              # astro build -> dist/client (static assets) + dist/server (worker)
@@ -39,9 +39,9 @@ missing D1 binding. `astro check` has 6 pre-existing errors; check your file, no
 `scripts/seed-local.mjs` generates local test-data SQL (real PBKDF2 hashes) and is **not** wired into
 `package.json` — pipe its output into `npx wrangler d1 execute sdm-db --local`. Local only.
 
-**`npm run dev:astro` 500s on every page route** (`module is not defined` in the workerd dev runner,
-from a CJS dependency) — pre-existing, not caused by the Workers migration. API routes still work.
-Use `npm run dev` or `npm run preview` until it's fixed.
+**`compressHTML: true` in `astro.config.mjs` is deliberate.** Astro 7's default (`'jsx'`) strips
+whitespace between inline elements, so `<strong>Total:</strong> <span>` would render as one word;
+v2.19.0 kept the v6 behaviour (prerendered text verified identical) rather than audit every page.
 
 ## Deployment
 

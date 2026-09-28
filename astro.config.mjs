@@ -20,6 +20,7 @@ const gitHistory = (() => {
 	}
 })();
 
+/** @param {string[]} files */
 function lastCommitDate(files) {
 	try {
 		const out = execFileSync('git', ['log', '-1', '--format=%cI', '--', ...files], { encoding: 'utf8' }).trim();
@@ -29,6 +30,7 @@ function lastCommitDate(files) {
 	}
 }
 
+/** @param {string} pathname */
 function sourceFilesFor(pathname) {
 	const route = pathname.replace(/^\/|\/$/g, '');
 	if (route === 'services') return ['src/pages/services/index.astro', 'src/lib/services.ts'];
@@ -41,6 +43,10 @@ function sourceFilesFor(pathname) {
 export default defineConfig({
 	site: 'https://stonedragonmedia.com',
 	output: 'server',
+	// Astro 7 defaults to 'jsx', which strips whitespace between inline elements
+	// ("<b>a</b> <i>b</i>" renders as "ab"). Keep the v6 behaviour rather than audit
+	// every page for it.
+	compressHTML: true,
 	session: {
 		// This app uses custom cookie-session auth, use lruCache to avoid an auto KV binding
 		driver: sessionDrivers.lruCache(),
