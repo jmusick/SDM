@@ -15,10 +15,6 @@ export const prerender = true;
 >
   <Fragment slot="head">
     <style>
-      :root {
-        --surface: rgba(243, 248, 253, 0.95);
-      }
-
       .wrapper {
         max-width: 980px;
         margin: 0 auto;
@@ -32,16 +28,11 @@ export const prerender = true;
       }
 
       .card {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 1rem;
-        padding: 1.4rem;
-        box-shadow: 0 16px 30px rgba(18, 45, 69, 0.12);
+        padding: clamp(1.4rem, 3vw, 2.4rem);
       }
 
       h1,
       h2 {
-        font-family: "Sora", sans-serif;
         color: var(--brand-strong);
       }
 
@@ -52,7 +43,7 @@ export const prerender = true;
       }
 
       a {
-        color: var(--brand-strong);
+        color: var(--lake);
       }
 
       .site-footer {

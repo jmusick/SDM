@@ -42,10 +42,6 @@ const pages: SitemapEntry[] = [
 >
   <Fragment slot="head">
     <style>
-      :root {
-        --surface: rgba(243, 248, 253, 0.95);
-      }
-
       .wrapper {
         max-width: 980px;
         margin: 0 auto;
@@ -59,15 +55,10 @@ const pages: SitemapEntry[] = [
       }
 
       .card {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 1rem;
-        padding: 1.4rem;
-        box-shadow: 0 16px 30px rgba(18, 45, 69, 0.12);
+        padding: clamp(1.4rem, 3vw, 2.4rem);
       }
 
       h1 {
-        font-family: "Sora", sans-serif;
         color: var(--brand-strong);
       }
 
@@ -90,7 +81,6 @@ const pages: SitemapEntry[] = [
       }
 
       .sitemap-list a {
-        font-family: "Sora", sans-serif;
         font-size: 1.1rem;
         font-weight: 600;
         color: var(--brand-strong);

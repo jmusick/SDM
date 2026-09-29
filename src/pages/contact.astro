@@ -2,6 +2,7 @@
 import { Icon } from "astro-icon/components";
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
+import PageHero from "../components/PageHero.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 export const prerender = true;
@@ -14,7 +15,7 @@ export const prerender = true;
   ogUrl="https://stonedragonmedia.com/contact/"
   breadcrumb="Contact"
   ogImage="https://stonedragonmedia.com/contact-bg.webp"
-  ogImageAlt="Contact Stone Dragon Media — start a project or ask about our services"
+  ogImageAlt="Contact Stone Dragon Media â€” start a project or ask about our services"
 >
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -43,131 +44,146 @@ export const prerender = true;
       }
     })} />
     <style>
-      .page {
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 1rem clamp(1.1rem, 2.5vw, 2.4rem) 0;
-      }
-
-      .footer-wrap {
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 0 clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
-      }
-
-      .header-hero {
-        position: relative;
-        width: 100vw;
-        left: 50%;
-        right: 50%;
-        margin-left: -50vw;
-        margin-right: -50vw;
-        height: 520px;
-        max-width: 100vw;
-        border-radius: 0;
-        overflow: hidden;
-        box-shadow: none;
-        margin-bottom: 1rem;
-        background: #122238;
-      }
-
-      .header-hero img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-        object-position: center 70%;
-      }
-
-      .header-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-start;
-        padding: 3.5rem 3.5rem 3.5rem max(8vw, calc((100vw - 1280px) / 2 + clamp(1.1rem, 2.5vw, 2.4rem)));
-        color: #fff;
-        background: linear-gradient(90deg, rgba(18, 34, 56, 0.82) 0%, rgba(18, 34, 56, 0.32) 60%, rgba(18, 34, 56, 0) 100%);
-        font-family: "Sora", sans-serif;
-        pointer-events: none;
-        box-sizing: border-box;
-      }
-
-      .header-overlay .about-label {
-        font-size: 1.1rem;
-        font-weight: 600;
-        letter-spacing: 0.13em;
-        margin-bottom: 0.7rem;
-        opacity: 0.92;
-        border-bottom: 3px solid #7fa6d9;
-        display: inline-block;
-        padding-bottom: 0.2rem;
-      }
-
-      .header-overlay .hero-title {
-        font-size: 2.8rem;
-        font-weight: 800;
-        margin-bottom: 1.2rem;
-        line-height: 1.1;
-        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
-      }
-
-      .header-overlay .hero-desc {
-        font-size: 1.25rem;
-        font-weight: 400;
-        max-width: 32rem;
-        line-height: 1.5;
-        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
-      }
-
       .contact-layout {
         display: grid;
-        grid-template-columns: 1fr 320px;
-        gap: 1.5rem;
+        grid-template-columns: minmax(0, 1fr) 22rem;
+        gap: clamp(1.5rem, 3vw, 2.5rem);
         align-items: start;
       }
 
       .form-card {
-        align-self: start;
-        border: 1px solid var(--line);
-        background: var(--surface);
-        border-radius: 0.95rem;
-        padding: 1rem;
+        padding: clamp(1.4rem, 3vw, 2.2rem);
       }
 
-      .info-panel {
+      .form-card h2 {
+        margin: 0 0 0.4rem;
+        font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+      }
+
+      .form-card .form-intro {
+        margin: 0 0 0.5rem;
+        color: var(--ink);
+      }
+
+      .required-note {
+        margin: 0 0 1.2rem;
+        font-size: 0.88rem;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .field {
         display: flex;
         flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .field.full {
+        grid-column: 1 / -1;
+      }
+
+      .required-mark {
+        color: var(--lake);
+      }
+
+      label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--slate);
+      }
+
+      /* Border is #7d8d9a for 3:1 against the white field — the WCAG minimum for input edges. */
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid #7d8d9a;
+        background: #fff;
+        border-radius: 3px;
+        padding: 0.7rem 0.8rem;
+        font: inherit;
+        font-size: 1rem;
+        color: var(--ink);
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--lake);
+      }
+
+      textarea {
+        min-height: 150px;
+        resize: vertical;
+      }
+
+      .hcaptcha-wrap {
+        margin-top: 1rem;
+      }
+
+      .submit-row {
+        margin-top: 1.2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         gap: 1rem;
+      }
+
+      .helper {
+        margin: 0;
+        font-size: 0.9rem;
+      }
+
+      .form-status {
+        margin-top: 1rem;
+        padding: 0.7rem 0.85rem;
+        border-left: 3px solid;
+        font-size: 0.95rem;
+      }
+
+      .form-status.success {
+        background: rgba(12, 117, 58, 0.1);
+        border-color: #0b5f33;
+        color: #0b5f33;
+      }
+
+      .form-status.error {
+        background: rgba(173, 38, 38, 0.1);
+        border-color: #7d2121;
+        color: #7d2121;
+      }
+
+      /* One card, items divided by seams, rather than a stack of five separate boxes. */
+      .info-panel {
+        padding: 0.4rem 1.5rem;
       }
 
       .info-item {
         display: flex;
-        gap: 0.85rem;
+        gap: 0.9rem;
         align-items: flex-start;
-        border: 1px solid var(--line);
-        background: var(--surface);
-        border-radius: 0.95rem;
-        padding: 1rem;
+        padding: 1.1rem 0;
+      }
+
+      .info-item + .info-item {
+        border-top: 1px solid var(--seam);
       }
 
       .info-icon {
-        width: 1.1rem;
-        height: 1.1rem;
-        color: var(--brand-strong);
+        width: 1.15rem;
+        height: 1.15rem;
+        color: var(--lake);
         flex-shrink: 0;
-        margin-top: 0.15rem;
+        margin-top: 0.2rem;
       }
 
       .info-item h2 {
-        margin: 0 0 0.3rem;
-        font-family: "Sora", sans-serif;
-        font-size: 1rem;
-        color: var(--brand-strong);
+        margin: 0 0 0.25rem;
+        font-size: 1.02rem;
       }
 
       .info-item h2 a {
@@ -176,157 +192,16 @@ export const prerender = true;
       }
 
       .info-item h2 a:hover {
+        color: var(--lake);
         text-decoration: underline;
       }
 
       .info-item p {
-        margin: 0;
-        color: var(--ink-soft);
-        font-size: 0.92rem;
+        font-size: 0.94rem;
         line-height: 1.5;
       }
 
-      .form-card h1 {
-        margin: 0 0 0.35rem;
-        font-family: "Sora", sans-serif;
-        font-size: 1.12rem;
-        color: var(--brand-strong);
-      }
-
-      .form-card p {
-        margin: 0 0 0.75rem;
-        color: var(--ink-soft);
-        font-size: 0.95rem;
-      }
-
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.7rem;
-      }
-
-      .field {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-      }
-
-      .required-note {
-        margin: 0 0 0.75rem;
-        font-size: 0.85rem;
-        color: var(--ink-soft);
-      }
-
-      .required-mark {
-        color: var(--brand-strong);
-      }
-
-      .field.full {
-        grid-column: 1 / -1;
-      }
-
-      label {
-        font-size: 0.83rem;
-        font-weight: 600;
-        color: var(--brand-strong);
-      }
-
-      input,
-      select,
-      textarea {
-        width: 100%;
-        border: 1px solid rgba(108, 153, 188, 0.38);
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 0.62rem;
-        padding: 0.62rem 0.7rem;
-        font: inherit;
-        color: var(--ink);
-      }
-
-      textarea {
-        min-height: 120px;
-        resize: vertical;
-      }
-
-      .submit-row {
-        margin-top: 0.8rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0.7rem;
-      }
-
-      .form-status {
-        margin-top: 0.75rem;
-        padding: 0.6rem 0.7rem;
-        border-radius: 0.62rem;
-        font-size: 0.9rem;
-      }
-
-      .form-status.success {
-        background: rgba(12, 117, 58, 0.12);
-        border: 1px solid rgba(12, 117, 58, 0.28);
-        color: #0b5f33;
-      }
-
-      .form-status.error {
-        background: rgba(173, 38, 38, 0.12);
-        border: 1px solid rgba(173, 38, 38, 0.28);
-        color: #7d2121;
-      }
-
-      .hcaptcha-wrap {
-        margin-top: 0.65rem;
-      }
-
-      .helper {
-        margin: 0;
-        font-size: 0.82rem;
-        color: var(--ink-soft);
-      }
-
-      .button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0.68rem 1rem;
-        border-radius: 0.75rem;
-        border: 1px solid transparent;
-        font-weight: 600;
-        font-family: "Sora", sans-serif;
-        text-decoration: none;
-        cursor: pointer;
-      }
-
-      .button .icon {
-        width: 1rem;
-        height: 1rem;
-        margin-right: 0.35rem;
-      }
-
-      .button-primary {
-        background: linear-gradient(125deg, #1f5a89, #2f709f);
-        color: #edf6ff;
-      }
-
-      .site-footer {
-        margin-top: 1.6rem;
-      }
-
       @media (max-width: 920px) {
-        .header-overlay {
-          padding: 2rem 1.2rem 2rem 1.2rem;
-          align-items: flex-start;
-        }
-
-        .header-overlay .hero-title {
-          font-size: 2rem;
-        }
-
-        .header-overlay .hero-desc {
-          font-size: 1rem;
-        }
-
         .contact-layout {
           grid-template-columns: 1fr;
         }
@@ -344,102 +219,103 @@ export const prerender = true;
   </Fragment>
 
   <SiteHeader active="contact" />
-  <div class="header-hero">
-    <img src="/contact-bg.webp" alt="Contact Stone Dragon Media — start a project or ask about our services" />
-    <div class="header-overlay">
-      <span class="about-label">CONTACT</span>
-      <span class="hero-title">Get in Touch</span>
-      <span class="hero-desc">
-        Ready to start your next project? Share your details and we will reach out to discuss your vision and guide you through the process.
-      </span>
-    </div>
-  </div>
 
-  <main class="page" id="main-content">
-    <div class="contact-layout">
-      <div class="form-card">
-        <h1>Contact Stone Dragon Media</h1>
-        <p>Share a few project details and we will follow up within one business day.</p>
-        <p class="required-note">Fields marked with <span aria-hidden="true">*</span> are required.</p>
-        <form id="contact-form" method="post" action="https://api.web3forms.com/submit">
-          <input type="hidden" name="access_key" value="8b9f961f-4a2f-43bc-938a-11f26885cd31" />
-          <div class="form-grid">
-            <div class="field">
-              <label for="name">Name <span class="required-mark" aria-hidden="true">*</span></label>
-              <input id="name" name="name" type="text" required />
-            </div>
-            <div class="field">
-              <label for="email">Email <span class="required-mark" aria-hidden="true">*</span></label>
-              <input id="email" name="email" type="email" required />
-            </div>
-            <div class="field">
-              <label for="company">Company</label>
-              <input id="company" name="company" type="text" />
-            </div>
-            <div class="field">
-              <label for="timeline">Timeline</label>
-              <select id="timeline" name="timeline">
-                <option>As soon as possible</option>
-                <option>Within 30 days</option>
-                <option>1-3 months</option>
-                <option>Exploring options</option>
-              </select>
-            </div>
-            <div class="field full">
-              <label for="message">Project Details <span class="required-mark" aria-hidden="true">*</span></label>
-              <textarea id="message" name="message" placeholder="Tell us about your goals, scope, and desired outcomes." required></textarea>
-            </div>
-          </div>
-          <div class="hcaptcha-wrap">
-            <div class="h-captcha" data-sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2"></div>
-          </div>
-          <div class="submit-row">
-            <p class="helper">Share your details and we will follow up to discuss your project.</p>
-            <button id="contact-submit" class="button button-primary" type="submit">
-              <Icon class="icon" name="lucide:send" aria-hidden="true" />
-              Send Inquiry
-            </button>
-          </div>
-          <div id="contact-form-status" class="form-status" role="status" aria-live="polite" hidden></div>
-        </form>
-      </div>
+  <main id="main-content">
+    <PageHero
+      image="/contact-bg.webp"
+      alt="Contact Stone Dragon Media — start a project or ask about our services"
+      title="Contact Stone Dragon Media"
+      desc="Ready to start your next project? Share your details and we will reach out to discuss your vision and guide you through the process."
+      crumbs={[{ name: "Contact" }]}
+      position="center 70%"
+    />
 
-      <div class="info-panel">
-        <div class="info-item">
-          <Icon class="info-icon" name="lucide:map-pin" aria-hidden="true" />
-          <div>
-            <h2>Sandusky, OH</h2>
-            <p>Serving Sandusky, Erie County, and the surrounding area in person, plus remote clients anywhere.</p>
-          </div>
+    <div class="page">
+      <div class="contact-layout">
+        <div class="card form-card">
+          <h2>Start a Project</h2>
+          <p class="form-intro">Share a few project details and we will follow up within one business day.</p>
+          <p class="required-note">Fields marked with <span aria-hidden="true">*</span> are required.</p>
+          <form id="contact-form" method="post" action="https://api.web3forms.com/submit">
+            <input type="hidden" name="access_key" value="8b9f961f-4a2f-43bc-938a-11f26885cd31" />
+            <div class="form-grid">
+              <div class="field">
+                <label for="name">Name <span class="required-mark" aria-hidden="true">*</span></label>
+                <input id="name" name="name" type="text" autocomplete="name" required />
+              </div>
+              <div class="field">
+                <label for="email">Email <span class="required-mark" aria-hidden="true">*</span></label>
+                <input id="email" name="email" type="email" autocomplete="email" required />
+              </div>
+              <div class="field">
+                <label for="company">Company</label>
+                <input id="company" name="company" type="text" autocomplete="organization" />
+              </div>
+              <div class="field">
+                <label for="timeline">Timeline</label>
+                <select id="timeline" name="timeline">
+                  <option>As soon as possible</option>
+                  <option>Within 30 days</option>
+                  <option>1-3 months</option>
+                  <option>Exploring options</option>
+                </select>
+              </div>
+              <div class="field full">
+                <label for="message">Project Details <span class="required-mark" aria-hidden="true">*</span></label>
+                <textarea id="message" name="message" placeholder="Tell us about your goals, scope, and desired outcomes." required></textarea>
+              </div>
+            </div>
+            <div class="hcaptcha-wrap">
+              <div class="h-captcha" data-sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2"></div>
+            </div>
+            <div class="submit-row">
+              <p class="helper">Share your details and we will follow up to discuss your project.</p>
+              <button id="contact-submit" class="button button-primary" type="submit">
+                <Icon class="icon" name="lucide:send" aria-hidden="true" />
+                Send Inquiry
+              </button>
+            </div>
+            <div id="contact-form-status" class="form-status" role="status" aria-live="polite" hidden></div>
+          </form>
         </div>
-        <div class="info-item">
-          <Icon class="info-icon" name="lucide:phone" aria-hidden="true" />
-          <div>
-            <h2><a href="tel:+15674500960">(567) 450-0960</a></h2>
-            <p>Call or text to talk through your project.</p>
+
+        <aside class="card info-panel" aria-label="Contact details">
+          <div class="info-item">
+            <Icon class="info-icon" name="lucide:map-pin" aria-hidden="true" />
+            <div>
+              <h2>Sandusky, OH</h2>
+              <p>Serving Sandusky, Erie County, and the surrounding area in person, plus remote clients anywhere.</p>
+            </div>
           </div>
-        </div>
-        <div class="info-item">
-          <Icon class="info-icon" name="lucide:clock" aria-hidden="true" />
-          <div>
-            <h2>Quick Response</h2>
-            <p>We follow up on all inquiries within one business day.</p>
+          <div class="info-item">
+            <Icon class="info-icon" name="lucide:phone" aria-hidden="true" />
+            <div>
+              <h2><a href="tel:+15674500960">(567) 450-0960</a></h2>
+              <p>Call or text to talk through your project.</p>
+            </div>
           </div>
-        </div>
-        <div class="info-item">
-          <Icon class="info-icon" name="lucide:shield-check" aria-hidden="true" />
-          <div>
-            <h2>No Obligation</h2>
-            <p>Consultations are free. No pressure, no commitments required.</p>
+          <div class="info-item">
+            <Icon class="info-icon" name="lucide:clock" aria-hidden="true" />
+            <div>
+              <h2>Quick Response</h2>
+              <p>We follow up on all inquiries within one business day.</p>
+            </div>
           </div>
-        </div>
-        <div class="info-item">
-          <Icon class="info-icon" name="lucide:layers" aria-hidden="true" />
-          <div>
-            <h2>Full-Service</h2>
-            <p>From strategy through launch and beyond, we handle the entire project lifecycle.</p>
+          <div class="info-item">
+            <Icon class="info-icon" name="lucide:shield-check" aria-hidden="true" />
+            <div>
+              <h2>No Obligation</h2>
+              <p>Consultations are free. No pressure, no commitments required.</p>
+            </div>
           </div>
-        </div>
+          <div class="info-item">
+            <Icon class="info-icon" name="lucide:layers" aria-hidden="true" />
+            <div>
+              <h2>Full-Service</h2>
+              <p>From strategy through launch and beyond, we handle the entire project lifecycle.</p>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   </main>
@@ -447,7 +323,6 @@ export const prerender = true;
   <div class="footer-wrap">
     <SiteFooter />
   </div>
-
   <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
   <script>
     const form = document.getElementById("contact-form") as HTMLFormElement | null;

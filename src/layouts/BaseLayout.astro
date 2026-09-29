@@ -69,6 +69,9 @@ const resolvedTwitterDescription = twitterDescription ?? description;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     {canonical && <link rel="canonical" href={canonical} />}
     <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" />
     <link rel="stylesheet" href="/universal.css" />
     {includeGenerator && <meta name="generator" content={Astro.generator} />}
 
@@ -104,7 +107,7 @@ const resolvedTwitterDescription = twitterDescription ?? description;
 
     <slot name="head" />
   </head>
-  <body>
+  <body class="site">
     <slot />
   </body>
 </html>

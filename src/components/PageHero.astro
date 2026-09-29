@@ -1,0 +1,225 @@
+---
+// Full-bleed image hero shared by every marketing page that has one. The page's H1 lives here, so a
+// page using PageHero must not render a second H1 in its body. Subpages pass `crumbs` for a visible
+// breadcrumb trail (Home is added automatically); the home page passes none. Anything in the default
+// slot (usually buttons) renders as the hero's action row.
+interface Crumb {
+	name: string;
+	/** Omit on the last crumb — it's the current page. */
+	href?: string;
+}
+
+interface Props {
+	image: string;
+	alt: string;
+	title: string;
+	desc?: string;
+	crumbs?: Crumb[];
+	/** CSS object-position for the image, to keep its subject clear of the text. */
+	position?: string;
+	/** Taller variant for the home page. */
+	tall?: boolean;
+}
+
+const { image, alt, title, desc, crumbs = [], position = "center", tall = false } = Astro.props;
+const hasActions = Astro.slots.has("default");
+---
+
+<div class:list={["page-hero", { tall }]}>
+	<img class="page-hero-img" src={image} alt={alt} style={`object-position: ${position}`} loading="eager" fetchpriority="high" />
+	<div class="page-hero-inner">
+		{crumbs.length > 0 && (
+			<nav class="page-hero-crumbs" aria-label="Breadcrumb">
+				<ol>
+					<li><a href="/">Home</a></li>
+					{crumbs.map((crumb) => (
+						<li>{crumb.href ? <a href={crumb.href}>{crumb.name}</a> : <span aria-current="page">{crumb.name}</span>}</li>
+					))}
+				</ol>
+			</nav>
+		)}
+		<h1>{title}</h1>
+		{desc && <p class="page-hero-desc">{desc}</p>}
+		{hasActions && (
+			<div class="page-hero-actions">
+				<slot />
+			</div>
+		)}
+	</div>
+</div>
+
+<style>
+	/* The bottom-right corner is cleaved off on the diagonal — the logo's cut-stone facet at page
+	   scale. The page's stone background shows through the cut. */
+	.page-hero {
+		position: relative;
+		isolation: isolate;
+		display: flex;
+		align-items: center;
+		min-height: clamp(360px, 42vw, 470px);
+		background: var(--slate);
+		color: #fff;
+		clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--cleave)), 64% 100%, 0 100%);
+		overflow: hidden;
+	}
+
+	.page-hero.tall {
+		min-height: clamp(460px, 56vw, 620px);
+	}
+
+	.page-hero-img {
+		position: absolute;
+		inset: 0;
+		z-index: -2;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	/* Slate wash from the text side, clearing toward the image's subject on the right. */
+	.page-hero::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: linear-gradient(
+			90deg,
+			rgba(27, 41, 51, 0.94) 0%,
+			rgba(27, 41, 51, 0.8) 34%,
+			rgba(27, 41, 51, 0.25) 68%,
+			rgba(27, 41, 51, 0.05) 100%
+		);
+	}
+
+	.page-hero-inner {
+		width: 100%;
+		max-width: 1280px;
+		margin: 0 auto;
+		padding: 3rem var(--gutter) calc(2.5rem + var(--cleave));
+	}
+
+	.page-hero-crumbs ol {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.2rem 0;
+		margin: 0 0 1.1rem;
+		padding: 0;
+		list-style: none;
+		font-size: 0.92rem;
+		font-stretch: 87.5%;
+		font-weight: 500;
+		color: var(--mist);
+	}
+
+	.page-hero-crumbs li + li::before {
+		content: "/";
+		margin: 0 0.55rem;
+		opacity: 0.7;
+	}
+
+	.page-hero-crumbs a {
+		color: #fff;
+		text-decoration: underline;
+		text-decoration-color: rgba(255, 255, 255, 0.4);
+		text-underline-offset: 0.2em;
+	}
+
+	.page-hero-crumbs a:hover {
+		text-decoration-color: #fff;
+	}
+
+	.page-hero h1 {
+		max-width: 20ch;
+		margin: 0;
+		font-size: clamp(2rem, 4.4vw, 3.5rem);
+		letter-spacing: -0.02em;
+		color: #fff;
+	}
+
+	.page-hero-desc {
+		max-width: 34rem;
+		margin: 1.1rem 0 0;
+		font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+		line-height: 1.55;
+		color: #dfe7ed;
+	}
+
+	.page-hero-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-top: 2rem;
+	}
+
+	.page-hero :focus-visible {
+		outline-color: var(--mist);
+	}
+
+	.page-hero-actions :global(.button-secondary) {
+		border-color: var(--mist);
+		color: #fff;
+	}
+
+	.page-hero-actions :global(.button-secondary:hover) {
+		background: #fff;
+		color: var(--slate);
+	}
+
+	/* The page's one motion moment: the hero settles in on load. Nothing else on the site animates
+	   without being asked to. */
+	@media (prefers-reduced-motion: no-preference) {
+		.page-hero-img {
+			animation: hero-settle 1400ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+		}
+
+		.page-hero-inner > * {
+			animation: hero-rise 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+		}
+
+		.page-hero-inner > :nth-child(2) {
+			animation-delay: 80ms;
+		}
+
+		.page-hero-inner > :nth-child(3) {
+			animation-delay: 160ms;
+		}
+
+		.page-hero-inner > :nth-child(4) {
+			animation-delay: 240ms;
+		}
+	}
+
+	@keyframes hero-settle {
+		from {
+			transform: scale(1.045);
+		}
+
+		to {
+			transform: scale(1);
+		}
+	}
+
+	@keyframes hero-rise {
+		from {
+			opacity: 0;
+			transform: translateY(12px);
+		}
+
+		to {
+			opacity: 1;
+			transform: none;
+		}
+	}
+
+	@media (max-width: 640px) {
+		/* On a phone the image mostly sits behind the text, so the wash evens out. */
+		.page-hero::before {
+			background: linear-gradient(180deg, rgba(27, 41, 51, 0.72) 0%, rgba(27, 41, 51, 0.88) 100%);
+		}
+
+		.page-hero-inner {
+			padding-top: 2.5rem;
+		}
+	}
+</style>

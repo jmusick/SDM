@@ -1,6 +1,12 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap");
+/*
+ * Fonts are linked per layout, not @imported here: BaseLayout loads Archivo for the marketing site,
+ * AdminLayout/DashboardLayout load Sora + Outfit for the portal. An @import in this file would add a
+ * render-blocking request chain to every page for fonts half of them never use.
+ */
 
 :root {
+	/* Portal tokens. The marketing site redefines these on body.site (below) so pages that still
+	   reference them pick up the stone palette without touching the portal. */
 	--ink: #10263b;
 	--ink-soft: #3e5b73;
 	--surface: rgba(233, 241, 248, 0.84);
@@ -9,6 +15,23 @@
 	--brand: #1f4f77;
 	--brand-strong: #143755;
 	--highlight: #86d2ff;
+
+	/* Marketing palette, taken from the logo's faceted slate stone and the Lake Erie hero imagery. */
+	--slate: #1b2933;
+	--slate-2: #22384a;
+	--stone: #e5e9eb;
+	--stone-face: #f7f8f9;
+	--seam: #c3ccd3;
+	--lake: #1d5a86;
+	--lake-deep: #154566;
+	--mist: #a9c1d4;
+
+	--font: "Archivo", system-ui, sans-serif;
+	--gutter: clamp(1.1rem, 2.5vw, 2.4rem);
+	/* The facet: the logo's cut-stone edge, used as the corner chamfer on cards and the angled edge
+	   on heroes and bands. It is the site's one decorative device — keep it to those. */
+	--cut: 1.1rem;
+	--cleave: clamp(2rem, 5vw, 4.5rem);
 }
 
 * {
@@ -23,10 +46,9 @@
 	padding: 0.75rem 1.25rem;
 	background: var(--brand-strong);
 	color: #edf6ff;
-	font-family: "Sora", sans-serif;
+	font-family: var(--font);
 	font-weight: 600;
 	text-decoration: none;
-	border-radius: 0 0 0.5rem 0;
 }
 
 .skip-link:focus {
@@ -55,64 +77,275 @@ body {
 	margin: 0;
 	font-family: "Outfit", sans-serif;
 	color: var(--ink);
-	background:
-		radial-gradient(circle at 0% 15%, rgba(121, 193, 236, 0.45), transparent 42%),
-		radial-gradient(circle at 92% 88%, rgba(255, 216, 163, 0.28), transparent 36%),
-		linear-gradient(160deg, #dbe8f2 0%, #adc6d8 44%, #7b9ab2 100%);
-	background-repeat: no-repeat;
-	background-size: cover;
-	background-attachment: fixed;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-	body {
-		animation: page-enter 260ms ease-out;
-	}
+/* ---------- Marketing site (BaseLayout renders <body class="site">) ---------- */
+
+.site {
+	--ink: var(--slate);
+	--ink-soft: #465868;
+	--brand: var(--lake);
+	--brand-strong: var(--slate-2);
+	--line: var(--seam);
+	--surface: var(--stone-face);
+	--surface-strong: #fbfbfc;
+	--highlight: var(--mist);
+
+	font-family: var(--font);
+	font-size: 1.0625rem;
+	line-height: 1.6;
+	background: var(--stone);
+	-webkit-font-smoothing: antialiased;
 }
 
-@keyframes page-enter {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
+/* Headings use Archivo's expanded cut — wide, flat, carved-sign lettering. Body copy stays at
+   normal width. Pages set size and colour; the width lives here so it can't drift per page. */
+.site h1,
+.site h2,
+.site h3 {
+	font-family: var(--font);
+	font-stretch: 125%;
+	font-weight: 700;
+	letter-spacing: -0.015em;
+	line-height: 1.12;
+	text-wrap: balance;
+}
+
+.site :focus-visible {
+	outline: 2px solid var(--lake);
+	outline-offset: 3px;
+}
+
+/* Shared page frame. Every marketing page is <main id="main-content"> holding an optional
+   full-bleed PageHero, a .page column, and optional full-bleed .band sections. */
+.page {
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: clamp(2rem, 4vw, 3rem) var(--gutter) 0;
+}
+
+.footer-wrap {
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: 0 var(--gutter) 3rem;
+}
+
+.section {
+	margin-top: clamp(3rem, 6vw, 4.5rem);
+}
+
+.section:first-child {
+	margin-top: 0;
+}
+
+.section-title {
+	margin: 0 0 1.25rem;
+	font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+	color: var(--slate);
+}
+
+.lead {
+	max-width: 68ch;
+	margin: 0 0 1.5rem;
+	font-size: 1.15rem;
+	color: var(--ink);
+}
+
+/*
+ * Card: a lighter stone face with one chamfered corner. clip-path removes the top-right corner; the
+ * 225deg gradient paints a 1px seam exactly along that diagonal (the gradient line starts at the
+ * top-right corner, so the cut sits at --cut / √2 along it), and the inset shadow draws the other
+ * edges. No drop shadow — the surface change and the seam carry it.
+ */
+.card {
+	--edge: calc(var(--cut) * 0.7071);
+	position: relative;
+	overflow: hidden;
+	padding: 1.35rem 1.5rem 1.5rem;
+	background: linear-gradient(225deg, var(--seam) calc(var(--edge) + 1px), var(--stone-face) 0);
+	box-shadow: inset 0 0 0 1px var(--seam);
+	clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+}
+
+.card h2,
+.card h3 {
+	margin: 0 0 0.5rem;
+	color: var(--slate);
+}
+
+.card h3 {
+	font-size: 1.12rem;
+}
+
+.card p {
+	margin: 0;
+	color: var(--ink-soft);
+}
+
+.card h2 a,
+.card h3 a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.card h2 a:hover,
+.card h3 a:hover {
+	color: var(--lake);
+	text-decoration: underline;
+	text-decoration-thickness: 1.5px;
+	text-underline-offset: 0.18em;
+}
+
+/* Service icon as a watermark bleeding off the bottom-right corner. Sized as a share of card height
+   so short and tall cards get a proportional mark. Opacity stays low: at 0.06 body text over it
+   keeps well above 4.5:1. astro-icon emits width/height="1em", so font-size is the fallback. */
+.card .icon {
+	position: absolute;
+	right: -0.6rem;
+	bottom: -0.7rem;
+	font-size: 9rem;
+	height: 82%;
+	width: auto;
+	aspect-ratio: 1 / 1;
+	margin: 0;
+	color: var(--slate);
+	opacity: 0.06;
+	z-index: 0;
+	pointer-events: none;
+}
+
+.card > :not(.icon) {
+	position: relative;
+	z-index: 1;
+}
+
+.card-link {
+	display: inline-block;
+	margin-top: 0.9rem;
+	font-weight: 600;
+	font-size: 0.95rem;
+	color: var(--lake);
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.2em;
+}
+
+.card-link:hover {
+	color: var(--lake-deep);
+	text-decoration-thickness: 2px;
+}
+
+/* Screenshot tile linking to a portfolio entry. The image takes the chamfer; the caption sits under it. */
+.shot {
+	display: block;
+	color: var(--slate);
+	text-decoration: none;
+}
+
+.shot img {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 1180 / 615;
+	object-fit: cover;
+	object-position: top;
+	background: var(--slate);
+	clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+}
+
+.shot-name {
+	display: block;
+	margin-top: 0.6rem;
+	font-weight: 600;
+}
+
+.shot:hover .shot-name {
+	color: var(--lake);
+	text-decoration: underline;
+	text-underline-offset: 0.18em;
+}
+
+.shot:hover img {
+	filter: brightness(1.06);
+}
+
+/* Full-bleed slate band. Its top-left edge is cut on the diagonal, mirroring the hero's cleaved
+   bottom-right, so the page reads as one stone split in two places. */
+.band {
+	margin-top: clamp(3.5rem, 7vw, 5.5rem);
+	padding: calc(var(--cleave) + clamp(2rem, 4vw, 3rem)) var(--gutter) clamp(3rem, 6vw, 4.5rem);
+	background: var(--slate);
+	color: #dfe7ed;
+	clip-path: polygon(0 var(--cleave), 36% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Matches the .page column: 1280px including its gutters. */
+.band-inner {
+	max-width: calc(1280px - 2 * var(--gutter));
+	margin: 0 auto;
+}
+
+.band h2 {
+	margin: 0 0 1rem;
+	font-size: clamp(1.6rem, 3vw, 2.4rem);
+	color: #fff;
+}
+
+.band p {
+	max-width: 62ch;
+	margin: 0 0 1rem;
+}
+
+.band :focus-visible {
+	outline-color: var(--mist);
+}
+
+.band p a,
+.band li a {
+	color: #fff;
+}
+
+/* The closing call to action on hub and service pages. */
+.cta-band h2 {
+	max-width: 22ch;
+}
+
+.cta-band .button {
+	margin-top: 0.75rem;
 }
 
 .site-head {
 	position: relative;
-	/* Lifts the whole header above the positioned .header-hero on each page so the services dropdown
-	   paints over it. backdrop-filter already makes this a stacking context, so z-index has to
-	   sit here rather than on .nav-dropdown, which is trapped inside it. */
+	/* Lifts the whole header above the page's hero so the services dropdown paints over it —
+	   position + z-index make .site-head a stacking context, so the z-index has to sit here rather
+	   than on .nav-dropdown, which is trapped inside it. */
 	z-index: 50;
 	width: 100%;
-	border-bottom: 1px solid var(--line);
-	background: rgba(238, 245, 251, 0.72);
-	backdrop-filter: blur(8px);
+	border-bottom: 1px solid var(--seam);
+	background: var(--stone-face);
 }
 
-/* Slim utility strip above the nav: business phone/city on the left, socials on the right. */
+/* Slim slate strip above the nav: business phone/city on the left, socials on the right. */
 .site-utility {
-	border-bottom: 1px solid var(--line);
-	background: rgba(20, 55, 85, 0.05);
+	background: var(--slate);
+	color: #c9d6e0;
 }
 
 .site-utility-inner {
 	max-width: 1280px;
 	margin: 0 auto;
-	padding: 0.15rem clamp(1.1rem, 2.5vw, 2.4rem);
+	padding: 0.2rem var(--gutter);
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 1rem;
-	font-size: 0.83rem;
-	color: var(--ink-soft);
+	font-size: 0.85rem;
 }
 
 .site-utility-contact {
 	display: flex;
 	align-items: center;
-	gap: 1rem;
+	gap: 1.25rem;
 	flex-wrap: wrap;
 }
 
@@ -120,12 +353,12 @@ body {
 .site-utility-loc {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.35rem;
+	gap: 0.4rem;
 	white-space: nowrap;
 }
 
 .site-utility-phone {
-	color: var(--brand-strong);
+	color: #fff;
 	font-weight: 600;
 	text-decoration: none;
 }
@@ -138,7 +371,11 @@ body {
 	width: 0.9rem;
 	height: 0.9rem;
 	flex-shrink: 0;
-	opacity: 0.75;
+	opacity: 0.8;
+}
+
+.site-utility :focus-visible {
+	outline-color: var(--mist);
 }
 
 .utility-social li a {
@@ -146,10 +383,16 @@ body {
 	height: 1.85rem;
 }
 
+.site-utility .social-links li a:hover,
+.site-utility .social-links li a:focus-visible {
+	color: #fff;
+	background: rgba(255, 255, 255, 0.1);
+}
+
 .site-head-inner {
 	max-width: 1280px;
 	margin: 0 auto;
-	padding: 0.9rem clamp(1.1rem, 2.5vw, 2.4rem);
+	padding: 0.85rem var(--gutter);
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -166,7 +409,7 @@ body {
 }
 
 .brand-logo {
-	width: min(100%, 320px);
+	width: min(100%, 300px);
 	height: auto;
 	display: block;
 }
@@ -175,12 +418,12 @@ body {
 	display: none;
 	align-items: center;
 	justify-content: center;
-	width: 2.6rem;
-	height: 2.6rem;
-	border-radius: 0.7rem;
-	border: 1px solid rgba(43, 90, 124, 0.4);
-	background: rgba(239, 247, 253, 0.86);
-	color: var(--brand-strong);
+	width: 2.75rem;
+	height: 2.75rem;
+	border-radius: 3px;
+	border: 1.5px solid var(--seam);
+	background: transparent;
+	color: var(--slate);
 	cursor: pointer;
 	flex-shrink: 0;
 }
@@ -205,7 +448,7 @@ body {
 .site-nav-panel {
 	display: flex;
 	align-items: center;
-	gap: 1rem;
+	gap: 1.1rem;
 	margin-left: auto;
 }
 
@@ -217,17 +460,22 @@ body {
 
 .site-nav a {
 	text-decoration: none;
-	color: var(--brand-strong);
-	font-family: "Sora", sans-serif;
-	font-size: 0.86rem;
-	padding: 0.45rem 0.55rem;
-	border-radius: 0.65rem;
+	color: var(--slate);
+	font-family: var(--font);
+	font-size: 0.95rem;
+	font-weight: 500;
+	padding: 0.5rem 0.6rem;
 	white-space: nowrap;
 }
 
-.site-nav a.active,
 .site-nav a:hover {
-	background: rgba(239, 247, 253, 0.86);
+	color: var(--lake);
+}
+
+/* Current page: a lake-blue rule under the label, not a filled pill. */
+.site-nav a.active {
+	font-weight: 600;
+	box-shadow: inset 0 -2px 0 var(--lake);
 }
 
 /* Client portal entry — separated from the marketing links so it doesn't read as another content page. */
@@ -235,8 +483,8 @@ body {
 	position: relative;
 	display: inline-flex;
 	align-items: center;
-	gap: 0.32rem;
-	margin-left: 0.75rem;
+	gap: 0.35rem;
+	margin-left: 0.85rem;
 	color: var(--ink-soft);
 }
 
@@ -248,7 +496,7 @@ body {
 	transform: translateY(-50%);
 	width: 1px;
 	height: 1.1rem;
-	background: var(--line);
+	background: var(--seam);
 }
 
 .site-nav .nav-login .icon {
@@ -271,11 +519,11 @@ body {
 	align-items: center;
 	justify-content: center;
 	padding: 0.3rem;
-	margin-left: -0.3rem;
+	margin-left: -0.35rem;
 	border: none;
 	background: none;
-	color: var(--brand-strong);
-	border-radius: 0.5rem;
+	color: var(--slate);
+	border-radius: 3px;
 	cursor: pointer;
 }
 
@@ -302,17 +550,17 @@ body {
 	top: 100%;
 	left: 0;
 	z-index: 30;
-	min-width: 14.5rem;
+	min-width: 15rem;
 	margin: 0;
-	padding: 0.35rem;
+	padding: 0.4rem;
 	list-style: none;
 	display: none;
 	flex-direction: column;
 	gap: 0.1rem;
-	background: #f3f8fd;
-	border: 1px solid var(--line);
-	border-radius: 0.8rem;
-	box-shadow: 0 16px 30px rgba(18, 45, 69, 0.18);
+	background: var(--stone-face);
+	border: 1px solid var(--seam);
+	border-top: 2px solid var(--lake);
+	box-shadow: 0 14px 28px rgba(27, 41, 51, 0.16);
 }
 
 .nav-group:hover .nav-dropdown,
@@ -323,59 +571,91 @@ body {
 
 .site-nav .nav-dropdown a {
 	display: block;
-	padding: 0.5rem 0.7rem;
+	padding: 0.55rem 0.75rem;
 	white-space: normal;
 }
 
+.site-nav .nav-dropdown a:hover {
+	background: var(--stone);
+}
+
 .site-nav .nav-dropdown a[aria-current="page"] {
-	background: rgba(31, 79, 119, 0.14);
 	font-weight: 600;
+	box-shadow: inset 2px 0 0 var(--lake);
 }
 
 .button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	padding: 0.72rem 1.12rem;
-	border-radius: 0.82rem;
-	border: 1px solid transparent;
+	gap: 0.5rem;
+	padding: 0.78rem 1.25rem;
+	border-radius: 3px;
+	border: 1.5px solid transparent;
+	font-family: var(--font);
+	font-size: 0.98rem;
 	font-weight: 600;
+	line-height: 1.2;
 	text-decoration: none;
-	font-family: "Sora", sans-serif;
-	transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+	cursor: pointer;
+	transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
 }
 
 .button .icon {
 	width: 1rem;
 	height: 1rem;
-	margin-right: 0.45rem;
 	flex-shrink: 0;
 }
 
-.button:hover {
-	transform: translateY(-2px);
-	box-shadow: 0 8px 18px rgba(14, 46, 73, 0.2);
+.button-primary {
+	background: var(--lake);
+	color: #fff;
 }
 
-.button-primary {
-	background: linear-gradient(125deg, #1f5a89, #2f709f);
-	color: #edf6ff;
+.button-primary:hover {
+	background: var(--lake-deep);
 }
 
 .button-secondary {
-	border-color: rgba(43, 90, 124, 0.4);
-	color: var(--brand-strong);
-	background: rgba(239, 247, 253, 0.86);
+	border-color: var(--slate);
+	color: var(--slate);
+	background: transparent;
+}
+
+.button-secondary:hover {
+	background: var(--slate);
+	color: #fff;
+}
+
+/* On slate (hero, bands): a white primary and a mist outline. */
+.band .button-primary {
+	background: #fff;
+	color: var(--slate);
+}
+
+.band .button-primary:hover {
+	background: var(--mist);
+}
+
+.band .button-secondary {
+	border-color: var(--mist);
+	color: #fff;
+}
+
+.band .button-secondary:hover {
+	background: #fff;
+	color: var(--slate);
 }
 
 .site-head .button {
 	white-space: nowrap;
+	padding: 0.62rem 1rem;
 }
 
 .site-footer {
-	margin-top: 2rem;
-	padding-top: 1.2rem;
-	border-top: 1px solid var(--line);
+	margin-top: 2.5rem;
+	padding-top: 1.4rem;
+	border-top: 1px solid var(--seam);
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -391,6 +671,7 @@ body {
 .footer-nap {
 	margin-top: 0.25rem;
 	font-size: 0.87rem;
+	color: var(--ink-soft);
 }
 
 /* Social icon row — shared by the header utility bar and the footer. */
@@ -428,7 +709,7 @@ body {
 .social-links li a:hover,
 .social-links li a:focus-visible {
 	color: var(--brand-strong);
-	background: rgba(43, 90, 124, 0.12);
+	background: rgba(27, 41, 51, 0.08);
 	text-decoration: none;
 }
 
@@ -439,9 +720,9 @@ body {
 }
 
 .footer-version {
-	font-family: "Sora", sans-serif;
+	font-family: var(--font);
 	font-weight: 600;
-	color: var(--brand-strong);
+	color: var(--ink-soft);
 }
 
 .footer-link {
@@ -455,41 +736,29 @@ body {
 }
 
 /*
- * Links inside body copy. Scoped to p/li so buttons and nav links are unaffected.
- * Uses --ink rather than --brand: this text sits directly on the page's gradient
- * background (which is fixed-attachment and can scroll under it at any point),
- * and --brand doesn't reach 4.5:1 against the gradient's darker end.
+ * Links inside body copy. Scoped to p/li so buttons and nav links are unaffected. The page
+ * background is a solid light stone, so --lake clears 4.5:1 everywhere these can appear.
  */
 .page p a,
 .page li a {
-	color: var(--ink);
+	color: var(--lake);
 	font-weight: 600;
 	text-decoration: underline;
-	text-underline-offset: 0.15em;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.18em;
 }
 
 .page p a:hover,
 .page li a:hover {
-	color: var(--brand-strong);
+	color: var(--lake-deep);
+	text-decoration-thickness: 2px;
 }
 
 .site-footer a:hover {
 	text-decoration: underline;
 }
 
-@media (prefers-reduced-motion: reduce) {
-	.button:hover,
-	.about-cta-link:hover,
-	.proof-card:hover {
-		transform: none;
-	}
-}
-
 @media (max-width: 920px) {
-	body {
-		background-attachment: scroll;
-	}
-
 	/* Utility strip stays visible above the hamburger row, stacked and centred. */
 	.site-utility-inner {
 		flex-direction: column;
@@ -546,6 +815,11 @@ body {
 		padding: 0.7rem 0.85rem;
 	}
 
+	/* Stacked nav: the active rule moves to the left edge. */
+	.site-nav a.active {
+		box-shadow: inset 2px 0 0 var(--lake);
+	}
+
 	/* Stacked nav: the vertical divider becomes a rule above the link. */
 	.site-nav .nav-login {
 		margin-left: 0;
@@ -570,8 +844,8 @@ body {
 	}
 
 	.nav-sub-toggle {
-		width: 2.6rem;
-		height: 2.6rem;
+		width: 2.75rem;
+		height: 2.75rem;
 		margin-left: 0;
 	}
 
@@ -584,8 +858,7 @@ body {
 		padding: 0 0 0 0.85rem;
 		background: none;
 		border: none;
-		border-left: 2px solid var(--line);
-		border-radius: 0;
+		border-left: 2px solid var(--seam);
 		box-shadow: none;
 	}
 

@@ -178,10 +178,17 @@ Actively worked for local SEO, targeting "Sandusky Ohio web design" and the regi
 ## Page conventions
 
 Marketing pages (`about`/`services`/`products`/`work`/`contact`) share one shape: `Icon`/`SiteHeader`/
-`SiteFooter`/`BaseLayout` imports → `prerender = true` → `<BaseLayout>` with `title`/`description`/
-`canonical`/`ogUrl` → `<Fragment slot="head"><style>` with page-scoped CSS (each page owns its own
-block rather than a shared library — intentional) → `<SiteHeader active="…" />`, a full-bleed
-`.header-hero`, `<main class="page">`, then a **sibling** `<div class="footer-wrap">` + `<SiteFooter />`.
+`SiteFooter`/`PageHero`/`BaseLayout` imports → `prerender = true` → `<BaseLayout>` with `title`/
+`description`/`canonical`/`ogUrl` → `<Fragment slot="head"><style>` with that page's layout CSS →
+`<SiteHeader active="…" />`, then `<main id="main-content">` holding `<PageHero>`, a `.page` column,
+and optionally a full-bleed `.band` → then a **sibling** `<div class="footer-wrap">` + `<SiteFooter />`.
+
+**`PageHero` renders the page's only `<h1>`** (plus the breadcrumb trail on subpages, from its
+`crumbs` prop — Home is added automatically), so a page using it must not add another. Its default
+slot is the hero's button row. The shared building blocks — `.page`, `.section`/`.section-title`,
+`.lead`, `.card` (chamfered corner + optional `.icon` watermark), `.card-link`, `.shot` (portfolio
+screenshot tile), `.band`/`.cta-band` — live in `public/universal.css`; a page's own `<style>` only
+holds its grid/layout rules. Don't re-skin those blocks per page.
 
 The four service category pages are the one exception to "a page per file": a single
 `src/pages/services/[category].astro` with `getStaticPaths()` over `serviceCategories`, so that shape
@@ -193,11 +200,19 @@ nested in `main`/`article`/`aside`/`section`; `.page`/`.wrapper` carries no bott
 page — two identically labelled nav landmarks is a duplicate-landmark failure); its CSS is scoped
 through `li` (`.social-links li a`) since `.site-footer a`/`:hover` would otherwise win on specificity.
 
-`public/universal.css` holds the global tokens (`--ink`, `--ink-soft`, `--surface`, `--line`,
-`--brand`, `--brand-strong`, `--highlight`), typography, resets, and shared header/footer/button
-rules — site-wide changes go there, one-page changes in that page's `<style>`. **`--ink-soft`/`--brand`
-only reach 4.5:1 contrast on light `.card`/`.surface`/`.panel`** — text on the page's fixed-attachment
-gradient must use `--ink`. Body copy links are styled by `.page p a`/`.page li a` (not `.button`/nav).
+`public/universal.css` holds the global tokens, typography, resets, the shared blocks above, and the
+header/footer/button rules — site-wide changes go there, one-page changes in that page's `<style>`.
+The marketing palette (`--slate`, `--stone`, `--stone-face`, `--seam`, `--lake`, `--mist`) comes from
+the logo's faceted slate stone. BaseLayout renders `<body class="site">`, and `.site` remaps the older
+portal tokens (`--ink`, `--brand`, `--surface`, …) onto that palette, so the portal keeps its own look.
+The page background is a solid `--stone`; `--ink-soft` and `--lake` both clear 4.5:1 on it and on
+`--stone-face` cards. The facet — `--cut` on card corners, `--cleave` on the hero's bottom edge and a
+band's top edge — is the site's one decorative device; keep it to those. Body copy links are styled by
+`.page p a`/`.page li a` (not `.button`/nav).
+
+**Fonts:** marketing pages use Archivo alone (headings at `font-stretch: 125%`, body at normal width),
+linked in `BaseLayout`; the portal layouts link Sora + Outfit themselves. `universal.css` has no
+`@import`.
 
 `SiteHeader`'s `active` prop drives nav highlighting — extend its type union for any new route. It
 opens with a utility bar (phone + city + `SocialLinks`) above the logo/nav row, ends with a
@@ -205,8 +220,8 @@ visually-separated **Client Login** link, collapses to a hamburger at `max-width
 the page's first element — a skip-to-`#main-content` link, so every `<main>` must keep that id.
 Services is the only nav item with a submenu: `.nav-group` opens on hover and `:focus-within`, its
 chevron button adding click/tap — the only way in on the stacked mobile nav, where those two rules are
-forced off. **`.site-head`'s `backdrop-filter` makes it a stacking context**, so the `z-index` lifting
-the header over a page's positioned `.header-hero` sits on `.site-head`, not on `.nav-dropdown`.
+forced off. **`.site-head` is a stacking context** (`position` + `z-index`), so the `z-index` lifting
+the services dropdown over the page's `PageHero` sits on `.site-head`, not on `.nav-dropdown`.
 
 ## Code style
 

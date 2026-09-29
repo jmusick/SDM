@@ -26,8 +26,6 @@ export interface ServiceCategory {
   h1: string;
   /** Lead paragraph under the H1. */
   intro: string;
-  heroLabel: string;
-  heroTitle: string;
   heroDesc: string;
   services: ServiceItem[];
 }
@@ -44,8 +42,6 @@ export const serviceCategories: ServiceCategory[] = [
     h1: "Web Design & Application Development in Sandusky, Ohio",
     intro:
       "Whether you need a website that converts or a piece of software no off-the-shelf product covers, we design and build it from scratch. Every project is built for speed, accessibility, and long-term maintainability. We work in person across Erie County and northern Ohio, and remotely with clients anywhere.",
-    heroLabel: "DESIGN & DEVELOPMENT",
-    heroTitle: "Design & Development",
     heroDesc: "Custom websites and web systems, plus tailored software built around your workflow.",
     services: [
       {
@@ -85,8 +81,6 @@ export const serviceCategories: ServiceCategory[] = [
     h1: "Digital Marketing & Analytics in Sandusky, Ohio",
     intro:
       "Getting found is half of it; knowing what worked is the other half. We run campaigns that put your business in front of the right audience at the right time, then measure them so your budget goes where it earns its keep.",
-    heroLabel: "MARKETING & ANALYTICS",
-    heroTitle: "Marketing & Analytics",
     heroDesc: "Data-driven campaigns paired with the tracking and reporting that show what they returned.",
     services: [
       {
@@ -126,8 +120,6 @@ export const serviceCategories: ServiceCategory[] = [
     h1: "Website Hosting, Security & Maintenance in Sandusky, Ohio",
     intro:
       "A site is only as good as the platform underneath it. We set up hosting configured for performance, then keep it patched, monitored, and backed up long after launch, so problems get caught before your customers find them.",
-    heroLabel: "HOSTING & SECURITY",
-    heroTitle: "Hosting & Security",
     heroDesc: "Reliable hosting environments plus proactive maintenance, monitoring, and recovery planning.",
     services: [
       {
@@ -167,8 +159,6 @@ export const serviceCategories: ServiceCategory[] = [
     h1: "Branding, Design & Digital Strategy in Sandusky, Ohio",
     intro:
       "How you look and what you decide to build both come before a single line of code. We shape the visual identity your audience recognizes, and help you make confident decisions about the technology and process behind it.",
-    heroLabel: "BRANDING & CONSULTING",
-    heroTitle: "Branding & Consulting",
     heroDesc: "A cohesive visual identity, plus expert guidance on technology, process, and digital growth.",
     services: [
       {

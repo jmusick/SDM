@@ -2,6 +2,7 @@
 import { Icon } from "astro-icon/components";
 import SiteHeader from "../../components/SiteHeader.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
+import PageHero from "../../components/PageHero.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { serviceCategories } from "../../lib/services";
 
@@ -15,7 +16,7 @@ export const prerender = true;
   ogUrl="https://stonedragonmedia.com/services/"
   breadcrumb="Services"
   ogImage="https://stonedragonmedia.com/services-header.webp"
-  ogImageAlt="Stone Dragon Media digital services — web design, development, marketing, and consulting"
+  ogImageAlt="Stone Dragon Media digital services â€” web design, development, marketing, and consulting"
 >
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -34,386 +35,66 @@ export const prerender = true;
       }
     })} />
     <style>
-      .page {
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 1rem clamp(1.1rem, 2.5vw, 2.4rem) 0;
-      }
-
-      .footer-wrap {
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 0 clamp(1.1rem, 2.5vw, 2.4rem) 4rem;
-      }
-
-      .header-hero {
-        position: relative;
-        width: 100vw;
-        left: 50%;
-        right: 50%;
-        margin-left: -50vw;
-        margin-right: -50vw;
-        height: 520px;
-        max-width: 100vw;
-        border-radius: 0;
-        overflow: hidden;
-        box-shadow: none;
-        margin-bottom: 1rem;
-        background: #122238;
-      }
-
-      .header-hero img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-        object-position: center 70%;
-      }
-
-      .header-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-start;
-        padding: 3.5rem 3.5rem 3.5rem max(8vw, calc((100vw - 1280px) / 2 + clamp(1.1rem, 2.5vw, 2.4rem)));
-        color: #fff;
-        background: linear-gradient(90deg, rgba(18, 34, 56, 0.82) 0%, rgba(18, 34, 56, 0.32) 60%, rgba(18, 34, 56, 0) 100%);
-        font-family: "Sora", sans-serif;
-        pointer-events: none;
-        box-sizing: border-box;
-      }
-
-      .header-overlay .about-label {
-        font-size: 1.1rem;
-        font-weight: 600;
-        letter-spacing: 0.13em;
-        margin-bottom: 0.7rem;
-        opacity: 0.92;
-        border-bottom: 3px solid #7fa6d9;
-        display: inline-block;
-        padding-bottom: 0.2rem;
-      }
-
-      .header-overlay .hero-title {
-        font-size: 2.8rem;
-        font-weight: 800;
-        margin-bottom: 1.2rem;
-        line-height: 1.1;
-        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
-      }
-
-      .header-overlay .hero-desc {
-        font-size: 1.25rem;
-        font-weight: 400;
-        max-width: 32rem;
-        line-height: 1.5;
-        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
-      }
-
-      h1 {
-        font-family: "Sora", sans-serif;
-        color: var(--brand-strong);
-        margin: 0 0 1rem;
-      }
-
-      .categories > h2,
-      .pricing > h2 {
-        font-family: "Sora", sans-serif;
-        color: var(--brand-strong);
-        font-size: clamp(1.4rem, 2vw, 1.8rem);
-        margin: 0 0 1rem;
-      }
-
-      .lead {
-        color: var(--ink);
-        max-width: 70ch;
-      }
-
-      .grid {
+      /* The eight services live on four category subpages; this page is the hub that summarises
+         each one. Card headings link through, and the list under them names the services inside
+         so the hub still says what each category actually covers. */
+      .categories {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 1rem;
       }
 
-      /* The eight services live on four category subpages; this page is the hub that summarises
-         each one. Card headings link through, and the list under them names the services inside
-         so the hub still says what each category actually covers. */
-      .categories {
-        margin-top: 2.2rem;
+      .categories .card {
+        padding: 1.6rem 1.75rem 1.7rem;
       }
 
-      .card {
-        position: relative;
-        overflow: hidden;
-        border: 1px solid var(--line);
-        background: var(--surface);
-        border-radius: 0.95rem;
-        padding: 1rem;
+      .categories .card h3 {
+        font-size: 1.3rem;
       }
 
-      /* The service icon is a watermark bleeding off the bottom-right corner rather than a small
-         inline mark. Size is set as a share of card height so the shorter pricing cards and the
-         taller category cards get a proportional mark instead of one fixed size that suits neither.
-         Opacity is deliberately low: at 0.05 body text clears WCAG AA comfortably (~5:1 even over
-         the darkest part of the page gradient). Going much past 0.07 starts eating that margin. */
-      .card .icon {
-        position: absolute;
-        right: -0.5rem;
-        bottom: -0.6rem;
-        /* astro-icon emits the svg at width/height="1em", so font-size is the fallback size if
-           the aspect-ratio sizing below doesn't apply. */
-        font-size: 9rem;
-        height: 82%;
-        width: auto;
-        aspect-ratio: 1 / 1;
-        margin: 0;
-        color: var(--brand-strong);
-        opacity: 0.05;
-        z-index: 0;
-        pointer-events: none;
-      }
-
-      .card h3,
-      .card p,
-      .card ul,
-      .card .card-link {
-        position: relative;
-        z-index: 1;
-      }
-
-      .card h3 {
-        margin: 0 0 0.45rem;
-        font-size: 1.06rem;
-        color: var(--brand-strong);
-        font-family: "Sora", sans-serif;
-      }
-
-      .card h3 a {
-        color: inherit;
-        text-decoration: none;
-      }
-
-      .card h3 a:hover {
-        text-decoration: underline;
-      }
-
-      .card p {
-        margin: 0;
-        color: var(--ink-soft);
-        line-height: 1.55;
-      }
-
-      .card ul {
-        margin: 0.55rem 0 0 1rem;
-        padding: 0;
+      .categories .card ul {
+        margin: 0.8rem 0 0;
+        padding-left: 1.1rem;
         color: var(--ink-soft);
       }
 
-      .card li {
-        margin: 0 0 0.3rem;
+      .categories .card li {
+        margin: 0 0 0.25rem;
       }
 
-      .card-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        margin-top: 0.7rem;
-        font-family: "Sora", sans-serif;
-        font-weight: 600;
-        font-size: 0.92rem;
-        color: var(--brand-strong);
-        text-decoration: none;
-      }
-
-      .card-link:hover {
-        text-decoration: underline;
-      }
-
-      /* Not .icon — that class is the corner watermark on these cards. */
-      .card-link .arrow {
-        width: 0.9rem;
-        height: 0.9rem;
-        flex-shrink: 0;
-      }
-
-      /* Real portfolio screenshots, reused from /work at their native 1180x615. They break the
-         run of text between the category cards and pricing, and are below the fold — keep them
-         lazy with explicit dimensions so LCP and CLS are unaffected. */
-      .proof {
-        margin-top: 3rem;
-      }
-
-      .proof > h2 {
-        font-family: "Sora", sans-serif;
-        color: var(--brand-strong);
-        font-size: clamp(1.4rem, 2vw, 1.8rem);
-        margin: 0 0 0.5rem;
-      }
-
-      .proof-grid {
-        margin-top: 1.2rem;
+      /* Real portfolio screenshots, reused from /work at their native 1180x615. Below the fold —
+         keep them lazy with explicit dimensions so LCP and CLS are unaffected. */
+      .work-shots {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 1rem;
-      }
-
-      .proof-card {
-        display: block;
-        border: 1px solid var(--line);
-        background: var(--surface);
-        border-radius: 0.95rem;
-        overflow: hidden;
-        text-decoration: none;
-        transition: transform 160ms ease, box-shadow 160ms ease;
-      }
-
-      .proof-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 24px rgba(18, 45, 69, 0.16);
-      }
-
-      .proof-card img {
-        width: 100%;
-        height: auto;
-        aspect-ratio: 1180 / 615;
-        object-fit: cover;
-        object-position: top;
-        display: block;
-      }
-
-      .proof-name {
-        display: block;
-        padding: 0.7rem 0.9rem;
-        font-family: "Sora", sans-serif;
-        font-weight: 600;
-        color: var(--brand-strong);
+        gap: 1.25rem;
       }
 
       .proof-more {
-        margin-top: 1rem;
-        color: var(--ink);
-      }
-
-      @media (max-width: 920px) {
-        .proof-grid {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-      }
-
-      @media (max-width: 640px) {
-        .proof-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      .pricing {
-        margin-top: 3rem;
-      }
-
-      .pricing .lead {
-        margin-bottom: 0;
+        margin: 1.4rem 0 0;
       }
 
       .pricing-grid {
-        margin-top: 1.2rem;
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 1rem;
       }
 
       .pricing-note {
-        margin-top: 1.2rem;
-        color: var(--ink);
-        max-width: 70ch;
+        max-width: 68ch;
+        margin: 1.4rem 0 0;
+      }
+
+      @media (max-width: 1100px) {
+        .work-shots {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
       }
 
       @media (max-width: 920px) {
+        .categories,
         .pricing-grid {
           grid-template-columns: 1fr;
-        }
-      }
-
-      .cta-banner {
-        position: relative;
-        width: 100vw;
-        left: 50%;
-        right: 50%;
-        margin-left: -50vw;
-        margin-right: -50vw;
-        margin-top: 3rem;
-        padding: 4rem 2rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 1.2rem;
-        background: linear-gradient(120deg, #0e2133 0%, #1a3d5c 60%, #0e2133 100%);
-        color: #fff;
-      }
-
-      .cta-banner h2 {
-        margin: 0;
-        font-family: "Sora", sans-serif;
-        font-size: clamp(1.5rem, 2.8vw, 2.2rem);
-        font-weight: 800;
-        color: #fff;
-        letter-spacing: -0.01em;
-      }
-
-      .cta-banner p {
-        margin: 0;
-        color: rgba(220, 237, 255, 0.85);
-        max-width: 54ch;
-        line-height: 1.65;
-        font-size: 1.05rem;
-      }
-
-      .cta-banner .button {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        padding: 0.8rem 1.5rem;
-        border-radius: 0.75rem;
-        font-family: "Sora", sans-serif;
-        font-weight: 700;
-        font-size: 1rem;
-        text-decoration: none;
-        background: #fff;
-        color: #1a3d5c;
-        border: none;
-        margin-top: 0.4rem;
-      }
-
-      .cta-banner .button .icon {
-        width: 1rem;
-        height: 1rem;
-      }
-
-      .site-footer {
-        margin-top: 2rem;
-      }
-
-      @media (max-width: 920px) {
-        .grid {
-          grid-template-columns: 1fr;
-        }
-
-        .header-overlay {
-          padding: 2rem 1.2rem 2rem 1.2rem;
-          align-items: flex-start;
-        }
-
-        .header-overlay .hero-title {
-          font-size: 2rem;
-        }
-
-        .header-overlay .hero-desc {
-          font-size: 1rem;
         }
       }
     </style>
@@ -421,113 +102,110 @@ export const prerender = true;
 
   <SiteHeader active="services" />
 
-  <div class="header-hero">
-    <img src="/services-header.webp" alt="Stone Dragon Media digital services — web design, development, marketing, and consulting" />
-    <div class="header-overlay">
-      <span class="about-label">SERVICES</span>
-      <span class="hero-title">Our Solutions</span>
-      <span class="hero-desc">
-        End-to-end digital services including web design, application development, marketing, hosting, branding, and consulting.
-      </span>
-    </div>
-  </div>
+  <main id="main-content">
+    <PageHero
+      image="/services-header.webp"
+      alt="Stone Dragon Media digital services — web design, development, marketing, and consulting"
+      title="Web Design & Development Services in Sandusky, Ohio"
+      desc="End-to-end digital services including web design, application development, marketing, hosting, branding, and consulting."
+      crumbs={[{ name: "Services" }]}
+      position="center 70%"
+    />
 
-  <main class="page" id="main-content">
-    <h1>Web Design &amp; Development Services in Sandusky, Ohio</h1>
-    <p class="lead">Stone Dragon Media offers end-to-end digital services from strategy through launch and long-term support, including website solutions built for speed and reliability. Based in Sandusky, Ohio, we work in person across Erie County and northern Ohio, from Toledo in the west to Cleveland in the east, and remotely with clients anywhere.</p>
+    <div class="page">
+      <p class="lead">Stone Dragon Media offers end-to-end digital services from strategy through launch and long-term support, including website solutions built for speed and reliability. Based in Sandusky, Ohio, we work in person across Erie County and northern Ohio, from Toledo in the west to Cleveland in the east, and remotely with clients anywhere.</p>
 
-    <section class="categories">
-      <h2>What We Do</h2>
-      <div class="grid">
-        {serviceCategories.map((category) => (
-          <article class="card" id={category.slug}>
-            <Icon class="icon" name={category.icon} aria-hidden="true" />
-            <h3><a href={`/services/${category.slug}/`}>{category.name}</a></h3>
-            <p>{category.summary}</p>
-            <ul>
-              {category.services.map((service) => <li>{service.name}</li>)}
-            </ul>
-            <a class="card-link" href={`/services/${category.slug}/`}>
-              Explore {category.name}
-              <Icon class="arrow" name="lucide:arrow-right" aria-hidden="true" />
-            </a>
+      <section class="section">
+        <h2 class="section-title">What We Do</h2>
+        <div class="categories">
+          {serviceCategories.map((category) => (
+            <article class="card" id={category.slug}>
+              <Icon class="icon" name={category.icon} aria-hidden="true" />
+              <h3><a href={`/services/${category.slug}/`}>{category.name}</a></h3>
+              <p>{category.summary}</p>
+              <ul>
+                {category.services.map((service) => <li>{service.name}</li>)}
+              </ul>
+              <a class="card-link" href={`/services/${category.slug}/`}>Explore {category.name}</a>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">Recent Work</h2>
+        <div class="work-shots">
+          <a class="shot" href="/work/#simon-rook">
+            <img src="/work/simonrook.webp" alt="Simon Rook author website" loading="lazy" width="1180" height="615" />
+            <span class="shot-name">Simon Rook</span>
+          </a>
+          <a class="shot" href="/work/#dorian-black">
+            <img src="/work/dorianblack.webp" alt="Dorian Black synth-pop artist website" loading="lazy" width="1180" height="615" />
+            <span class="shot-name">Dorian Black</span>
+          </a>
+          <a class="shot" href="/work/#pneumaris">
+            <img src="/work/pneumaris.webp" alt="Pneumaris band website" loading="lazy" width="1180" height="615" />
+            <span class="shot-name">Pneumaris</span>
+          </a>
+          <a class="shot" href="/work/#tagstash">
+            <img src="/work/tagstash.webp" alt="Tagstash bookmarking tool" loading="lazy" width="1180" height="615" />
+            <span class="shot-name">Tagstash</span>
+          </a>
+        </div>
+        <p class="proof-more">See the full breakdown of each build on our <a href="/work/">work page</a>.</p>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">How Much Does a Website Cost?</h2>
+        <p class="lead">
+          Every business is different, so we don&rsquo;t work off a fixed price sheet. We build custom
+          pricing and payment arrangements around your budget, timeline, and goals &mdash; not the
+          other way around.
+        </p>
+        <div class="pricing-grid">
+          <article class="card">
+            <Icon class="icon" name="lucide:badge-dollar-sign" aria-hidden="true" />
+            <h3>One-Time Development</h3>
+            <p>
+              Pay a single project cost, and once it&rsquo;s settled the code is fully yours &mdash; a
+              complete license transfer with no ongoing fees, subscriptions, or dependency on us to
+              keep running.
+            </p>
           </article>
-        ))}
-      </div>
-    </section>
-
-    <section class="proof">
-      <h2>Recent Work</h2>
-      <p class="lead">A few of the projects behind those services.</p>
-      <div class="proof-grid">
-        <a class="proof-card" href="/work/#simon-rook">
-          <img src="/work/simonrook.webp" alt="Simon Rook author website" loading="lazy" width="1180" height="615" />
-          <span class="proof-name">Simon Rook</span>
-        </a>
-        <a class="proof-card" href="/work/#dorian-black">
-          <img src="/work/dorianblack.webp" alt="Dorian Black synth-pop artist website" loading="lazy" width="1180" height="615" />
-          <span class="proof-name">Dorian Black</span>
-        </a>
-        <a class="proof-card" href="/work/#pneumaris">
-          <img src="/work/pneumaris.webp" alt="Pneumaris band website" loading="lazy" width="1180" height="615" />
-          <span class="proof-name">Pneumaris</span>
-        </a>
-        <a class="proof-card" href="/work/#tagstash">
-          <img src="/work/tagstash.webp" alt="Tagstash bookmarking tool" loading="lazy" width="1180" height="615" />
-          <span class="proof-name">Tagstash</span>
-        </a>
-      </div>
-      <p class="proof-more">See the full breakdown of each build on our <a href="/work/">work page</a>.</p>
-    </section>
-
-    <section class="pricing">
-      <h2>How Much Does a Website Cost?</h2>
-      <p class="lead">
-        Every business is different, so we don&rsquo;t work off a fixed price sheet. We build custom
-        pricing and payment arrangements around your budget, timeline, and goals &mdash; not the
-        other way around.
-      </p>
-      <div class="pricing-grid">
-        <article class="card">
-          <Icon class="icon" name="lucide:badge-dollar-sign" aria-hidden="true" />
-          <h3>One-Time Development</h3>
-          <p>
-            Pay a single project cost, and once it&rsquo;s settled the code is fully yours &mdash; a
-            complete license transfer with no ongoing fees, subscriptions, or dependency on us to
-            keep running.
-          </p>
-        </article>
-        <article class="card">
-          <Icon class="icon" name="lucide:calendar-clock" aria-hidden="true" />
-          <h3>Managed, Low Upfront</h3>
-          <p>
-            Get a professionally built and fully managed site or application with little to no
-            money down, with the cost split into affordable monthly or yearly payments instead.
-          </p>
-        </article>
-        <article class="card">
-          <Icon class="icon" name="lucide:puzzle" aria-hidden="true" />
-          <h3>Custom Arrangements</h3>
-          <p>
-            Need a mix of both? We&rsquo;ll structure a plan that blends ownership, hosting, and
-            ongoing support in whatever combination makes the most sense for your business.
-          </p>
-        </article>
-      </div>
-      <p class="pricing-note">
-        Not sure which of these fits? Reach out for a free, no-obligation quote and we&rsquo;ll
-        walk through the options together.
-      </p>
-    </section>
-
-    <div class="cta-banner">
-      <h2>Ready to start your next project?</h2>
-      <p>Whether you need a new website, a custom application, or a full digital strategy, we are here to help. Let us talk through your goals and build something great together.</p>
-      <a class="button" href="/contact/">
-        <Icon class="icon" name="lucide:send" aria-hidden="true" />
-        Get in Touch
-      </a>
+          <article class="card">
+            <Icon class="icon" name="lucide:calendar-clock" aria-hidden="true" />
+            <h3>Managed, Low Upfront</h3>
+            <p>
+              Get a professionally built and fully managed site or application with little to no
+              money down, with the cost split into affordable monthly or yearly payments instead.
+            </p>
+          </article>
+          <article class="card">
+            <Icon class="icon" name="lucide:puzzle" aria-hidden="true" />
+            <h3>Custom Arrangements</h3>
+            <p>
+              Need a mix of both? We&rsquo;ll structure a plan that blends ownership, hosting, and
+              ongoing support in whatever combination makes the most sense for your business.
+            </p>
+          </article>
+        </div>
+        <p class="pricing-note">
+          Not sure which of these fits? Reach out for a free, no-obligation quote and we&rsquo;ll
+          walk through the options together.
+        </p>
+      </section>
     </div>
+
+    <section class="band cta-band">
+      <div class="band-inner">
+        <h2>Ready to start your next project?</h2>
+        <p>Whether you need a new website, a custom application, or a full digital strategy, we are here to help. Let us talk through your goals and build something great together.</p>
+        <a class="button button-primary" href="/contact/">
+          <Icon class="icon" name="lucide:send" aria-hidden="true" />
+          Get in Touch
+        </a>
+      </div>
+    </section>
   </main>
 
   <div class="footer-wrap">
