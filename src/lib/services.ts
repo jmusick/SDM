@@ -35,20 +35,20 @@ export const serviceCategories: ServiceCategory[] = [
     slug: "design-development",
     name: "Design & Development",
     icon: "lucide:layout-template",
-    summary: "Websites, eCommerce, and custom software built around how your business actually works.",
+    summary: "Websites, online stores, and custom software built around your business.",
     title: "Web Design & App Development in Sandusky, OH",
     description:
       "Custom websites, eCommerce, landing pages, client portals, internal tools, and API integrations built for speed and reliability by Stone Dragon Media in Sandusky, Ohio.",
     h1: "Web Design & Application Development in Sandusky, Ohio",
     intro:
-      "Whether you need a website that converts or a piece of software no off-the-shelf product covers, we design and build it from scratch. Every project is built for speed, accessibility, and long-term maintainability. We work in person across Erie County and northern Ohio, and remotely with clients anywhere.",
-    heroDesc: "Custom websites and web systems, plus tailored software built around your workflow.",
+      "Help visitors understand your business, shop online, or contact you. We build custom websites and applications with attention to speed, accessibility, and maintenance. We work in person across Erie County and northern Ohio, and remotely with clients anywhere.",
+    heroDesc: "Custom websites and business applications built around your customers and your workflow.",
     services: [
       {
         id: "custom-web-solutions",
         name: "Custom Web Solutions",
         icon: "lucide:layout-template",
-        summary: "Custom websites and web systems built to communicate value, drive action, and stay lightning fast.",
+        summary: "Custom websites and web systems designed to communicate your value, help visitors take action, and support fast page loads.",
         bullets: [
           "eCommerce and informational websites",
           "Landing pages and microsites",
@@ -60,7 +60,7 @@ export const serviceCategories: ServiceCategory[] = [
         id: "application-development",
         name: "Custom Application Development",
         icon: "lucide:cpu",
-        summary: "Tailored software solutions built around your workflow, not the other way around.",
+        summary: "Custom software for your team's tools, tasks, and workflows.",
         bullets: [
           "Internal tools and dashboards",
           "Customer and client portals",
@@ -74,23 +74,23 @@ export const serviceCategories: ServiceCategory[] = [
     slug: "marketing-analytics",
     name: "Marketing & Analytics",
     icon: "lucide:megaphone",
-    summary: "Campaigns that reach the right audience, and the reporting that shows what they returned.",
+    summary: "Marketing campaigns to reach your audience, with reporting to help you understand the results.",
     title: "SEO, PPC & Analytics Services in Sandusky, OH",
     description:
       "Search engine optimization, pay-per-click management, social and email campaigns, conversion tracking, and custom reporting dashboards from Stone Dragon Media in Sandusky, Ohio.",
     h1: "Digital Marketing & Analytics in Sandusky, Ohio",
     intro:
-      "Getting found is half of it; knowing what worked is the other half. We run campaigns that put your business in front of the right audience at the right time, then measure them so your budget goes where it earns its keep.",
-    heroDesc: "Data-driven campaigns paired with the tracking and reporting that show what they returned.",
+      "We plan search, advertising, social media, and email campaigns around your audience. Tracking and reporting help you see what brings traffic and inquiries, so you can make informed decisions about your budget.",
+    heroDesc: "Help customers find your business and understand which campaigns bring results.",
     services: [
       {
         id: "marketing",
         name: "Marketing",
         icon: "lucide:megaphone",
-        summary: "Data-driven campaigns that put your business in front of the right audience at the right time.",
+        summary: "Search, advertising, social media, and email campaigns to help the right customers find your business.",
         bullets: [
-          "Search Engine Optimization (SEO)",
-          "Pay Per Click (PPC) management",
+          "Search engine optimization (SEO)",
+          "Pay-per-click (PPC) advertising management",
           "Social media, email, and text message marketing",
           "Content strategy and copywriting",
         ],
@@ -99,7 +99,7 @@ export const serviceCategories: ServiceCategory[] = [
         id: "analytics-reporting",
         name: "Analytics & Reporting",
         icon: "lucide:bar-chart-2",
-        summary: "Turn your data into decisions with clear, actionable insight into how your digital presence is performing.",
+        summary: "Tracking and reporting to help you understand which pages and campaigns bring traffic and inquiries.",
         bullets: [
           "Google Analytics setup and configuration",
           "Conversion tracking and goal setup",
@@ -113,20 +113,20 @@ export const serviceCategories: ServiceCategory[] = [
     slug: "hosting-security",
     name: "Hosting & Security",
     icon: "lucide:server",
-    summary: "Somewhere fast and secure to run, and the ongoing care that keeps it that way.",
+    summary: "Website hosting and ongoing maintenance after launch.",
     title: "Website Hosting & Security in Sandusky, OH",
     description:
       "Managed hosting, domain and SSL management, cloud and VPS setup, security hardening, uptime monitoring, backups, and ongoing maintenance plans from Stone Dragon Media in Sandusky, Ohio.",
     h1: "Website Hosting, Security & Maintenance in Sandusky, Ohio",
     intro:
-      "A site is only as good as the platform underneath it. We set up hosting configured for performance, then keep it patched, monitored, and backed up long after launch, so problems get caught before your customers find them.",
-    heroDesc: "Reliable hosting environments plus proactive maintenance, monitoring, and recovery planning.",
+      "Your website needs care after launch. We configure hosting, maintain software, monitor availability, and plan backups and recovery to help you keep it running.",
+    heroDesc: "Website hosting, updates, monitoring, and backup planning for ongoing site care.",
     services: [
       {
         id: "hosting-infrastructure",
         name: "Hosting & Infrastructure",
         icon: "lucide:server",
-        summary: "Reliable, secure hosting environments configured for performance and peace of mind.",
+        summary: "Hosting setup, domain management, and recovery planning to support your website.",
         bullets: [
           "Domain registration and SSL management",
           "Cloud and VPS server setup",
@@ -138,7 +138,7 @@ export const serviceCategories: ServiceCategory[] = [
         id: "security-maintenance",
         name: "Security & Maintenance",
         icon: "lucide:shield",
-        summary: "Proactive care to keep your site secure, up to date, and running smoothly long after launch.",
+        summary: "Updates, security checks, and uptime monitoring to help you maintain your website after launch.",
         bullets: [
           "Security hardening and monitoring",
           "Software and plugin updates",
@@ -152,20 +152,20 @@ export const serviceCategories: ServiceCategory[] = [
     slug: "branding-consulting",
     name: "Branding & Consulting",
     icon: "lucide:palette",
-    summary: "A visual identity people trust, and clear-headed guidance on where to take it next.",
+    summary: "A consistent visual identity across your website and marketing materials, with practical technology advice.",
     title: "Branding & Digital Strategy in Sandusky, OH",
     description:
-      "Logo and brand identity design, style guides, color and typography systems, technology selection, and digital transformation planning from Stone Dragon Media in Sandusky, Ohio.",
+      "Logo and brand identity design, style guides, color and typography systems, and help choosing technology and planning projects from Stone Dragon Media in Sandusky, Ohio.",
     h1: "Branding, Design & Digital Strategy in Sandusky, Ohio",
     intro:
-      "How you look and what you decide to build both come before a single line of code. We shape the visual identity your audience recognizes, and help you make confident decisions about the technology and process behind it.",
-    heroDesc: "A cohesive visual identity, plus expert guidance on technology, process, and digital growth.",
+      "Give your business a consistent look across your website, print materials, and digital content. We also help you choose platforms, plan projects, and improve the processes behind your work.",
+    heroDesc: "A consistent visual identity and practical advice on technology and project planning.",
     services: [
       {
         id: "branding-design",
         name: "Branding & Design",
         icon: "lucide:palette",
-        summary: "A cohesive visual identity that communicates who you are and builds trust with your audience.",
+        summary: "Logos, brand guides, and design assets that give your business a consistent visual identity.",
         bullets: [
           "Logo design and brand mark creation",
           "Brand style guide development",
@@ -177,12 +177,12 @@ export const serviceCategories: ServiceCategory[] = [
         id: "consulting-strategy",
         name: "Consulting & Strategy",
         icon: "lucide:compass",
-        summary: "Expert guidance to help you make confident decisions about technology, process, and digital growth.",
+        summary: "Help choosing technology, improving processes, and planning your next project.",
         bullets: [
           "Technology and platform selection",
-          "Digital transformation planning",
+          "Planning technology changes for your business",
           "Data migration and architecture",
-          "IT process improvement and project roadmapping",
+          "IT process improvement and project planning",
         ],
       },
     ],

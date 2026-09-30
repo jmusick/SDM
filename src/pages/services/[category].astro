@@ -8,7 +8,7 @@ import { serviceCategories, type ServiceCategory } from "../../lib/services";
 
 export const prerender = true;
 
-// One template, four prerendered pages â€” the copy, icons, and JSON-LD all come from
+// One template, four prerendered pages — the copy, icons, and JSON-LD all come from
 // src/lib/services.ts so the hub and these subpages can't drift apart.
 export function getStaticPaths() {
   return serviceCategories.map((category) => ({
@@ -34,7 +34,7 @@ const siblings = serviceCategories.filter((other) => other.slug !== category.slu
   breadcrumb={category.name}
   breadcrumbParent={{ name: "Services", item: "https://stonedragonmedia.com/services/" }}
   ogImage="https://stonedragonmedia.com/services-header.webp"
-  ogImageAlt="Stone Dragon Media digital services â€” web design, development, marketing, and consulting"
+  ogImageAlt="Stone Dragon Media digital services — web design, development, marketing, and consulting"
 >
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -174,11 +174,11 @@ const siblings = serviceCategories.filter((other) => other.slug !== category.slu
 
     <section class="band cta-band">
       <div class="band-inner">
-        <h2>Ready to start your next project?</h2>
-        <p>Whether you need a new website, a custom application, or a full digital strategy, we are here to help. Let us talk through your goals and build something great together.</p>
+        <h2>Tell us about your project</h2>
+        <p>Share what you need help with, your timeline, and any questions. We&rsquo;ll follow up within one business day. Your consultation is free, with no obligation.</p>
         <a class="button button-primary" href="/contact/">
           <Icon class="icon" name="lucide:send" aria-hidden="true" />
-          Get in Touch
+          Discuss Your Project
         </a>
       </div>
     </section>

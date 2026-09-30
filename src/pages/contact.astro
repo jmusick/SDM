@@ -10,12 +10,12 @@ export const prerender = true;
 
 <BaseLayout
   title="Contact a Sandusky, OH Web Designer | Stone Dragon Media"
-  description="Get in touch with Stone Dragon Media. Start a web project, ask about services, or discuss how we can help grow your digital presence."
+  description="Discuss your website or application with Stone Dragon Media in Sandusky, Ohio. Free consultations and a response within one business day."
   canonical="https://stonedragonmedia.com/contact/"
   ogUrl="https://stonedragonmedia.com/contact/"
   breadcrumb="Contact"
   ogImage="https://stonedragonmedia.com/contact-bg.webp"
-  ogImageAlt="Contact Stone Dragon Media â€” start a project or ask about our services"
+  ogImageAlt="Contact Stone Dragon Media — start a project or ask about our services"
 >
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -224,8 +224,8 @@ export const prerender = true;
     <PageHero
       image="/contact-bg.webp"
       alt="Contact Stone Dragon Media — start a project or ask about our services"
-      title="Contact Stone Dragon Media"
-      desc="Ready to start your next project? Share your details and we will reach out to discuss your vision and guide you through the process."
+      title="Contact a Sandusky, Ohio Web Designer"
+      desc="Tell us what you need help with. We’ll follow up within one business day to discuss your project. Consultations are free, with no obligation."
       crumbs={[{ name: "Contact" }]}
       position="center 70%"
     />
@@ -233,8 +233,8 @@ export const prerender = true;
     <div class="page">
       <div class="contact-layout">
         <div class="card form-card">
-          <h2>Start a Project</h2>
-          <p class="form-intro">Share a few project details and we will follow up within one business day.</p>
+          <h2>Tell Us About Your Project</h2>
+          <p class="form-intro">A few details are enough to start the conversation.</p>
           <p class="required-note">Fields marked with <span aria-hidden="true">*</span> are required.</p>
           <form id="contact-form" method="post" action="https://api.web3forms.com/submit">
             <input type="hidden" name="access_key" value="8b9f961f-4a2f-43bc-938a-11f26885cd31" />
@@ -262,17 +262,17 @@ export const prerender = true;
               </div>
               <div class="field full">
                 <label for="message">Project Details <span class="required-mark" aria-hidden="true">*</span></label>
-                <textarea id="message" name="message" placeholder="Tell us about your goals, scope, and desired outcomes." required></textarea>
+                <textarea id="message" name="message" placeholder="What does your business need? Tell us about your current website or the project you have in mind." required></textarea>
               </div>
             </div>
             <div class="hcaptcha-wrap">
               <div class="h-captcha" data-sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2"></div>
             </div>
             <div class="submit-row">
-              <p class="helper">Share your details and we will follow up to discuss your project.</p>
+              <p class="helper">Still exploring? You&rsquo;re welcome to ask a question.</p>
               <button id="contact-submit" class="button button-primary" type="submit">
                 <Icon class="icon" name="lucide:send" aria-hidden="true" />
-                Send Inquiry
+                Send Message
               </button>
             </div>
             <div id="contact-form-status" class="form-status" role="status" aria-live="polite" hidden></div>
@@ -312,7 +312,7 @@ export const prerender = true;
             <Icon class="info-icon" name="lucide:layers" aria-hidden="true" />
             <div>
               <h2>Full-Service</h2>
-              <p>From strategy through launch and beyond, we handle the entire project lifecycle.</p>
+              <p>Help with planning, design, development, and ongoing support.</p>
             </div>
           </div>
         </aside>
@@ -403,14 +403,13 @@ export const prerender = true;
           window.location.href = "/thank-you/";
           return;
         } else {
-          setStatus("error", result.message || "Failed to send message. Please try again.");
+          setStatus("error", "We couldn’t send your message. Please try again, or call or text (567) 450-0960.");
         }
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : "Unknown error";
-        setStatus("error", `Error sending message: ${message}`);
+      } catch {
+        setStatus("error", "We couldn’t send your message. Please try again, or call or text (567) 450-0960.");
       } finally {
         submitButton.disabled = false;
-        submitButton.innerHTML = originalButtonHtml ?? "Send Inquiry";
+        submitButton.innerHTML = originalButtonHtml ?? "Send Message";
       }
     });
   </script>
