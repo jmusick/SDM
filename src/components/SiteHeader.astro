@@ -90,54 +90,92 @@ const currentPath = Astro.url.pathname.endsWith("/") ? Astro.url.pathname : `${A
 </header>
 
 <script>
-	const toggle = document.querySelector<HTMLButtonElement>(".nav-toggle");
+	const toggle = document.querySelector(".nav-toggle") as HTMLButtonElement | null;
 	const panel = document.querySelector<HTMLElement>(".site-nav-panel");
+	const navGroup = document.querySelector(".nav-group") as HTMLElement | null;
+	const subToggle = navGroup?.querySelector(".nav-sub-toggle") as HTMLButtonElement | null;
+	const mobileNav = window.matchMedia("(max-width: 920px)");
+	const setSubmenuOpen = (open: boolean) => {
+		subToggle?.setAttribute("aria-expanded", String(open));
+	};
+	const closePanel = () => {
+		toggle?.setAttribute("aria-expanded", "false");
+		panel?.classList.remove("is-open");
+		setSubmenuOpen(false);
+	};
 
 	if (toggle && panel) {
 		toggle.addEventListener("click", () => {
 			const isOpen = toggle.getAttribute("aria-expanded") === "true";
-			toggle.setAttribute("aria-expanded", String(!isOpen));
-			panel.classList.toggle("is-open", !isOpen);
+			if (isOpen) {
+				closePanel();
+			} else {
+				toggle.setAttribute("aria-expanded", "true");
+				panel.classList.add("is-open");
+			}
 		});
 
 		panel.querySelectorAll("a").forEach((link) => {
-			link.addEventListener("click", () => {
-				toggle.setAttribute("aria-expanded", "false");
-				panel.classList.remove("is-open");
-			});
+			link.addEventListener("click", closePanel);
 		});
 	}
 
-	// Services submenu. CSS already opens it on hover and on keyboard focus; this covers the
-	// chevron being clicked or tapped, which is the only way in on the stacked mobile nav.
-	const navGroup = document.querySelector(".nav-group") as HTMLElement | null;
-	const subToggle = navGroup?.querySelector(".nav-sub-toggle") as HTMLElement | null;
-
+	// One expanded state controls both visibility and the chevron. Only a new pointer/focus
+	// entry or explicit button activation reopens a dismissed submenu.
 	if (navGroup && subToggle) {
-		const setOpen = (open: boolean) => {
-			subToggle.setAttribute("aria-expanded", String(open));
-			navGroup.classList.toggle("is-open", open);
-		};
+		navGroup.addEventListener("pointerenter", (event) => {
+			if (mobileNav.matches || event.pointerType === "touch") return;
+			setSubmenuOpen(true);
+		});
+		navGroup.addEventListener("pointerleave", () => {
+			if (!navGroup.contains(document.activeElement)) setSubmenuOpen(false);
+		});
+		navGroup.addEventListener("focusin", (event) => {
+			if (!mobileNav.matches && (event.target as HTMLElement).matches(":focus-visible")
+				&& !navGroup.contains(event.relatedTarget as Node | null)) {
+				setSubmenuOpen(true);
+			}
+		});
+		navGroup.addEventListener("focusout", (event) => {
+			// Browsers may blur a now-hidden desktop link before the breakpoint change event.
+			if (!event.relatedTarget && mobileNav.matches && !panel?.classList.contains("is-open")) {
+				toggle?.focus();
+			}
+			if (!navGroup.contains(event.relatedTarget as Node | null)) setSubmenuOpen(false);
+		});
 
 		subToggle.addEventListener("click", () => {
-			setOpen(subToggle.getAttribute("aria-expanded") !== "true");
+			setSubmenuOpen(subToggle.getAttribute("aria-expanded") !== "true");
 		});
 
 		document.addEventListener("click", (event) => {
 			if (!navGroup.contains(event.target as Node)) {
-				setOpen(false);
+				setSubmenuOpen(false);
 			}
 		});
 
 		document.addEventListener("keydown", (event) => {
 			if (event.key === "Escape" && subToggle.getAttribute("aria-expanded") === "true") {
-				setOpen(false);
-				subToggle.focus();
+				event.preventDefault();
+				setSubmenuOpen(false);
+				// Hover-only dismissal must not pull keyboard focus away from the page.
+				if (navGroup.contains(document.activeElement)) subToggle.focus();
+			} else if (event.key === "Escape" && mobileNav.matches && panel?.classList.contains("is-open")) {
+				closePanel();
+				toggle?.focus();
 			}
 		});
 
-		navGroup.querySelectorAll(".nav-dropdown a").forEach((link) => {
-			link.addEventListener("click", () => setOpen(false));
+		mobileNav.addEventListener("change", () => {
+			// Don't leave focus in a submenu or navigation panel that is about to be hidden.
+			if (mobileNav.matches && panel?.contains(document.activeElement)) {
+				toggle?.focus();
+			} else if (!mobileNav.matches && document.activeElement === toggle) {
+				panel?.querySelector("a")?.focus();
+			} else if (navGroup.querySelector(".nav-dropdown")?.contains(document.activeElement)) {
+				subToggle.focus();
+			}
+			closePanel();
 		});
 	}
 </script>

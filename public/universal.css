@@ -505,9 +505,8 @@ body {
 	flex-shrink: 0;
 }
 
-/* Services submenu — the one nav item with children. It opens on hover and on keyboard focus
-   via CSS alone; the chevron button (see SiteHeader) adds click/tap, which is the only way in
-   on the stacked mobile nav. The parent link still navigates to the /services hub. */
+/* Services submenu — SiteHeader synchronizes hover, focus and click/tap through aria-expanded.
+   The parent link still navigates to the /services hub. */
 .nav-group {
 	position: relative;
 	display: flex;
@@ -518,8 +517,10 @@ body {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
+	min-width: 2rem;
+	min-height: 2rem;
 	padding: 0.3rem;
-	margin-left: -0.35rem;
+	margin-left: 0;
 	border: none;
 	background: none;
 	color: var(--slate);
@@ -539,9 +540,7 @@ body {
 	}
 }
 
-.nav-group:hover .nav-sub-toggle .icon,
-.nav-group:focus-within .nav-sub-toggle .icon,
-.nav-group.is-open .nav-sub-toggle .icon {
+.nav-sub-toggle[aria-expanded="true"] .icon {
 	transform: rotate(180deg);
 }
 
@@ -563,9 +562,7 @@ body {
 	box-shadow: 0 14px 28px rgba(27, 41, 51, 0.16);
 }
 
-.nav-group:hover .nav-dropdown,
-.nav-group:focus-within .nav-dropdown,
-.nav-group.is-open .nav-dropdown {
+.nav-sub-toggle[aria-expanded="true"] + .nav-dropdown {
 	display: flex;
 }
 
@@ -849,8 +846,7 @@ body {
 		margin-left: 0;
 	}
 
-	/* Stacked nav: the submenu becomes an indented block rather than a floating panel, and only
-	   the chevron opens it — hover/focus-within would leave it stuck open while tabbing. */
+	/* Stacked nav: the submenu becomes an indented block; SiteHeader allows only click/tap to open. */
 	.nav-dropdown {
 		position: static;
 		width: 100%;
@@ -860,15 +856,6 @@ body {
 		border: none;
 		border-left: 2px solid var(--seam);
 		box-shadow: none;
-	}
-
-	.nav-group:hover .nav-dropdown,
-	.nav-group:focus-within .nav-dropdown {
-		display: none;
-	}
-
-	.nav-group.is-open .nav-dropdown {
-		display: flex;
 	}
 
 	.site-nav .nav-dropdown a {

@@ -218,9 +218,12 @@ linked in `BaseLayout`; the portal layouts link Sora + Outfit themselves. `unive
 opens with a utility bar (phone + city + `SocialLinks`) above the logo/nav row, ends with a
 visually-separated **Client Login** link, collapses to a hamburger at `max-width: 920px`, and renders
 the page's first element — a skip-to-`#main-content` link, so every `<main>` must keep that id.
-Services is the only nav item with a submenu: `.nav-group` opens on hover and `:focus-within`, its
-chevron button adding click/tap — the only way in on the stacked mobile nav, where those two rules are
-forced off. **`.site-head` is a stacking context** (`position` + `z-index`), so the `z-index` lifting
+Services is the only nav item with a submenu: `SiteHeader` handles desktop hover/focus and chevron
+click/tap through one `aria-expanded` state, which controls dropdown visibility and chevron rotation.
+Escape dismisses it without hover/focus reopening it; keyboard focus returns to the chevron. On the
+stacked mobile nav only the chevron opens it; closing the main nav or changing breakpoint resets it.
+The chevron target is at least 32px square on desktop and 44px square on mobile.
+**`.site-head` is a stacking context** (`position` + `z-index`), so the `z-index` lifting
 the services dropdown over the page's `PageHero` sits on `.site-head`, not on `.nav-dropdown`.
 
 ## Code style
