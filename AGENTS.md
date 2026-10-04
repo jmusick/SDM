@@ -136,10 +136,12 @@ Expensive auth work uses shared atomic D1 source/account budgets with 15-minute 
 ## Database migrations
 
 Add a new numbered file under `migrations/` — never edit an applied one — then `npm run
-d1:migrate:local` (`:remote` for production). `0001_initial` → `0008_hash_session_tokens`; notably
+d1:migrate:local` (`:remote` for production). `0001_initial` → `0010_auth_rate_limits`; notably
 `0003` renamed `project_features` to `tasks` and added the notes/time tables, `0006` added the login
 lockout columns, `0007` added `must_change_password` + the `password_flash` table, and `0008` clears
-`sessions` (the id column changed from raw token to its SHA-256). Rebuilds that change `CHECK`
+`sessions` (the id column changed from raw token to its SHA-256). `0009` adds temporary-credential
+expiry and expires legacy temporary accounts; `0010` adds shared auth-work budgets. Apply both
+before deploying v2.23.0. Rebuilds that change `CHECK`
 constraints or rename columns follow `PRAGMA foreign_keys=OFF` → create replacement → copy → drop →
 rename → reindex → `PRAGMA foreign_keys=ON`, per `0002`.
 

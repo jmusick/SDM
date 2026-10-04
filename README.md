@@ -77,7 +77,7 @@ User-chosen passwords use one server policy (`src/lib/password-policy.ts`): 15�
 | `/sitemap-index.xml` | Astro-generated sitemap (submitted to Search Console) |
 | `/robots.txt` | Crawl rules + sitemap reference |
 | `/login` | Client/admin login (noindex) |
-| `/admin/setup` | One-time admin account bootstrap — only reachable while no users exist *and* `ADMIN_SETUP_ENABLED="true"` (noindex) |
+| `/admin/setup` | One-time admin bootstrap — requires zero users, the setup flag, operator secret and live deadline (noindex) |
 | `/dashboard/*` | Client dashboard: overview, projects (read-only task board), billing, tickets, settings (noindex, auth required) |
 | `/admin/*` | Admin area: clients, projects (task board, notes, time), billing, tickets, settings (noindex, auth required) |
 

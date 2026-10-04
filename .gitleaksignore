@@ -1,0 +1,3 @@
+# One imported public SecLists password, confirmed against the pinned source in
+# docs/password-blocklist.md. This exempts only its original commit/path/rule/line.
+7aec67c82d1ac6745f7ca36be4079c44e85bb38b:src/lib/data/common-passwords.json:generic-api-key:27
