@@ -94,17 +94,19 @@ export async function verifyPasswordDummy(password: string): Promise<boolean> {
   return verifyPassword(password, DUMMY_PASSWORD_HASH);
 }
 
-export async function createSession(locals: App.Locals, userId: string): Promise<{ token: string; expiresAt: number }> {
+export async function createSession(locals: App.Locals, userId: string): Promise<{ token: string; expiresAt: number } | null> {
   const db = ensureDB(locals);
   const token = crypto.randomUUID();
   const id = await hashSessionToken(token);
   const expiresAt = Date.now() + SESSION_DURATION_MS;
 
-  await db
-    .prepare("INSERT INTO sessions (id, user_id, expires_at, created_at) VALUES (?, ?, ?, ?)")
-    .bind(id, userId, expiresAt, Date.now())
+  const result = await db
+    .prepare(`INSERT INTO sessions (id, user_id, expires_at, created_at)
+      SELECT ?, id, ?, ? FROM users WHERE id = ? AND is_active = 1`)
+    .bind(id, expiresAt, Date.now(), userId)
     .run();
 
+  if (result.meta.changes !== 1) return null;
   return { token, expiresAt };
 }
 

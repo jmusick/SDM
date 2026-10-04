@@ -83,6 +83,7 @@ export const POST: APIRoute = async (context) => {
   }
 
   const session = await createSession(locals, user.id);
+  if (!session) return redirect("/login?error=invalid");
   cookies.set(SESSION_COOKIE, session.token, {
     path: "/",
     httpOnly: true,

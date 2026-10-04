@@ -97,7 +97,7 @@ v2.19.0 kept the v6 behaviour (prerendered text verified identical) rather than 
 - **Client deletion cascades permanently** (`deleteClient()`, `ON DELETE CASCADE`: `clients` →
   `projects` → `tasks`/`project_notes` → `task_notes`/`time_entries`, plus `invoices`,
   `tickets`→`ticket_messages`), gated behind re-entering the admin's password. **Archiving**
-  (`clients.isActive`) is the reversible alternative — prefer it unless told to delete permanently.
+  (`clients.isActive`) is the reversible alternative — prefer it unless told to delete permanently. Archiving atomically revokes sessions, clears password flashes and invalidates unclaimed temporary hashes; reactivation needs a fresh login (admin reset for invalidated temporary credentials). Session insertion checks active status to close an in-flight archive race.
   Invoices are a manual D1 record (description, amount, status, dates) — nothing syncs from Stripe.
 - **Kanban task board** (`/admin/projects/[id].astro`): tasks have `type`, `priority`, optional
   `assignedToUserId` (admins only), and a `lane` (planning/to_do/in_progress/qa/done, starting in

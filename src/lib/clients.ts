@@ -157,7 +157,18 @@ export async function updateClient(
 
 export async function setClientActive(locals: App.Locals, userId: string, isActive: boolean): Promise<void> {
   const db = ensureDB(locals);
-  await db.prepare("UPDATE users SET is_active = ? WHERE id = ?").bind(isActive ? 1 : 0, userId).run();
+  // Keep business records reversible, but never revive a previous login or
+  // unclaimed temporary credential when the account is reactivated.
+  if (isActive) {
+    await db.prepare("UPDATE users SET is_active = 1 WHERE id = ? AND role = 'client'").bind(userId).run();
+    return;
+  }
+  await db.batch([
+    db.prepare("UPDATE users SET is_active = 0 WHERE id = ? AND role = 'client'").bind(userId),
+    db.prepare("DELETE FROM sessions WHERE user_id = ? AND EXISTS (SELECT 1 FROM users WHERE id = ? AND role = 'client')").bind(userId, userId),
+    db.prepare("DELETE FROM password_flash WHERE user_id = ? AND EXISTS (SELECT 1 FROM users WHERE id = ? AND role = 'client')").bind(userId, userId),
+    db.prepare("UPDATE users SET password_hash = '' WHERE id = ? AND role = 'client' AND must_change_password = 1").bind(userId),
+  ]);
 }
 
 /**
