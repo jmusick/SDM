@@ -452,12 +452,16 @@ const taskTypeBadge: Record<TaskType, string> = {
       form.hidden = false;
       if (body) body.hidden = true;
       if (actions) actions.hidden = true;
+      form.querySelector("textarea")?.focus();
+      announce("Editing project note.");
     });
 
     cancelBtn?.addEventListener("click", () => {
       form.hidden = true;
       if (body) body.hidden = false;
       if (actions) actions.hidden = false;
+      editBtn?.focus();
+      announce("Project note edit cancelled.");
     });
   });
 
@@ -672,6 +676,8 @@ const taskTypeBadge: Record<TaskType, string> = {
         if (form) form.hidden = false;
         if (body) body.hidden = true;
         if (actions) actions.hidden = true;
+        form?.querySelector("textarea")?.focus();
+        announce("Editing task note.");
       } else if (cancelBtn) {
         const message = cancelBtn.closest(".thread-message");
         const form = cancelBtn.closest<HTMLElement>("[data-note-edit-form]");
@@ -680,6 +686,8 @@ const taskTypeBadge: Record<TaskType, string> = {
         if (form) form.hidden = true;
         if (body) body.hidden = false;
         if (actions) actions.hidden = false;
+        message?.querySelector<HTMLElement>("[data-edit-note]")?.focus();
+        announce("Task note edit cancelled.");
       }
     });
 
