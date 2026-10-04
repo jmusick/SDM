@@ -58,8 +58,8 @@ const deleteWarning = `DANGER: Permanently delete ${client.companyName}? This wi
           <input id="phone" name="phone" type="text" value={client.phone ?? ""} />
         </div>
         <div class="field full">
-          <label>Login Email</label>
-          <input type="email" value={client.email} disabled />
+          <label for="loginEmail">Login Email</label>
+          <input id="loginEmail" type="email" value={client.email} disabled />
         </div>
       </div>
       <div class="form-actions">
