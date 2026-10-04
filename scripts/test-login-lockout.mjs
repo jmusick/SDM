@@ -11,7 +11,7 @@ try {
   assert.equal((await app.login("admin@example.test")).headers.get("location"), "/login?error=locked");
   await app.login("admin@example.test", "wrong-password");
   assert.deepEqual(account(), locked, "blocked requests must not extend a lock");
-  app.sql(`UPDATE users SET locked_until=1 WHERE id='${ids.admin}'`);
+  app.sql(`UPDATE users SET locked_until=1 WHERE id='${ids.admin}'; DELETE FROM auth_rate_limits;`);
   await app.login("admin@example.test", "wrong-password");
   assert.deepEqual(account(), { failed_attempts: 1, locked_until: null });
   await Promise.all(Array.from({ length: 6 }, () => app.login("admin@example.test", "wrong-password")));
@@ -19,7 +19,7 @@ try {
   assert.equal(account().locked_until, null);
   await app.login("admin@example.test", "wrong-password");
   assert.ok(account().locked_until > Date.now(), "eighth failure locks the account");
-  app.sql(`UPDATE users SET locked_until=1 WHERE id='${ids.admin}'`);
+  app.sql(`UPDATE users SET locked_until=1 WHERE id='${ids.admin}'; DELETE FROM auth_rate_limits;`);
   const success = await app.login("admin@example.test");
   assert.equal(success.headers.get("location"), "/admin");
   assert.ok(success.headers.get("set-cookie")?.includes("sdm_session="));

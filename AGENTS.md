@@ -131,6 +131,8 @@ v2.19.0 kept the v6 behaviour (prerendered text verified identical) rather than 
 
 Generic Worker failures return controlled responses with security headers and private portal caching. Session-resolution failures clear all auth state and return 503. Operational diagnostics log only failure stage and status to the same seven-day Workers log sink, without exception messages or submitted data.
 
+Expensive auth work uses shared atomic D1 source/account budgets with 15-minute windows: login 40/source and 16/email, reauthentication/reset 20/source and 5/actor, setup 10/source, client ticket writes 40/source and 20/account. Keys are SHA-256 digests; missing edge IP metadata shares a conservative bucket. Expired rows are removed on subsequent limiter activity; inactive rows and provider backups may persist. Every host running this Worker uses the same DB budgets; edge WAF/hostname behavior still requires production verification. Migration 0010 must be applied before deploying these changes.
+
 ## Database migrations
 
 Add a new numbered file under `migrations/` — never edit an applied one — then `npm run

@@ -4,6 +4,7 @@ import { getSessionAndUserByToken } from "./lib/auth";
 import { getClientById } from "./lib/clients";
 import { applySecurityHeaders } from "./lib/security-headers";
 import { assertSameOrigin } from "./lib/http";
+import { limitWork } from "./lib/rate-limit";
 
 const SESSION_COOKIE = "sdm_session";
 
@@ -91,6 +92,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   try {
+    if (context.request.method === "POST") {
+      const csrf = assertSameOrigin(context);
+      if (csrf) return finalize(path, csrf);
+      const reauth = ["/api/settings/password", "/api/clients/delete", "/api/clients/reset-password"].includes(path);
+      const scope = reauth && context.locals.user ? "reauth" : path === "/api/setup/create-admin" ? "setup" :
+        context.locals.user?.role === "client" && path.startsWith("/api/tickets/") ? "client_write" : null;
+      if (scope) {
+        const limited = await limitWork(context, scope, context.locals.user?.id ?? "setup");
+        if (limited) return finalize(path, limited);
+      }
+    }
     const response = await next();
     // Framework-generated failures must also have a generic body and headers.
     if (response.status >= 500) return unavailable(path, "route", response.status);

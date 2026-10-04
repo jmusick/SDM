@@ -4,6 +4,7 @@ import { ensureDB } from "../../../lib/db";
 import { getLoginLockout, recordFailedLogin, resetLoginLockout } from "../../../lib/users";
 import { assertSameOrigin } from "../../../lib/http";
 import { SESSION_COOKIE } from "../../../middleware";
+import { limitWork } from "../../../lib/rate-limit";
 
 export const prerender = false;
 
@@ -46,6 +47,8 @@ export const POST: APIRoute = async (context) => {
   if (!email || !password) {
     return redirect("/login?error=invalid");
   }
+  const limited = await limitWork(context, "login", email);
+  if (limited) return limited;
 
   const db = ensureDB(locals);
   const user = await db

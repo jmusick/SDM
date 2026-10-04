@@ -138,6 +138,8 @@ export const prerender = true;
       </ul>
       <p>We do not sell your personal information. We do not share it with third parties except the service providers listed above, or as required by law.</p>
 
+      <p>To limit sign-in abuse and costly password checks, our portal stores request counters keyed by SHA-256 digests of source IP addresses and account identifiers (including attempted login emails). These pseudonymous counters use 15-minute windows and are removed during later rate-limit activity; inactive records and provider backups may persist beyond the window. They are used for security, not advertising.</p>
+
       <h2>Data Retention</h2>
       <p>
         Contact form submissions are retained in email for as long as the client relationship is

@@ -14,15 +14,15 @@ export const ids = {
 };
 export const password = "local-test-passphrase-123";
 
-export async function runtime({ noDb = false, vars = {} } = {}) {
-  const persistence = mkdtempSync(join(tmpdir(), "sdm-test-"));
+export async function runtime({ noDb = false, vars = {}, reusePersistence = null } = {}) {
+  const persistence = reusePersistence ?? mkdtempSync(join(tmpdir(), "sdm-test-"));
   const cli = (args) => execFileSync(process.execPath, [wrangler, ...args], {
     encoding: "utf8", env: { ...process.env, WRANGLER_SEND_METRICS: "false" },
   });
   cli(["d1", "migrations", "apply", "DB", "--local", "--persist-to", persistence]);
   const salt = randomBytes(16);
   const hash = `pbkdf2$100000$${salt.toString("base64")}$${pbkdf2Sync(password, salt, 100000, 32, "sha256").toString("base64")}`;
-  cli(["d1", "execute", "DB", "--local", "--persist-to", persistence, "--command",
+  if (!reusePersistence) cli(["d1", "execute", "DB", "--local", "--persist-to", persistence, "--command",
     `INSERT INTO users (id,email,password_hash,role,created_at) VALUES
       ('${ids.admin}','admin@example.test','${hash}','admin',0),
       ('${ids.user}','client@example.test','${hash}','client',0);
@@ -71,5 +71,5 @@ export async function runtime({ noDb = false, vars = {} } = {}) {
     body: new URLSearchParams(fields),
   });
   const login = (email, candidate = password) => post("/api/auth/login", { email, password: candidate });
-  return { origin, post, login, query, sql, close, output: () => output };
+  return { origin, post, login, query, sql, close, persistence, output: () => output };
 }
