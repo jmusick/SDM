@@ -6,6 +6,7 @@ import { applySecurityHeaders } from "./lib/security-headers";
 import { assertSameOrigin } from "./lib/http";
 import { limitWork } from "./lib/rate-limit";
 import { validateMutationBody } from "./lib/request-body";
+import { validMutationFields, validAdminRelationships } from "./lib/mutation-validation";
 
 const SESSION_COOKIE = "sdm_session";
 
@@ -98,6 +99,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
       if (csrf) return finalize(path, csrf);
       const invalidBody = await validateMutationBody(context, path === "/api/tasks/update-lane");
       if (invalidBody) return finalize(path, invalidBody);
+      const parsed = context.locals.requestBody;
+      if (parsed?.kind === "form" && (!validMutationFields(path, parsed.value) ||
+        !await validAdminRelationships(context.locals, path, parsed.value))) {
+        return finalize(path, new Response("Invalid form input.", { status: 400 }));
+      }
       const reauth = ["/api/settings/password", "/api/clients/delete", "/api/clients/reset-password"].includes(path);
       const scope = reauth && context.locals.user ? "reauth" : path === "/api/setup/create-admin" ? "setup" :
         context.locals.user?.role === "client" && path.startsWith("/api/tickets/") ? "client_write" : null;

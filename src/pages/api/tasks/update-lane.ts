@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { readJson } from "../../../lib/request-body";
 import { ensureRole } from "../../../lib/http";
 import { getTaskById, updateTaskLane, TASK_LANES, type TaskLane } from "../../../lib/tasks";
+import { isUuid } from "../../../lib/mutation-validation";
 
 export const prerender = false;
 
@@ -33,7 +34,7 @@ export const POST: APIRoute = async (context) => {
   const taskId = typeof input.taskId === "string" ? input.taskId : "";
   const lane = (typeof input.lane === "string" ? input.lane : "") as TaskLane;
 
-  if (!taskId || !TASK_LANES.includes(lane)) {
+  if (!isUuid(taskId) || !TASK_LANES.includes(lane) || Object.keys(input).some((key) => !["taskId", "lane"].includes(key))) {
     return Response.json({ ok: false, error: "invalid_input" }, { status: 400 });
   }
 

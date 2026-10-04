@@ -55,6 +55,8 @@ Mutation bodies are parsed once by middleware before route work: actual streamed
 
 User-chosen passwords use one server policy (`src/lib/password-policy.ts`): 15–1,024 Unicode code points after NFC normalization, with local full-password common/compromised and business-name screening. No network password lookup, composition rules or routine expiration. New hashes are tagged `pbkdf2-nfc`; existing `pbkdf2` hashes retain exact-input verification until a password change. The bounded SecLists snapshot is documented/licensed in `docs/password-blocklist.md`; it cannot identify every breached password. `node scripts/test-password-policy.mjs` exercises settings, setup, Unicode and legacy compatibility.
 
+`src/lib/mutation-validation.ts` defines explicit writable fields, UUID/email/enum/string/date checks, exact decimal invoice parsing within JavaScript's safe-integer cents range, and positive safe-integer time minutes. Middleware rejects invalid inputs before writes and resolves submitted admin parent chains (project → task → note/time entry), existing business IDs and active admin assignees. Client ticket ownership remains enforced by the route guards. New form routes must declare their fields here. `node scripts/test-mutation-validation.mjs` checks forged values and cross-parent writes against unchanged synthetic records, then exercises valid writes.
+
 ## Site Pages
 
 | Route | Page |

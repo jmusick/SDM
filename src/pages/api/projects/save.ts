@@ -2,15 +2,9 @@ import type { APIRoute } from "astro";
 import { readForm } from "../../../lib/request-body";
 import { ensureRole } from "../../../lib/http";
 import { createProject, updateProject, type ProjectStatus } from "../../../lib/projects";
+import { dateValue as parseDate } from "../../../lib/mutation-validation";
 
 export const prerender = false;
-
-function parseDate(value: FormDataEntryValue | null): number | null {
-  const str = String(value ?? "").trim();
-  if (!str) return null;
-  const ms = new Date(`${str}T00:00:00Z`).getTime();
-  return Number.isFinite(ms) ? ms : null;
-}
 
 export const POST: APIRoute = async (context) => {
   const guard = ensureRole(context, ["admin"]);

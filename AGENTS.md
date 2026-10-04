@@ -239,6 +239,8 @@ Portal layouts use `body.portal`; shared reflow rules live in `public/universal.
 
 **Mutation parsing:** Middleware bounds actual streamed bytes (64 KiB URL-encoded forms; 8 KiB lane JSON), rejects multipart/file parts, and limits unique field count and lengths before route hashing/storage. New POST routes must use `readForm(context)`/`readJson(context)` from `src/lib/request-body.ts`, since the original request is already consumed. Passwords allow 1,024 Unicode code points; other string fields default to 4,096. Adjust named field caps deliberately when adding a route.
 
+**Runtime validation:** Add each form mutation to `src/lib/mutation-validation.ts`'s writable-field allowlist. It checks UUIDs, email shape, enums, actual calendar dates, string caps and parent chains for authenticated admins before route work. Client ownership checks stay in the route guards. Invoice amounts use exact decimal cents (no exponent/rounding/unsafe integer); time amounts resolve to positive safe-integer minutes. Do not rely on TypeScript casts or a D1 CHECK failure to validate input.
+
 **Password policy:** Setup and self-service password changes share `src/lib/password-policy.ts`: 15–1,024 NFC-normalized Unicode code points and local whole-password blocklist screening (see `docs/password-blocklist.md`). Keep accessible hints in step. New `pbkdf2-nfc` hashes normalize input; legacy `pbkdf2` hashes verify exact input. Do not normalize legacy login input globally, trim passwords, add composition rules, or send passwords to a lookup service.
 
 No linter or formatter; conventions differ by directory. **Match the file you're editing:**

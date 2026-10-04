@@ -21,8 +21,9 @@ try {
   const unsupported = await app.post("/api/tasks/update-lane", {}, cookie);
   assert.equal(unsupported.status, 415);
   safeHeaders(unsupported);
-  // Synthetic CHECK failure exercises real D1 exception handling, no private data.
-  const failure = await app.post("/api/projects/save", { name: "Failure fixture", status: "invalid" }, cookie);
+  // A deliberate trigger exercises real D1 exceptions after valid input passes.
+  app.sql("CREATE TRIGGER synthetic_failure BEFORE INSERT ON projects BEGIN SELECT RAISE(ABORT, 'synthetic failure'); END");
+  const failure = await app.post("/api/projects/save", { name: "Failure fixture", status: "planning" }, cookie);
   assert.equal(failure.status, 500);
   assert.deepEqual(await failure.json(), { ok: false, error: "service_unavailable" });
   safeHeaders(failure);

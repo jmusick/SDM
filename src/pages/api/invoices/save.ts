@@ -2,21 +2,9 @@ import type { APIRoute } from "astro";
 import { readForm } from "../../../lib/request-body";
 import { ensureRole } from "../../../lib/http";
 import { createInvoice, updateInvoice, type InvoiceStatus } from "../../../lib/invoices";
+import { dateValue as parseDate, amountCents as parseAmountCents } from "../../../lib/mutation-validation";
 
 export const prerender = false;
-
-function parseDate(value: FormDataEntryValue | null): number | null {
-  const str = String(value ?? "").trim();
-  if (!str) return null;
-  const ms = new Date(`${str}T00:00:00Z`).getTime();
-  return Number.isFinite(ms) ? ms : null;
-}
-
-function parseAmountCents(value: FormDataEntryValue | null): number | null {
-  const num = Number(value);
-  if (!Number.isFinite(num) || num < 0) return null;
-  return Math.round(num * 100);
-}
 
 export const POST: APIRoute = async (context) => {
   const guard = ensureRole(context, ["admin"]);
@@ -46,6 +34,6 @@ export const POST: APIRoute = async (context) => {
     return redirect("/admin/billing/new?error=invalid");
   }
 
-  const newId = await createInvoice(locals, { clientId, description, amountCents, status, issuedDate, dueDate });
+  const newId = await createInvoice(locals, { clientId, description, amountCents, status, issuedDate, dueDate, paidDate });
   return redirect(`/admin/billing/${newId}`);
 };
