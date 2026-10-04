@@ -2,7 +2,7 @@
  * Security response headers.
  *
  * `public/_headers` carries the same set for the prerendered marketing pages
- * (served straight from Pages' asset storage, which never hits the worker or
+ * (served straight from Workers' static asset storage, which never hits the worker or
  * this middleware). Keep the two in sync — the CSP below is the source of
  * truth; `_headers` is a hand-copy of it.
  *

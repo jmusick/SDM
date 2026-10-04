@@ -89,6 +89,8 @@ Portal layouts use `body.portal`; shared reflow rules live in `public/universal.
 - **Contact form** — Posts to `https://api.web3forms.com/submit` via fetch; hCaptcha response is validated before submission. Keys (`access_key`, hCaptcha `sitekey`) are currently inlined in `contact.astro`.
 - **Security headers** — `public/_headers` sets CSP, HSTS (2-year, preload), `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options: DENY`, `Cross-Origin-Opener-Policy`, and `Permissions-Policy` on the prerendered pages Cloudflare serves from static assets. Portal responses (`/admin`, `/dashboard`, `/api/`, `/login`) also get `Cache-Control: private, no-store`. Portal SSR responses get the same set from `src/lib/security-headers.ts` (`applySecurityHeaders`), called in middleware; the CSP string is kept in sync between the two by hand, with the TS module as the source of truth.
 
+Generic Worker failures return controlled responses with security headers and private portal caching. Session-resolution failures clear all auth state and return 503. Operational diagnostics log only failure stage and status to the same seven-day Workers log sink, without exception messages or submitted data.
+
 ## Development
 
 ### Prerequisites
@@ -110,14 +112,15 @@ Run the full Cloudflare runtime (D1, cookies, everything) — builds first, then
 npm run dev
 ```
 
-First time only, set up the local D1 database:
+First time only, apply migrations to local D1 (the binding in `wrangler.toml` is already configured):
 
 ```bash
-npx wrangler d1 create sdm-db   # paste the returned database_id into wrangler.toml
 npm run d1:migrate:local
 ```
 
 Then set `ADMIN_SETUP_ENABLED="true"` (locally, a `[vars]` entry in `wrangler.toml`; in production, a Worker variable in the Cloudflare dashboard) and visit `/admin/setup` to create the owner's admin account. Unset it once the admin exists.
+
+`npm run astro -- check` currently reports 0 errors, 0 warnings and 13 existing hints (2026-10-04). After a build, `node scripts/test-login-lockout.mjs`, `node scripts/test-impersonation.mjs`, `node scripts/test-client-archive.mjs` and `node scripts/test-error-responses.mjs` check the built local Worker on port 4331 with disposable synthetic D1 state. These checks require Node 24 for read-only SQLite inspection; run them sequentially. They do not modify production or the normal local database.
 
 ### Build
 
@@ -226,4 +229,3 @@ npm run d1:migrate:remote   # apply to production D1
 
 This code is published for transparency and reference only — no commercial use is permitted. See [LICENSE.md](LICENSE.md).
 
-Generic Worker failures return controlled responses with security headers and private portal caching. Session-resolution failures clear all auth state and return 503. Operational diagnostics log only failure stage and status to the same seven-day Workers log sink, without exception messages or submitted data.

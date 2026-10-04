@@ -34,7 +34,9 @@ npm run cf:types           # regenerate worker-configuration.d.ts
 
 Always run `npm run build` after non-trivial changes. For `/dashboard`, `/admin`, or auth work, also
 exercise the real flow via `npm run dev` — `astro check`/`build` won't catch a broken redirect or a
-missing D1 binding. `astro check` has 6 pre-existing errors; check your file, not the total.
+missing D1 binding. As of 2026-10-04, `astro check` has 0 errors, 0 warnings and 13 existing hints.
+The checked-in `scripts/test-*.mjs` regressions exercise the built Worker with disposable local D1
+state on port 4331; run `npm run build` first. They use Node 24's read-only SQLite inspection.
 
 `scripts/seed-local.mjs` generates local test-data SQL (real PBKDF2 hashes) and is **not** wired into
 `package.json` — pipe its output into `npx wrangler d1 execute sdm-db --local`. Local only.
@@ -126,6 +128,8 @@ v2.19.0 kept the v6 behaviour (prerendered text verified identical) rather than 
   `?pwflash=<id>`, consumed on render in `admin/clients/[id].astro`. Such accounts get
   `users.must_change_password = 1`; middleware pins them to `/dashboard/settings?mustchange=1` (or
   `/admin/settings`) until they set a real password, which clears the flag.
+
+Generic Worker failures return controlled responses with security headers and private portal caching. Session-resolution failures clear all auth state and return 503. Operational diagnostics log only failure stage and status to the same seven-day Workers log sink, without exception messages or submitted data.
 
 ## Database migrations
 
@@ -273,4 +277,3 @@ collected, changed retention), update the policy and its effective date together
 This code is public for transparency and reference only — no commercial use. See `LICENSE.md`. Don't
 add an OSS license badge, contribution guide, or anything implying this project accepts contributions.
 
-Generic Worker failures return controlled responses with security headers and private portal caching. Session-resolution failures clear all auth state and return 503. Operational diagnostics log only failure stage and status to the same seven-day Workers log sink, without exception messages or submitted data.
