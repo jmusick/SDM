@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { readForm } from "../../../lib/request-body";
 import { requireUser } from "../../../lib/http";
 import { verifyUserPassword, updateUserPassword } from "../../../lib/users";
+import { passwordError } from "../../../lib/password-policy";
 
 export const prerender = false;
 
@@ -16,10 +17,9 @@ export const POST: APIRoute = async (context) => {
   const newPassword = String(form.get("newPassword") ?? "");
   const confirmPassword = String(form.get("confirmPassword") ?? "");
 
-  if (newPassword.length < 10) {
-    return redirect(`${backTo}?error=password_too_short`);
-  }
-  if (newPassword !== confirmPassword) {
+  const policyError = passwordError(newPassword);
+  if (policyError) return redirect(`${backTo}?error=${policyError}`);
+  if (newPassword.normalize("NFC") !== confirmPassword.normalize("NFC")) {
     return redirect(`${backTo}?error=password_mismatch`);
   }
 

@@ -2,6 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getUserCount } from "../../lib/users";
 import { isSetupEnabled } from "../../lib/setup";
+import { PASSWORD_ERRORS, PASSWORD_HINT, PASSWORD_MIN_LENGTH } from "../../lib/password-policy";
 
 export const prerender = false;
 
@@ -15,7 +16,7 @@ if (userCount > 0) {
 }
 
 const errorParam = Astro.url.searchParams.get("error");
-const errorMessage = errorParam === "invalid" ? "Enter a valid email and a password of at least 10 characters." : null;
+const errorMessage = errorParam === "invalid" ? "Enter a valid email address." : errorParam ? PASSWORD_ERRORS[errorParam] ?? "Please try again." : null;
 ---
 
 <BaseLayout title="Set Up Admin Account | Stone Dragon Media" robots="noindex, nofollow">
@@ -103,9 +104,9 @@ const errorMessage = errorParam === "invalid" ? "Enter a valid email and a passw
         </div>
         <div class="field">
           <label for="password">Password</label>
-          <input id="password" name="password" type="password" required minlength="10" autocomplete="new-password" />
+          <input id="password" name="password" type="password" required minlength={PASSWORD_MIN_LENGTH} aria-describedby="password-policy" autocomplete="new-password" />
         </div>
-        <p class="helper">At least 10 characters.</p>
+        <p id="password-policy" class="helper">{PASSWORD_HINT}</p>
         <button class="button button-primary" type="submit">Create Admin Account</button>
       </form>
     </div>

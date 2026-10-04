@@ -52,19 +52,19 @@ async function pbkdf2(password: string, salt: Uint8Array, iterations: number): P
 
 export async function hashPassword(password: string): Promise<string> {
   const salt = crypto.getRandomValues(new Uint8Array(16));
-  const hash = await pbkdf2(password, salt, PASSWORD_ITERATIONS);
-  return `pbkdf2$${PASSWORD_ITERATIONS}$${toBase64(salt)}$${toBase64(hash)}`;
+  const hash = await pbkdf2(password.normalize("NFC"), salt, PASSWORD_ITERATIONS);
+  return `pbkdf2-nfc$${PASSWORD_ITERATIONS}$${toBase64(salt)}$${toBase64(hash)}`;
 }
 
 export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   const [kind, iterText, salt64, hash64] = stored.split("$");
-  if (kind !== "pbkdf2" || !iterText || !salt64 || !hash64) return false;
+  if (!["pbkdf2", "pbkdf2-nfc"].includes(kind) || !iterText || !salt64 || !hash64) return false;
   const iterations = Number(iterText);
   if (!Number.isFinite(iterations) || iterations < 1) return false;
 
   const salt = fromBase64(salt64);
   const expected = fromBase64(hash64);
-  const actual = await pbkdf2(password, salt, iterations);
+  const actual = await pbkdf2(kind === "pbkdf2-nfc" ? password.normalize("NFC") : password, salt, iterations);
   if (actual.byteLength !== expected.byteLength) return false;
 
   let diff = 0;

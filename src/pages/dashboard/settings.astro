@@ -3,6 +3,7 @@ import DashboardLayout from "../../layouts/DashboardLayout.astro";
 import SettingsForm from "../../components/SettingsForm.astro";
 import { requireUser } from "../../lib/http";
 import { getUserById } from "../../lib/users";
+import { PASSWORD_ERRORS } from "../../lib/password-policy";
 
 export const prerender = false;
 
@@ -26,7 +27,7 @@ const errorParam = Astro.url.searchParams.get("error");
 const errorMessages: Record<string, string> = {
   invalid_email: "Enter a valid email address.",
   email_taken: "That email is already in use by another account.",
-  password_too_short: "New password must be at least 10 characters.",
+  ...PASSWORD_ERRORS,
   password_mismatch: "New password and confirmation don't match.",
   wrong_password: "Current password is incorrect.",
 };

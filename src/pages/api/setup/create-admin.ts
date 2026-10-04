@@ -6,6 +6,7 @@ import { getUserCount } from "../../../lib/users";
 import { isSetupEnabled, verifySetupSecret } from "../../../lib/setup";
 import { assertSameOrigin } from "../../../lib/http";
 import { SESSION_COOKIE } from "../../../middleware";
+import { passwordError } from "../../../lib/password-policy";
 
 export const prerender = false;
 
@@ -31,9 +32,11 @@ export const POST: APIRoute = async (context) => {
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   const password = String(form.get("password") ?? "");
 
-  if (!email || password.length < 10) {
+  if (!email) {
     return redirect("/admin/setup?error=invalid");
   }
+  const policyError = passwordError(password);
+  if (policyError) return redirect(`/admin/setup?error=${policyError}`);
 
   const db = ensureDB(locals);
   const userId = crypto.randomUUID();
