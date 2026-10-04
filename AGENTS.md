@@ -237,6 +237,8 @@ Portal layouts use `body.portal`; shared reflow rules live in `public/universal.
 
 ## Code style
 
+**Mutation parsing:** Middleware bounds actual streamed bytes (64 KiB URL-encoded forms; 8 KiB lane JSON), rejects multipart/file parts, and limits unique field count and lengths before route hashing/storage. New POST routes must use `readForm(context)`/`readJson(context)` from `src/lib/request-body.ts`, since the original request is already consumed. Passwords allow 1,024 Unicode code points; other string fields default to 4,096. Adjust named field caps deliberately when adding a route.
+
 No linter or formatter; conventions differ by directory. **Match the file you're editing:**
 
 | Path | Line endings | Indent |

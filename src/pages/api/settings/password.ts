@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { readForm } from "../../../lib/request-body";
 import { requireUser } from "../../../lib/http";
 import { verifyUserPassword, updateUserPassword } from "../../../lib/users";
 
@@ -8,8 +9,8 @@ export const POST: APIRoute = async (context) => {
   const user = requireUser(context);
   if (user instanceof Response) return user;
 
-  const { request, locals, redirect } = context;
-  const form = await request.formData();
+  const { locals, redirect } = context;
+  const form = readForm(context);
   const backTo = String(form.get("backTo") ?? "") === "/dashboard/settings" ? "/dashboard/settings" : "/admin/settings";
   const currentPassword = String(form.get("currentPassword") ?? "");
   const newPassword = String(form.get("newPassword") ?? "");

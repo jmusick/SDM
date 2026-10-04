@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { readForm } from "../../../lib/request-body";
 import { ensureRole } from "../../../lib/http";
 import { createProject, updateProject, type ProjectStatus } from "../../../lib/projects";
 
@@ -15,8 +16,8 @@ export const POST: APIRoute = async (context) => {
   const guard = ensureRole(context, ["admin"]);
   if (guard instanceof Response) return guard;
 
-  const { request, locals, redirect } = context;
-  const form = await request.formData();
+  const { locals, redirect } = context;
+  const form = readForm(context);
   const projectId = String(form.get("projectId") ?? "");
   const name = String(form.get("name") ?? "").trim();
   const description = String(form.get("description") ?? "");

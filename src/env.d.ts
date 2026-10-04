@@ -27,6 +27,7 @@ interface ClientRecord {
 
 declare namespace App {
   interface Locals {
+    requestBody?: { kind: "form"; value: FormData } | { kind: "json"; value: unknown };
     user: UserRecord | null;
     session: SessionRecord | null;
     impersonatedClient: ClientRecord | null;

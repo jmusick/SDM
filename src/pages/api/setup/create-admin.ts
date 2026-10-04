@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { readForm } from "../../../lib/request-body";
 import { createSession, hashPassword } from "../../../lib/auth";
 import { ensureDB } from "../../../lib/db";
 import { getUserCount } from "../../../lib/users";
@@ -9,7 +10,7 @@ import { SESSION_COOKIE } from "../../../middleware";
 export const prerender = false;
 
 export const POST: APIRoute = async (context) => {
-  const { request, locals, cookies, url, redirect } = context;
+  const { locals, cookies, url, redirect } = context;
 
   const csrf = assertSameOrigin(context);
   if (csrf) return csrf;
@@ -23,7 +24,7 @@ export const POST: APIRoute = async (context) => {
     return redirect("/login");
   }
 
-  const form = await request.formData();
+  const form = readForm(context);
   if (!(await verifySetupSecret(String(form.get("operatorSecret") ?? "")))) {
     return new Response("Setup authorization failed.", { status: 403 });
   }

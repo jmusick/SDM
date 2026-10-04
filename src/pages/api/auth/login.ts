@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { readForm } from "../../../lib/request-body";
 import { createSession, verifyPassword, verifyPasswordDummy } from "../../../lib/auth";
 import { ensureDB } from "../../../lib/db";
 import { getLoginLockout, recordFailedLogin, resetLoginLockout } from "../../../lib/users";
@@ -40,7 +41,7 @@ export const POST: APIRoute = async (context) => {
   const csrf = assertSameOrigin(context);
   if (csrf) return csrf;
 
-  const form = await request.formData();
+  const form = readForm(context);
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   const password = String(form.get("password") ?? "");
 

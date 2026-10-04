@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { readForm } from "../../../lib/request-body";
 import { ensureRole } from "../../../lib/http";
 import { createInvoice, updateInvoice, type InvoiceStatus } from "../../../lib/invoices";
 
@@ -21,8 +22,8 @@ export const POST: APIRoute = async (context) => {
   const guard = ensureRole(context, ["admin"]);
   if (guard instanceof Response) return guard;
 
-  const { request, locals, redirect } = context;
-  const form = await request.formData();
+  const { locals, redirect } = context;
+  const form = readForm(context);
   const invoiceId = String(form.get("invoiceId") ?? "");
   const description = String(form.get("description") ?? "").trim();
   const amountCents = parseAmountCents(form.get("amount"));

@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { readForm } from "../../../lib/request-body";
 import { requireUser } from "../../../lib/http";
 import { addMessage, getTicketById } from "../../../lib/tickets";
 import { getClientByUserId } from "../../../lib/clients";
@@ -10,8 +11,8 @@ export const POST: APIRoute = async (context) => {
   if (guard instanceof Response) return guard;
   const user = guard;
 
-  const { request, locals, redirect } = context;
-  const form = await request.formData();
+  const { locals, redirect } = context;
+  const form = readForm(context);
   const ticketId = String(form.get("ticketId") ?? "");
   const body = String(form.get("body") ?? "").trim();
 

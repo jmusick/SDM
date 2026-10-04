@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { readForm } from "../../../lib/request-body";
 import { ensureClientContext } from "../../../lib/http";
 import { createTicket, type TicketPriority } from "../../../lib/tickets";
 
@@ -9,14 +10,14 @@ export const POST: APIRoute = async (context) => {
   if (clientResult instanceof Response) return clientResult;
   const client = clientResult;
 
-  const { request, locals, redirect } = context;
+  const { locals, redirect } = context;
 
   // Impersonation is view-only — an admin viewing as a client cannot open tickets on their behalf.
   if (locals.impersonatedClient) {
     return redirect("/dashboard/tickets");
   }
 
-  const form = await request.formData();
+  const form = readForm(context);
   const subject = String(form.get("subject") ?? "").trim();
   const body = String(form.get("body") ?? "").trim();
   const priority = String(form.get("priority") ?? "normal") as TicketPriority;

@@ -5,6 +5,7 @@ import { getClientById } from "./lib/clients";
 import { applySecurityHeaders } from "./lib/security-headers";
 import { assertSameOrigin } from "./lib/http";
 import { limitWork } from "./lib/rate-limit";
+import { validateMutationBody } from "./lib/request-body";
 
 const SESSION_COOKIE = "sdm_session";
 
@@ -95,6 +96,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (context.request.method === "POST") {
       const csrf = assertSameOrigin(context);
       if (csrf) return finalize(path, csrf);
+      const invalidBody = await validateMutationBody(context, path === "/api/tasks/update-lane");
+      if (invalidBody) return finalize(path, invalidBody);
       const reauth = ["/api/settings/password", "/api/clients/delete", "/api/clients/reset-password"].includes(path);
       const scope = reauth && context.locals.user ? "reauth" : path === "/api/setup/create-admin" ? "setup" :
         context.locals.user?.role === "client" && path.startsWith("/api/tickets/") ? "client_write" : null;

@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { readJson } from "../../../lib/request-body";
 import { ensureRole } from "../../../lib/http";
 import { getTaskById, updateTaskLane, TASK_LANES, type TaskLane } from "../../../lib/tasks";
 
@@ -20,7 +21,7 @@ export const POST: APIRoute = async (context) => {
   }
   let body: unknown;
   try {
-    body = await request.json();
+    body = readJson(context);
   } catch {
     return Response.json({ ok: false, error: "invalid_json" }, { status: 400 });
   }
