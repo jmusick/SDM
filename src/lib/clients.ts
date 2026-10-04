@@ -82,8 +82,8 @@ export async function getClientByUserId(locals: App.Locals, userId: string): Pro
 }
 
 function generateTempPassword(): string {
-  const bytes = crypto.getRandomValues(new Uint8Array(9));
-  return btoa(String.fromCharCode(...bytes)).replace(/[+/=]/g, "").slice(0, 12);
+  const bytes = crypto.getRandomValues(new Uint8Array(18));
+  return btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_");
 }
 
 const PASSWORD_FLASH_TTL_MS = 1000 * 60 * 15;
@@ -132,8 +132,8 @@ export async function createClient(
 
   await db.batch([
     db
-      .prepare("INSERT INTO users (id, email, password_hash, role, is_active, must_change_password, created_at) VALUES (?, ?, ?, 'client', 1, 1, ?)")
-      .bind(userId, email, passwordHash, now),
+      .prepare("INSERT INTO users (id, email, password_hash, role, is_active, must_change_password, temporary_password_expires_at, created_at) VALUES (?, ?, ?, 'client', 1, 1, ?, ?)")
+      .bind(userId, email, passwordHash, now + PASSWORD_FLASH_TTL_MS, now),
     db
       .prepare("INSERT INTO clients (id, user_id, company_name, contact_name, phone, created_at) VALUES (?, ?, ?, ?, ?, ?)")
       .bind(clientId, userId, input.companyName.trim(), input.contactName?.trim() || null, input.phone?.trim() || null, now),
@@ -191,7 +191,8 @@ export async function resetClientPassword(locals: App.Locals, userId: string): P
   // or compromised credential, so any existing login must not survive it. The
   // client must set a new password on their next login.
   await db.batch([
-    db.prepare("UPDATE users SET password_hash = ?, must_change_password = 1 WHERE id = ?").bind(passwordHash, userId),
+    db.prepare("UPDATE users SET password_hash = ?, must_change_password = 1, temporary_password_expires_at = ?, failed_attempts = 0, locked_until = NULL WHERE id = ?")
+      .bind(passwordHash, Date.now() + PASSWORD_FLASH_TTL_MS, userId),
     db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(userId),
   ]);
   return createPasswordFlash(db, userId, temporaryPassword);

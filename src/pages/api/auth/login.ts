@@ -49,11 +49,12 @@ export const POST: APIRoute = async (context) => {
 
   const db = ensureDB(locals);
   const user = await db
-    .prepare("SELECT id, password_hash, role, is_active, must_change_password FROM users WHERE email = ? LIMIT 1")
+    .prepare("SELECT id, password_hash, role, is_active, must_change_password, temporary_password_expires_at FROM users WHERE email = ? LIMIT 1")
     .bind(email)
-    .first<{ id: string; password_hash: string; role: UserRole; is_active: number; must_change_password: number }>();
+    .first<{ id: string; password_hash: string; role: UserRole; is_active: number; must_change_password: number; temporary_password_expires_at: number | null }>();
 
-  if (!user || user.is_active === 0) {
+  if (!user || user.is_active === 0 || (user.must_change_password === 1 &&
+      (user.temporary_password_expires_at === null || user.temporary_password_expires_at <= Date.now()))) {
     // Burn the same PBKDF2 time as a real verify so login latency doesn't
     // reveal whether the email belongs to an account.
     await verifyPasswordDummy(password);

@@ -79,7 +79,7 @@ export const prerender = true;
         view their projects, invoices, and support tickets. If we set up an account for you, we collect and store:
       </p>
       <ul>
-        <li>Your email address and a securely hashed password (we never store your password in plain text)</li>
+        <li>Your email address and a securely hashed password. Administrator-issued temporary passwords are also held in a one-time reveal record until consumed or cleaned up after expiry; passwords you choose are stored only as hashes. Temporary login credentials expire after 15 minutes, even if the reveal record has already been consumed.</li>
         <li>Your company name, contact name, and phone number</li>
         <li>Project details, invoice records, and support ticket messages related to work we do for you</li>
         <li>For security, a record of failed sign-in attempts: the email address entered, IP address, approximate country, and browser type (never the password)</li>

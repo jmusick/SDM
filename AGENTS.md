@@ -125,7 +125,7 @@ v2.19.0 kept the v6 behaviour (prerendered text verified identical) rather than 
   (`updateUserPassword`/`resetClientPassword`).
 - **Temporary passwords** (client create + admin reset) never travel in the URL — the plaintext is
   written to `password_flash` (one-time read, 15-min TTL) and the redirect carries only an opaque
-  `?pwflash=<id>`, consumed on render in `admin/clients/[id].astro`. Such accounts get
+  `?pwflash=<id>`, consumed on render in `admin/clients/[id].astro`. Temporary credentials use 24 base64url characters (144 bits) and expire after 15 minutes; migration 0009 expires legacy temporary accounts until admin reset. Such accounts get
   `users.must_change_password = 1`; middleware pins them to `/dashboard/settings?mustchange=1` (or
   `/admin/settings`) until they set a real password, which clears the flag.
 
