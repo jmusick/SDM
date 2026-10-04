@@ -90,9 +90,9 @@ v2.19.0 kept the v6 behaviour (prerendered text verified identical) rather than 
   country, UA — never the password) to Workers Logs, enabled by `[observability]` in `wrangler.toml`;
   the privacy policy discloses this with a 7-day retention, so keep them in step.
 - `/admin/setup` + `/api/setup/create-admin` bootstrap the first admin. Gated on **both** 0 users
-  **and** env var `ADMIN_SETUP_ENABLED === "true"` (`src/lib/setup.ts`) — normally unset, so both
+  **and** env var `ADMIN_SETUP_ENABLED === "true"` (`src/lib/setup.ts`) — plus a separately provisioned `ADMIN_SETUP_SECRET` of at least 32 characters; the form requires that secret and creation atomically checks for an empty users table. A future ISO `ADMIN_SETUP_EXPIRES_AT` deadline within 15 minutes is also required; expired/missing deadlines disable setup. All are normally unset, so both
   302 → `/login`. Set it on the Worker (dashboard → Variables and Secrets) only for a deliberate re-bootstrap, then
-  unset it.
+  unset the flag and remove the setup secret.
 - **Impersonation** ("View as client") is strictly read-only — write forms are hidden and API routes
   are protected centrally in middleware using the session impersonation flag, even if the client no longer resolves. Admin business pages redirect to the dashboard so write forms are unavailable. Only exit/logout and explicitly labelled own-account settings may mutate during client view. Keep route-level checks as defense in depth.
   `projects.client_id` is nullable (`NULL` = internal project) — use `LEFT JOIN`, not `INNER JOIN`.

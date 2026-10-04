@@ -9,6 +9,20 @@ import { env as workerEnv } from "cloudflare:workers";
  * flipped to "true" in the dashboard only for a deliberate (re-)bootstrap.
  */
 export function isSetupEnabled(): boolean {
-  const value = ((workerEnv as unknown) as { ADMIN_SETUP_ENABLED?: string }).ADMIN_SETUP_ENABLED;
-  return value === "true";
+  const config = workerEnv as unknown as { ADMIN_SETUP_ENABLED?: string; ADMIN_SETUP_SECRET?: string; ADMIN_SETUP_EXPIRES_AT?: string };
+  const expiresAt = Date.parse(config.ADMIN_SETUP_EXPIRES_AT ?? "");
+  const remaining = expiresAt - Date.now();
+  return config.ADMIN_SETUP_ENABLED === "true" && typeof config.ADMIN_SETUP_SECRET === "string" &&
+    config.ADMIN_SETUP_SECRET.length >= 32 && remaining > 0 && remaining <= 15 * 60 * 1000;
+}
+
+/** The operator provisions this secret separately; it is never rendered or logged. */
+export async function verifySetupSecret(candidate: string): Promise<boolean> {
+  const configured = (workerEnv as unknown as { ADMIN_SETUP_SECRET?: string }).ADMIN_SETUP_SECRET;
+  if (!isSetupEnabled() || !configured || candidate.length > 512) return false;
+  const digest = async (value: string) => new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)));
+  const [actual, expected] = await Promise.all([digest(candidate), digest(configured)]);
+  let difference = 0;
+  for (let i = 0; i < expected.length; i++) difference |= actual[i] ^ expected[i];
+  return difference === 0;
 }

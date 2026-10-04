@@ -118,7 +118,7 @@ First time only, apply migrations to local D1 (the binding in `wrangler.toml` is
 npm run d1:migrate:local
 ```
 
-Then set `ADMIN_SETUP_ENABLED="true"` (locally, a `[vars]` entry in `wrangler.toml`; in production, a Worker variable in the Cloudflare dashboard) and visit `/admin/setup` to create the owner's admin account. Unset it once the admin exists.
+Provision a fresh random `ADMIN_SETUP_SECRET` of at least 32 characters in local `.dev.vars` or production Worker secrets, then set `ADMIN_SETUP_ENABLED="true"` (locally, a `[vars]` entry in `wrangler.toml`; in production, a Worker variable in the Cloudflare dashboard) and visit `/admin/setup` to create the owner's admin account. Enter the secret on the setup form. First-admin creation uses an atomic empty-users check. Unset the flag and remove the setup secret immediately after bootstrap. Set `ADMIN_SETUP_EXPIRES_AT` to an ISO timestamp no more than 15 minutes in the future; setup stays disabled without a live deadline.
 
 `npm run astro -- check` currently reports 0 errors, 0 warnings and 13 existing hints (2026-10-04). After a build, `node scripts/test-login-lockout.mjs`, `node scripts/test-impersonation.mjs`, `node scripts/test-client-archive.mjs` and `node scripts/test-error-responses.mjs` check the built local Worker on port 4331 with disposable synthetic D1 state. These checks require Node 24 for read-only SQLite inspection; run them sequentially. They do not modify production or the normal local database.
 

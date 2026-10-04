@@ -14,7 +14,7 @@ export const ids = {
 };
 export const password = "local-test-passphrase-123";
 
-export async function runtime({ noDb = false } = {}) {
+export async function runtime({ noDb = false, vars = {} } = {}) {
   const persistence = mkdtempSync(join(tmpdir(), "sdm-test-"));
   const cli = (args) => execFileSync(process.execPath, [wrangler, ...args], {
     encoding: "utf8", env: { ...process.env, WRANGLER_SEND_METRICS: "false" },
@@ -37,6 +37,7 @@ export async function runtime({ noDb = false } = {}) {
     try { return db.prepare(statement).all().map((row) => ({ ...row })); } finally { db.close(); }
   };
   const configArgs = [];
+  for (const [key, value] of Object.entries(vars)) configArgs.push("--var", `${key}:${value}`);
   if (noDb) {
     const configPath = join(persistence, "no-db.json");
     writeFileSync(configPath, JSON.stringify({ name: "sdm-no-db-test", main: resolve("dist/server/entry.mjs"),
