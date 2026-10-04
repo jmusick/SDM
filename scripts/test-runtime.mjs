@@ -1,6 +1,6 @@
 // Built Worker tests use disposable local D1 state; never developer or remote data.
 import { execFileSync, spawn } from "node:child_process";
-import { mkdtempSync, readdirSync } from "node:fs";
+import { mkdtempSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { pbkdf2Sync, randomBytes } from "node:crypto";
@@ -14,7 +14,7 @@ export const ids = {
 };
 export const password = "local-test-passphrase-123";
 
-export async function runtime() {
+export async function runtime({ noDb = false } = {}) {
   const persistence = mkdtempSync(join(tmpdir(), "sdm-test-"));
   const cli = (args) => execFileSync(process.execPath, [wrangler, ...args], {
     encoding: "utf8", env: { ...process.env, WRANGLER_SEND_METRICS: "false" },
@@ -36,7 +36,16 @@ export async function runtime() {
     const db = new DatabaseSync(databasePath, { readOnly: true });
     try { return db.prepare(statement).all().map((row) => ({ ...row })); } finally { db.close(); }
   };
-  const child = spawn(process.execPath, [wrangler, "dev", "--local", "--ip", "127.0.0.1", "--port", "4331",
+  const configArgs = [];
+  if (noDb) {
+    const configPath = join(persistence, "no-db.json");
+    writeFileSync(configPath, JSON.stringify({ name: "sdm-no-db-test", main: resolve("dist/server/entry.mjs"),
+      no_bundle: true, compatibility_date: "2026-08-13", compatibility_flags: ["nodejs_compat"],
+      rules: [{ type: "ESModule", globs: ["**/*.js", "**/*.mjs"] }],
+      assets: { binding: "ASSETS", directory: resolve("dist/client") } }));
+    configArgs.push("--config", configPath);
+  }
+  const child = spawn(process.execPath, [wrangler, "dev", ...configArgs, "--local", "--ip", "127.0.0.1", "--port", "4331",
     "--inspector-port", "0", "--persist-to", persistence, "--show-interactive-dev-session=false"], {
     env: { ...process.env, WRANGLER_SEND_METRICS: "false" }, stdio: ["ignore", "pipe", "pipe"],
   });

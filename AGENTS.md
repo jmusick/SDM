@@ -270,3 +270,5 @@ collected, changed retention), update the policy and its effective date together
 
 This code is public for transparency and reference only — no commercial use. See `LICENSE.md`. Don't
 add an OSS license badge, contribution guide, or anything implying this project accepts contributions.
+
+Generic Worker failures return controlled responses with security headers and private portal caching. Session-resolution failures clear all auth state and return 503. Operational diagnostics log only failure stage and status to the same seven-day Workers log sink, without exception messages or submitted data.

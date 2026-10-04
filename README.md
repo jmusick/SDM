@@ -223,3 +223,5 @@ npm run d1:migrate:remote   # apply to production D1
 ## License
 
 This code is published for transparency and reference only — no commercial use is permitted. See [LICENSE.md](LICENSE.md).
+
+Generic Worker failures return controlled responses with security headers and private portal caching. Session-resolution failures clear all auth state and return 503. Operational diagnostics log only failure stage and status to the same seven-day Workers log sink, without exception messages or submitted data.

@@ -14,28 +14,33 @@ export const POST: APIRoute = async (context) => {
   if (guard instanceof Response) return guard;
 
   const { request, locals } = context;
-  let body: { taskId?: string; lane?: string };
+  const contentType = request.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
+  if (contentType !== "application/json") {
+    return Response.json({ ok: false, error: "unsupported_media_type" }, { status: 415 });
+  }
+  let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ ok: false, error: "invalid_json" }), { status: 400 });
+    return Response.json({ ok: false, error: "invalid_json" }, { status: 400 });
   }
 
-  const taskId = String(body.taskId ?? "");
-  const lane = String(body.lane ?? "") as TaskLane;
+  if (body === null || typeof body !== "object" || Array.isArray(body)) {
+    return Response.json({ ok: false, error: "invalid_input" }, { status: 400 });
+  }
+  const input = body as Record<string, unknown>;
+  const taskId = typeof input.taskId === "string" ? input.taskId : "";
+  const lane = (typeof input.lane === "string" ? input.lane : "") as TaskLane;
 
   if (!taskId || !TASK_LANES.includes(lane)) {
-    return new Response(JSON.stringify({ ok: false, error: "invalid_input" }), { status: 400 });
+    return Response.json({ ok: false, error: "invalid_input" }, { status: 400 });
   }
 
   const task = await getTaskById(locals, taskId);
   if (!task) {
-    return new Response(JSON.stringify({ ok: false, error: "not_found" }), { status: 404 });
+    return Response.json({ ok: false, error: "not_found" }, { status: 404 });
   }
 
   await updateTaskLane(locals, taskId, lane);
-  return new Response(JSON.stringify({ ok: true, lane }), {
-    status: 200,
-    headers: { "content-type": "application/json" },
-  });
+  return Response.json({ ok: true, lane });
 };

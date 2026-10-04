@@ -19,6 +19,17 @@ function finalize(path: string, response: Response): Response {
   return applySecurityHeaders(response);
 }
 
+function unavailable(path: string, stage: "session" | "route", status = 500): Response {
+  // Never serialize exception messages, submitted fields, cookies or SQL.
+  console.error(JSON.stringify({ event: "request_failed", stage, status }));
+  const response = path.startsWith("/api/")
+    ? Response.json({ ok: false, error: "service_unavailable" }, { status })
+    : new Response("Service temporarily unavailable. Please try again.", {
+      status, headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+  return finalize(path, response);
+}
+
 export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.user = null;
   context.locals.session = null;
@@ -35,7 +46,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.locals.impersonatedClient = await getClientById(context.locals, session.impersonatingClientId);
       }
     } catch {
+      context.locals.user = null;
+      context.locals.session = null;
+      context.locals.impersonatedClient = null;
       context.cookies.delete(SESSION_COOKIE, { path: "/" });
+      return unavailable(context.url.pathname, "session", 503);
     }
   }
 
@@ -75,7 +90,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
-  return finalize(context.url.pathname, await next());
+  try {
+    const response = await next();
+    // Framework-generated failures must also have a generic body and headers.
+    if (response.status >= 500) return unavailable(path, "route", response.status);
+    return finalize(path, response);
+  } catch {
+    return unavailable(path, "route");
+  }
 });
 
 export { SESSION_COOKIE };
