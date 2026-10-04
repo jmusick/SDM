@@ -39,7 +39,8 @@ const statuses = ["open", "in_progress", "waiting_on_client", "resolved", "close
     <div class="card empty-state">No tickets{statusFilter ? ` with status "${statusFilter.replace(/_/g, " ")}"` : ""}.</div>
   ) : (
     <div class="card">
-      <table class="data-table">
+      <div class="table-scroll" role="region" aria-label="Tickets table" tabindex="0">
+        <table class="data-table">
         <thead>
           <tr>
             <th>Subject</th>
@@ -59,6 +60,7 @@ const statuses = ["open", "in_progress", "waiting_on_client", "resolved", "close
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   )}
 </AdminLayout>

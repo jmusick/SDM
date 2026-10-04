@@ -28,7 +28,8 @@ const formatDate = (ms: number | null) => (ms ? new Date(ms).toLocaleDateString(
     <div class="card empty-state">No invoices yet.</div>
   ) : (
     <div class="card">
-      <table class="data-table">
+      <div class="table-scroll" role="region" aria-label="Invoices table" tabindex="0">
+        <table class="data-table">
         <thead>
           <tr>
             <th>Description</th>
@@ -48,6 +49,7 @@ const formatDate = (ms: number | null) => (ms ? new Date(ms).toLocaleDateString(
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   )}
 </DashboardLayout>

@@ -70,7 +70,8 @@ const statusSort = sortLink("status", "Status");
     <div class="card empty-state">No clients match these filters.</div>
   ) : (
     <div class="card">
-      <table class="data-table">
+      <div class="table-scroll" role="region" aria-label="Clients table" tabindex="0">
+        <table class="data-table">
         <thead>
           <tr>
             <th><a href={companySort.href}>{companySort.label}</a></th>
@@ -104,6 +105,7 @@ const statusSort = sortLink("status", "Status");
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   )}
 </AdminLayout>

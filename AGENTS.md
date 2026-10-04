@@ -227,6 +227,8 @@ The chevron target is at least 32px square on desktop and 44px square on mobile.
 **`.site-head` is a stacking context** (`position` + `z-index`), so the `z-index` lifting
 the services dropdown over the page's `PageHero` sits on `.site-head`, not on `.nav-dropdown`.
 
+Portal layouts use `body.portal`; shared reflow rules live in `public/universal.css`. Narrow screens stack the sidebar/forms; data tables stay in named, keyboard-focusable `.table-scroll` regions. Keep table scrolling contained and ordinary controls within the viewport.
+
 ## Code style
 
 No linter or formatter; conventions differ by directory. **Match the file you're editing:**

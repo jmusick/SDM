@@ -32,7 +32,8 @@ const statusBadge: Record<string, string> = {
     <div class="card empty-state">No tickets yet.</div>
   ) : (
     <div class="card">
-      <table class="data-table">
+      <div class="table-scroll" role="region" aria-label="Tickets table" tabindex="0">
+        <table class="data-table">
         <thead>
           <tr>
             <th>Subject</th>
@@ -48,6 +49,7 @@ const statusBadge: Record<string, string> = {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   )}
 </DashboardLayout>

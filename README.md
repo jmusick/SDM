@@ -49,6 +49,8 @@ A handful of clients log in at `/login` to see their own projects, invoices, and
 - **Library code**: `src/lib/{db,auth,http,setup,security-headers,users,clients,projects,tasks,notes,timeEntries,invoices,tickets}.ts`. `src/middleware.ts` resolves the session/user/impersonated-client on every request, enforces the forced-password-change redirect, and applies the security headers to SSR responses. `src/lib/http.ts`'s `ensureRole`/`ensureClientContext` guards **return** a redirect `Response` rather than throwing one — Astro page frontmatter only short-circuits via `return <Response>`, a thrown Response is not caught by the renderer. Every call site does `if (result instanceof Response) return result;`.
 - **Not wired to a real billing/accounting system** — invoices are a simple manually-entered record (description, amount, status, dates) in D1, not synced from Stripe/QuickBooks/etc.
 
+Portal layouts use `body.portal`; shared reflow rules live in `public/universal.css`. Narrow screens stack the sidebar/forms; data tables stay in named, keyboard-focusable `.table-scroll` regions. Keep table scrolling contained and ordinary controls within the viewport.
+
 ## Site Pages
 
 | Route | Page |

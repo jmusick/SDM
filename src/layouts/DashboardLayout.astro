@@ -473,7 +473,7 @@ const isActive = (prefix: string) => currentPath === prefix || currentPath.start
     </style>
     <slot name="head" />
   </head>
-  <body>
+  <body class="portal">
     {impersonatedClient && (
       <div class="impersonation-banner">
         <span>Viewing as {impersonatedClient.companyName}</span>

@@ -373,7 +373,8 @@ const taskTypeBadge: Record<TaskType, string> = {
           {timeEntries.length === 0 ? (
             <p class="empty-state">No time logged yet.</p>
           ) : (
-            <table class="data-table" style="margin-bottom: 1rem;">
+            <div class="table-scroll" role="region" aria-label="Task time entries table" tabindex="0">
+              <table class="data-table" style="margin-bottom: 1rem;">
               <thead>
                 <tr>
                   <th>Date</th>
@@ -402,6 +403,7 @@ const taskTypeBadge: Record<TaskType, string> = {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
           <form method="post" action="/api/time-entries/save">
             <input type="hidden" name="projectId" value={project.id} />

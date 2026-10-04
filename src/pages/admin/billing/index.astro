@@ -34,7 +34,8 @@ const formatAmount = (cents: number) => (cents / 100).toLocaleString("en-US", { 
     <div class="card empty-state">No invoices yet.</div>
   ) : (
     <div class="card">
-      <table class="data-table">
+      <div class="table-scroll" role="region" aria-label="Invoices table" tabindex="0">
+        <table class="data-table">
         <thead>
           <tr>
             <th>Description</th>
@@ -54,6 +55,7 @@ const formatAmount = (cents: number) => (cents / 100).toLocaleString("en-US", { 
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   )}
 </AdminLayout>

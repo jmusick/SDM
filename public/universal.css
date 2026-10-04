@@ -879,3 +879,110 @@ body {
 		flex-wrap: wrap;
 	}
 }
+
+/* Shared portal reflow: tables scroll within a named keyboard-focusable region. */
+.portal .admin-shell,
+.portal .dash-shell {
+	grid-template-columns: 220px minmax(0, 1fr);
+}
+
+.portal main,
+.portal .card,
+.portal .field,
+.portal .kanban-column,
+.portal .kanban-card,
+.portal .form-grid > * {
+	min-width: 0;
+}
+
+.portal main,
+.portal .impersonation-banner {
+	overflow-wrap: anywhere;
+}
+
+.portal .field input,
+.portal .field select,
+.portal .field textarea,
+.portal .filter-select,
+.portal .kanban-lane-select {
+	min-width: 0;
+	max-width: 100%;
+}
+
+.portal .header-actions,
+.portal .form-actions,
+.portal .admin-header,
+.portal .dash-header,
+.portal .thread-meta,
+.portal .modal-footer,
+.portal .impersonation-banner {
+	flex-wrap: wrap;
+}
+
+.portal .table-scroll {
+	max-width: 100%;
+	overflow-x: auto;
+	overscroll-behavior-inline: contain;
+}
+
+.portal .table-scroll:focus-visible {
+	outline: 3px solid var(--brand-strong);
+	outline-offset: 2px;
+}
+
+.portal .data-table {
+	min-width: 32rem;
+}
+
+@media (max-width: 60rem) {
+	.portal .admin-shell,
+	.portal .dash-shell {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.portal .admin-brand,
+	.portal .dash-brand {
+		max-width: 12rem;
+		margin-bottom: 1rem;
+	}
+
+	.portal .admin-main,
+	.portal .dash-main {
+		padding: 1rem;
+	}
+}
+
+@media (max-width: 40rem) {
+	.portal .form-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.portal .header-actions form,
+	.portal .header-actions label {
+		flex-wrap: wrap;
+		min-width: 0;
+		max-width: 100%;
+	}
+
+	.portal .form-actions,
+	.portal .modal-footer {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.portal .btn {
+		white-space: normal;
+		text-align: center;
+	}
+
+	.portal .modal {
+		width: calc(100vw - 1rem);
+		max-width: calc(100vw - 1rem);
+	}
+
+	.portal .modal-body,
+	.portal .modal-header,
+	.portal .modal-footer {
+		padding: 0.7rem;
+	}
+}
