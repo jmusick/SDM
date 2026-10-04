@@ -141,18 +141,31 @@ export async function recordFailedLogin(
   userId: string
 ): Promise<{ attempts: number; lockedUntil: number | null }> {
   const db = ensureDB(locals);
-  const row = await db.prepare("SELECT failed_attempts FROM users WHERE id = ? LIMIT 1").bind(userId).first<{ failed_attempts: number }>();
-  const attempts = (row?.failed_attempts ?? 0) + 1;
-  const lockedUntil = attempts >= LOGIN_LOCK_THRESHOLD ? Date.now() + LOGIN_LOCK_DURATION_MS : null;
-  await db
-    .prepare("UPDATE users SET failed_attempts = ?, locked_until = ? WHERE id = ?")
-    .bind(attempts, lockedUntil, userId)
-    .run();
-  return { attempts, lockedUntil };
+  const now = Date.now();
+  // Both expressions use the pre-update row. Reset an expired lock as part of
+  // the increment; requests already hashing when a lock starts must not extend it.
+  const row = await db
+    .prepare(`UPDATE users SET
+      failed_attempts = CASE WHEN locked_until IS NOT NULL AND locked_until <= ?
+        THEN 1 ELSE failed_attempts + 1 END,
+      locked_until = CASE
+        WHEN locked_until > ? THEN locked_until
+        WHEN locked_until IS NOT NULL THEN NULL
+        WHEN failed_attempts + 1 >= ? THEN ?
+        ELSE NULL END
+      WHERE id = ?
+      RETURNING failed_attempts, locked_until`)
+    .bind(now, now, LOGIN_LOCK_THRESHOLD, now + LOGIN_LOCK_DURATION_MS, userId)
+    .first<{ failed_attempts: number; locked_until: number | null }>();
+  if (!row) throw new Error("Login account unavailable");
+  return { attempts: row.failed_attempts, lockedUntil: row.locked_until };
 }
 
-/** Call on a successful login to clear any accumulated failed attempts. */
-export async function resetLoginLockout(locals: App.Locals, userId: string): Promise<void> {
+/** A valid password must not clear a lock established by concurrent failures. */
+export async function resetLoginLockout(locals: App.Locals, userId: string): Promise<boolean> {
   const db = ensureDB(locals);
-  await db.prepare("UPDATE users SET failed_attempts = 0, locked_until = NULL WHERE id = ?").bind(userId).run();
+  const row = await db.prepare(`UPDATE users SET failed_attempts = 0, locked_until = NULL
+    WHERE id = ? AND is_active = 1 AND (locked_until IS NULL OR locked_until <= ?)
+    RETURNING id`).bind(userId, Date.now()).first<{ id: string }>();
+  return row !== null;
 }

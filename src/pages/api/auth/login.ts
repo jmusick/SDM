@@ -77,7 +77,10 @@ export const POST: APIRoute = async (context) => {
     return redirect("/login?error=invalid");
   }
 
-  await resetLoginLockout(locals, user.id);
+  if (!(await resetLoginLockout(locals, user.id))) {
+    logFailedLogin(request, email, "locked");
+    return redirect("/login?error=locked");
+  }
 
   const session = await createSession(locals, user.id);
   cookies.set(SESSION_COOKIE, session.token, {
