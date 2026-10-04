@@ -34,5 +34,9 @@ const noticeMessage =
 ---
 
 <AdminLayout title="Settings">
+  {Astro.locals.session?.impersonatingClientId && (
+    <p class="notice">These settings change your own administrator account, not the client you are viewing.
+      Exit client view before changing business records.</p>
+  )}
   <SettingsForm user={user} backTo="/admin/settings" errorMessage={errorMessage} successMessage={successMessage} noticeMessage={noticeMessage} />
 </AdminLayout>

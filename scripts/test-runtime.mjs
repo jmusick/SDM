@@ -61,5 +61,5 @@ export async function runtime() {
     body: new URLSearchParams(fields),
   });
   const login = (email, candidate = password) => post("/api/auth/login", { email, password: candidate });
-  return { origin, post, login, query, sql, close };
+  return { origin, post, login, query, sql, close, output: () => output };
 }

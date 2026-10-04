@@ -3,6 +3,7 @@ import { env as workerEnv } from "cloudflare:workers";
 import { getSessionAndUserByToken } from "./lib/auth";
 import { getClientById } from "./lib/clients";
 import { applySecurityHeaders } from "./lib/security-headers";
+import { assertSameOrigin } from "./lib/http";
 
 const SESSION_COOKIE = "sdm_session";
 
@@ -35,6 +36,24 @@ export const onRequest = defineMiddleware(async (context, next) => {
       }
     } catch {
       context.cookies.delete(SESSION_COOKIE, { path: "/" });
+    }
+  }
+
+  // Enforce view-only mode before any route can parse or mutate business data.
+  // Use the session flag even if the selected client no longer resolves.
+  const path = context.url.pathname;
+  if (context.locals.user?.role === "admin" && context.locals.session?.impersonatingClientId) {
+    const safeMethod = ["GET", "HEAD"].includes(context.request.method.toUpperCase());
+    const ownAccountOrExit = ["/api/auth/logout", "/api/admin/impersonate/stop",
+      "/api/settings/profile", "/api/settings/password"].includes(path);
+    if (!safeMethod && !ownAccountOrExit) {
+      return finalize(path, assertSameOrigin(context) ?? Response.json(
+        { ok: false, error: "read_only_impersonation" }, { status: 403 }
+      ));
+    }
+    // Admin business forms are unavailable until the admin exits view-only mode.
+    if (safeMethod && (path === "/admin" || path.startsWith("/admin/")) && path !== "/admin/settings") {
+      return finalize(path, context.redirect("/dashboard"));
     }
   }
 

@@ -92,7 +92,7 @@ v2.19.0 kept the v6 behaviour (prerendered text verified identical) rather than 
   302 → `/login`. Set it on the Worker (dashboard → Variables and Secrets) only for a deliberate re-bootstrap, then
   unset it.
 - **Impersonation** ("View as client") is strictly read-only — write forms are hidden and API routes
-  reject writes whenever `Astro.locals.impersonatedClient` is set. Repeat that check in new mutations.
+  are protected centrally in middleware using the session impersonation flag, even if the client no longer resolves. Admin business pages redirect to the dashboard so write forms are unavailable. Only exit/logout and explicitly labelled own-account settings may mutate during client view. Keep route-level checks as defense in depth.
   `projects.client_id` is nullable (`NULL` = internal project) — use `LEFT JOIN`, not `INNER JOIN`.
 - **Client deletion cascades permanently** (`deleteClient()`, `ON DELETE CASCADE`: `clients` →
   `projects` → `tasks`/`project_notes` → `task_notes`/`time_entries`, plus `invoices`,
