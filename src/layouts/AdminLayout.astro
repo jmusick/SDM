@@ -7,7 +7,7 @@ interface Props {
 
 const { title } = Astro.props;
 
-const currentPath = new URL(Astro.request.url).pathname;
+const currentPath = new URL(Astro.request.url).pathname.replace(/\/$/, "");
 const isActive = (prefix: string) => currentPath === prefix || currentPath.startsWith(`${prefix}/`);
 
 const navItems = [
@@ -632,6 +632,7 @@ const navItems = [
     <slot name="head" />
   </head>
   <body class="portal">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="admin-shell">
       <aside class="admin-sidebar">
         <a class="admin-brand" href="/admin">
@@ -641,6 +642,7 @@ const navItems = [
           {navItems.map((item) => (
             <a
               href={item.href}
+              aria-current={currentPath === item.href ? "page" : !item.exact && isActive(item.href) ? "location" : undefined}
               class={(item.exact ? currentPath === item.href : isActive(item.href)) ? "active" : undefined}
             >
               <Icon class="icon" name={item.icon} aria-hidden="true" />
@@ -663,7 +665,7 @@ const navItems = [
           </form>
         </div>
       </aside>
-      <main class="admin-main">
+      <main class="admin-main" id="main-content" tabindex="-1">
         <div class="admin-header">
           <h1>{title}</h1>
         </div>

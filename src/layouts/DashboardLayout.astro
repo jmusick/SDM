@@ -6,7 +6,7 @@ interface Props {
 const { title } = Astro.props;
 const { user, impersonatedClient } = Astro.locals;
 
-const currentPath = new URL(Astro.request.url).pathname;
+const currentPath = new URL(Astro.request.url).pathname.replace(/\/$/, "");
 const isActive = (prefix: string) => currentPath === prefix || currentPath.startsWith(`${prefix}/`);
 ---
 
@@ -474,6 +474,7 @@ const isActive = (prefix: string) => currentPath === prefix || currentPath.start
     <slot name="head" />
   </head>
   <body class="portal">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     {impersonatedClient && (
       <div class="impersonation-banner">
         <span>Viewing as {impersonatedClient.companyName}</span>
@@ -488,12 +489,12 @@ const isActive = (prefix: string) => currentPath === prefix || currentPath.start
           <img src="/dashboard-logo.png" alt="Stone Dragon Media" width="800" height="307" />
         </a>
         <nav class="dash-nav">
-          <a href="/dashboard" class={isActive("/dashboard") && currentPath === "/dashboard" ? "active" : undefined}>Overview</a>
-          <a href="/dashboard/projects" class={isActive("/dashboard/projects") ? "active" : undefined}>Projects</a>
-          <a href="/dashboard/billing" class={isActive("/dashboard/billing") ? "active" : undefined}>Billing</a>
-          <a href="/dashboard/tickets" class={isActive("/dashboard/tickets") ? "active" : undefined}>Tickets</a>
+          <a href="/dashboard" aria-current={currentPath === "/dashboard" ? "page" : undefined} class={isActive("/dashboard") && currentPath === "/dashboard" ? "active" : undefined}>Overview</a>
+          <a href="/dashboard/projects" aria-current={currentPath === "/dashboard/projects" ? "page" : isActive("/dashboard/projects") ? "location" : undefined} class={isActive("/dashboard/projects") ? "active" : undefined}>Projects</a>
+          <a href="/dashboard/billing" aria-current={currentPath === "/dashboard/billing" ? "page" : isActive("/dashboard/billing") ? "location" : undefined} class={isActive("/dashboard/billing") ? "active" : undefined}>Billing</a>
+          <a href="/dashboard/tickets" aria-current={currentPath === "/dashboard/tickets" ? "page" : isActive("/dashboard/tickets") ? "location" : undefined} class={isActive("/dashboard/tickets") ? "active" : undefined}>Tickets</a>
           {!impersonatedClient && (
-            <a href="/dashboard/settings" class={isActive("/dashboard/settings") ? "active" : undefined}>Settings</a>
+            <a href="/dashboard/settings" aria-current={currentPath === "/dashboard/settings" ? "page" : isActive("/dashboard/settings") ? "location" : undefined} class={isActive("/dashboard/settings") ? "active" : undefined}>Settings</a>
           )}
         </nav>
         <div class="dash-viewsite">
@@ -507,7 +508,7 @@ const isActive = (prefix: string) => currentPath === prefix || currentPath.start
           </div>
         )}
       </aside>
-      <main class="dash-main">
+      <main class="dash-main" id="main-content" tabindex="-1">
         <div class="dash-header">
           <h1>{title}</h1>
         </div>

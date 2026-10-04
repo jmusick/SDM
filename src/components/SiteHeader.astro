@@ -50,10 +50,10 @@ const currentPath = Astro.url.pathname.endsWith("/") ? Astro.url.pathname : `${A
 		</div>
 		<div class="site-nav-panel" id="site-nav-panel">
 			<nav class="site-nav" aria-label="Primary">
-				<a class={active === "home" ? "active" : undefined} href="/">Home</a>
-				<a class={active === "about" ? "active" : undefined} href="/about/">About</a>
+				<a class={active === "home" ? "active" : undefined} href="/" aria-current={currentPath === "/" ? "page" : undefined}>Home</a>
+				<a class={active === "about" ? "active" : undefined} href="/about/" aria-current={currentPath === "/about/" ? "page" : undefined}>About</a>
 				<div class="nav-group">
-					<a class={active === "services" ? "active" : undefined} href="/services/">Services</a>
+					<a class={active === "services" ? "active" : undefined} href="/services/" aria-current={currentPath === "/services/" ? "page" : undefined}>Services</a>
 					<button
 						class="nav-sub-toggle"
 						type="button"
@@ -71,10 +71,10 @@ const currentPath = Astro.url.pathname.endsWith("/") ? Astro.url.pathname : `${A
 						))}
 					</ul>
 				</div>
-				<a class={active === "work" ? "active" : undefined} href="/work/">Our Work</a>
-				<a class={active === "products" ? "active" : undefined} href="/products/">Products</a>
-				<a class={active === "contact" ? "active" : undefined} href="/contact/">Contact</a>
-				<a class={`nav-login${active === "login" ? " active" : ""}`} href="/login/">
+				<a class={active === "work" ? "active" : undefined} href="/work/" aria-current={currentPath === "/work/" ? "page" : undefined}>Our Work</a>
+				<a class={active === "products" ? "active" : undefined} href="/products/" aria-current={currentPath === "/products/" ? "page" : undefined}>Products</a>
+				<a class={active === "contact" ? "active" : undefined} href="/contact/" aria-current={currentPath === "/contact/" ? "page" : undefined}>Contact</a>
+				<a class={`nav-login${active === "login" ? " active" : ""}`} href="/login/" aria-current={currentPath === "/login/" ? "page" : undefined}>
 					<Icon class="icon" name="lucide:lock" aria-hidden="true" />
 					Client Login
 				</a>
