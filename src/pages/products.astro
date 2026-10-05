@@ -9,29 +9,45 @@ export const prerender = true;
 ---
 
 <BaseLayout
-  title="Products: Tagstash Bookmarking Tool | Stone Dragon Media"
-  description="Tagstash is a bookmarking tool from Stone Dragon Media. Save links, organize them with tags, import bookmarks, and share collections."
+  title="Digital Products & Publications | Stone Dragon Media"
+  description="Discover Firelands Current, our digital newspaper for Sandusky and the Firelands, and Tagstash, our tag-first bookmarking tool."
   canonical="https://stonedragonmedia.com/products/"
   ogUrl="https://stonedragonmedia.com/products/"
   breadcrumb="Products"
   ogImage="https://stonedragonmedia.com/products-header.webp"
-  ogImageAlt="Stone Dragon Media products — practical tools for productivity and workflow"
+  ogImageAlt="Stone Dragon Media products — digital publications and practical tools"
 >
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Tagstash",
-      "url": "https://tagsta.sh/",
-      "description": "Tag-first bookmarking and reference tool for capturing, tagging, and retrieving links without folder trees. Includes accounts, bookmark import, public profile pages, and a companion Firefox extension.",
-      "image": "https://stonedragonmedia.com/work/tagstash.webp",
-      "applicationCategory": "BrowserApplication",
-      "operatingSystem": "Web",
-      "publisher": {
-        "@type": "Organization",
-        "name": "Stone Dragon Media",
-        "url": "https://stonedragonmedia.com"
-      }
+      "@type": "CollectionPage",
+      "name": "Digital Products & Publications",
+      "url": "https://stonedragonmedia.com/products/",
+      "about": [
+        {
+          "@type": "WebSite",
+          "name": "Firelands Current",
+          "url": "https://firelandscurrent.com/",
+          "description": "Independent digital newspaper for Sandusky, Ohio, and the Firelands region, owned and operated by Stone Dragon Media, LLC. Local news, an events calendar, and reader discussions.",
+          "image": "https://stonedragonmedia.com/work/firelands-current.webp",
+          "creator": { "@type": "Organization", "name": "Stone Dragon Media, LLC", "url": "https://stonedragonmedia.com/" },
+          "publisher": { "@type": "Organization", "name": "Stone Dragon Media, LLC", "url": "https://stonedragonmedia.com/" }
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "Tagstash",
+          "url": "https://tagsta.sh/",
+          "description": "Tag-first bookmarking and reference tool for capturing, tagging, and retrieving links without folder trees. Includes accounts, bookmark import, public profile pages, and a companion Firefox extension.",
+          "image": "https://stonedragonmedia.com/work/tagstash.webp",
+          "applicationCategory": "BrowserApplication",
+          "operatingSystem": "Web",
+          "publisher": {
+            "@type": "Organization",
+            "name": "Stone Dragon Media",
+            "url": "https://stonedragonmedia.com"
+          }
+        }
+      ]
     })} />
     <style>
       /* Copy on the left, the product screenshot on the right; they stack on narrow screens. */
@@ -40,6 +56,12 @@ export const prerender = true;
         grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
         gap: clamp(1.5rem, 4vw, 3.5rem);
         align-items: start;
+      }
+
+      .product + .product {
+        margin-top: clamp(3rem, 6vw, 5rem);
+        padding-top: clamp(2rem, 4vw, 3rem);
+        border-top: 1px solid var(--seam);
       }
 
       .product h2 {
@@ -109,17 +131,51 @@ export const prerender = true;
   <main id="main-content">
     <PageHero
       image="/products-header.webp"
-      alt="Stone Dragon Media products — practical tools for productivity and workflow"
-      title="Tagstash: Bookmarking by Tags"
-      desc="Save links, organize them with tags, and find them again when you need them."
+      alt="Stone Dragon Media products — digital publications and practical tools"
+      title="Digital Products & Publications"
+      desc="Built and run by Stone Dragon Media, from local news to tools for organizing your work."
       crumbs={[{ name: "Products" }]}
       position="center 70%"
     />
 
     <div class="page">
-      <section class="product" aria-label="Featured product">
+      <section class="product" id="firelands-current" aria-labelledby="firelands-current-title">
         <div class="product-copy">
-          <h2>Tagstash</h2>
+          <h2 id="firelands-current-title">Firelands Current</h2>
+          <p class="product-intro">
+            Firelands Current is our independent digital newspaper for Sandusky, Ohio, and
+            the surrounding Firelands region. Stone Dragon Media, LLC owns and operates
+            the publication, bringing local reporting, an events calendar, and community
+            conversation together in one place.
+          </p>
+          <ul>
+            <li>Read local coverage of government, business, schools, community life, and the outdoors</li>
+            <li>Find upcoming events by category and community, and add them to your calendar</li>
+            <li>Join Talk of the Town to discuss stories and events or start a conversation with neighbors</li>
+            <li>Follow writers through their public profiles and keep up with stories through RSS</li>
+            <li>Send a news tip or ask about advertising to reach readers across the region</li>
+          </ul>
+          <p class="product-note">
+            We built the publishing platform and run the newspaper. See the
+            <a href="/work/#firelands-current">design and development breakdown</a> in our portfolio.
+          </p>
+          <div class="actions">
+            <a class="button button-primary" href="https://firelandscurrent.com/" target="_blank" rel="noreferrer noopener" aria-label="Read Firelands Current (opens in a new tab)">
+              <Icon class="icon" name="lucide:external-link" aria-hidden="true" />
+              Read Firelands Current
+            </a>
+            <a class="button button-secondary" href="https://firelandscurrent.com/advertise" target="_blank" rel="noreferrer noopener" aria-label="Advertise on Firelands Current (opens in a new tab)">
+              Advertise on Firelands Current
+            </a>
+          </div>
+        </div>
+        <div class="product-media">
+          <img src="/work/firelands-current.webp" alt="Firelands Current homepage with its teal masthead and local news headlines" loading="lazy" width="1180" height="615" />
+        </div>
+      </section>
+      <section class="product" id="tagstash" aria-labelledby="tagstash-title">
+        <div class="product-copy">
+          <h2 id="tagstash-title">Tagstash</h2>
           <p class="product-intro">
             Tagstash is a tag-first bookmarking and reference tool designed to make it easy to capture,
             tag, and retrieve important links fast &mdash; no folder trees to maintain, and no digging

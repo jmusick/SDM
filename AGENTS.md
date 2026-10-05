@@ -163,6 +163,7 @@ Actively worked for local SEO, targeting "Sandusky Ohio web design" and the regi
   service subpages), `Organization`/`LocalBusiness` on `index`, plus a per-page `Service`/
   `CollectionPage`/`SoftwareApplication`/`AboutPage`/`ContactPage`. Keep `areaServed` identical to the
   visible "Areas We Serve" list. No street address anywhere (home-based business) — city/state only.
+- **Owned publications and products:** Firelands Current is owned and operated by Stone Dragon Media, LLC. It appears on `/work` and `/products` alongside Tagstash; describe its shipped news, events, and community features. The products page uses `CollectionPage` with `WebSite` (Firelands Current) and `SoftwareApplication` (Tagstash) entries. Portfolio screenshots live in `public/work/`.
 - **No FAQ section, deliberately** — a prior one duplicated content above it and was removed. If
   revisited, only answer things not covered elsewhere, and only with the Q&A visibly on the page.
 - **`src/lib/services.ts`** is the single source of truth for the service catalogue: four categories,

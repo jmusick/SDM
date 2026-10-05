@@ -10,7 +10,7 @@ export const prerender = true;
 
 <BaseLayout
   title="Web Design Portfolio | Stone Dragon Media"
-  description="See web design and development work from Stone Dragon Media, including music sites for JD Musick, Dorian Black, and Pneumaris, the Simon Rook author site, and Tagstash."
+  description="Explore Stone Dragon Media’s web design portfolio, including Firelands Current, our digital newspaper, artist and author websites, and Tagstash."
   canonical="https://stonedragonmedia.com/work/"
   ogUrl="https://stonedragonmedia.com/work/"
   breadcrumb="Our Work"
@@ -24,6 +24,15 @@ export const prerender = true;
       "name": "Web Design Portfolio",
       "url": "https://stonedragonmedia.com/work/",
       "about": [
+        {
+          "@type": "WebSite",
+          "name": "Firelands Current",
+          "url": "https://firelandscurrent.com/",
+          "description": "Independent digital newspaper for Sandusky, Ohio, and the Firelands region, owned and operated by Stone Dragon Media, LLC. Local news, an events calendar, and reader discussions.",
+          "image": "https://stonedragonmedia.com/work/firelands-current.webp",
+          "creator": { "@type": "Organization", "name": "Stone Dragon Media, LLC", "url": "https://stonedragonmedia.com/" },
+          "publisher": { "@type": "Organization", "name": "Stone Dragon Media, LLC", "url": "https://stonedragonmedia.com/" }
+        },
         {
           "@type": "WebSite",
           "name": "JD Musick",
@@ -149,6 +158,30 @@ export const prerender = true;
 
     <div class="page">
       <div class="work-grid">
+        <article class="card work-card" id="firelands-current">
+          <div class="work-thumb">
+            <img src="/work/firelands-current.webp" alt="Firelands Current homepage with its teal masthead and local news headlines" loading="lazy" width="1180" height="615" />
+          </div>
+          <div class="work-body">
+            <h2>Firelands Current</h2>
+            <p>
+              An independent digital newspaper for Sandusky, Ohio, and the Firelands region.
+              We designed and built the site, and Stone Dragon Media, LLC owns and operates
+              the publication, from its local coverage to its publishing platform.
+            </p>
+            <ul>
+              <li>Lake Erie-inspired teal palette, condensed headlines, and serif reading text give the publication its own identity</li>
+              <li>Local news organized by community and section, with author profiles and RSS feeds</li>
+              <li>Events calendar with community filters and downloadable calendar entries</li>
+              <li>Talk of the Town reader discussions, with a discussion attached to every story and event</li>
+              <li>Custom newsroom tools for stories, events, credited photos, reader tips, and advertising</li>
+            </ul>
+            <a class="button button-secondary" href="https://firelandscurrent.com/" target="_blank" rel="noreferrer noopener" aria-label="Visit Firelands Current (opens in a new tab)">
+              <Icon class="icon" name="lucide:external-link" aria-hidden="true" />
+              Visit Firelands Current
+            </a>
+          </div>
+        </article>
         <article class="card work-card" id="jd-musick">
           <div class="work-thumb">
             <img src="/work/jdmusick.webp" alt="JD Musick website showing The Road Still Knows album launch" loading="lazy" width="1180" height="615" />
