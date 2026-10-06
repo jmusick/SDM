@@ -9,7 +9,7 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 - Marketing homepage with hero, services summary, areas served, and our-work highlights
 - About page
 - Services hub with four category subpages (design & development, marketing & analytics, hosting & security, branding & consulting), plus a "How Much Does It Cost?" pricing-philosophy section
-- Products page (Firelands Current, our owned and operated digital newspaper, and Tagstash)
+- Products page (Firelands Current, our owned and operated digital newspaper, Tagstash, and an Upcoming Products section for Chomp Chomp Panic!, our kaiju game in development)
 - Our Work portfolio page (Firelands Current, JD Musick, Simon Rook, Dorian Black, Pneumaris, Tagstash)
 - Contact form with hCaptcha and Web3Forms submission
 - Privacy policy

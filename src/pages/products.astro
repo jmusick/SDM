@@ -10,7 +10,7 @@ export const prerender = true;
 
 <BaseLayout
   title="Digital Products & Publications | Stone Dragon Media"
-  description="Discover Firelands Current, our digital newspaper for Sandusky and the Firelands, and Tagstash, our tag-first bookmarking tool."
+  description="Explore Firelands Current, Tagstash, and Chomp Chomp Panic!, a pixel-art kaiju game in development at Stone Dragon Media in Sandusky, Ohio."
   canonical="https://stonedragonmedia.com/products/"
   ogUrl="https://stonedragonmedia.com/products/"
   breadcrumb="Products"
@@ -46,6 +46,15 @@ export const prerender = true;
             "name": "Stone Dragon Media",
             "url": "https://stonedragonmedia.com"
           }
+        },
+        {
+          "@type": "VideoGame",
+          "name": "Chomp Chomp Panic!",
+          "url": "https://stonedragonmedia.com/products/#chomp-chomp-panic",
+          "description": "A top-down pixel-art kaiju game currently in development by Stone Dragon Media, LLC. Eat to grow, smash buildings, and battle rival monsters in Tokyo and snowy New York.",
+          "image": "https://stonedragonmedia.com/products/chomp-chomp-panic.png",
+          "genre": "Action",
+          "creator": { "@type": "Organization", "name": "Stone Dragon Media, LLC", "url": "https://stonedragonmedia.com/" }
         }
       ]
     })} />
@@ -64,7 +73,8 @@ export const prerender = true;
         border-top: 1px solid var(--seam);
       }
 
-      .product h2 {
+      .product h2,
+      .product h3 {
         margin: 0 0 0.8rem;
         font-size: clamp(1.8rem, 3.4vw, 2.6rem);
         color: var(--slate);
@@ -91,6 +101,12 @@ export const prerender = true;
 
       .product .product-note {
         margin-top: 1.2rem;
+      }
+
+      .upcoming {
+        margin-top: clamp(3rem, 6vw, 5rem);
+        padding-top: clamp(2rem, 4vw, 3rem);
+        border-top: 1px solid var(--seam);
       }
 
       .product-media {
@@ -133,7 +149,7 @@ export const prerender = true;
       image="/products-header.webp"
       alt="Stone Dragon Media products — digital publications and practical tools"
       title="Digital Products & Publications"
-      desc="Built and run by Stone Dragon Media, from local news to tools for organizing your work."
+      desc="Built by Stone Dragon Media, from local news and practical tools to games in development."
       crumbs={[{ name: "Products" }]}
       position="center 70%"
     />
@@ -211,6 +227,36 @@ export const prerender = true;
             width="1180"
             height="615"
           />
+        </div>
+      </section>
+      <section class="section upcoming" id="upcoming-products" aria-labelledby="upcoming-products-title">
+        <h2 class="section-title" id="upcoming-products-title">Upcoming Products</h2>
+        <div class="product" id="chomp-chomp-panic">
+          <div class="product-copy">
+            <h3>Chomp Chomp Panic!</h3>
+            <p class="product-intro">
+              Start small. Eat big. Smash the city. Chomp Chomp Panic! is a top-down pixel-art
+              kaiju game we&rsquo;re developing at Stone Dragon Media. Rampage through neon-lit
+              Tokyo or snowy New York, eating anything smaller than you and growing into a
+              city-stomping monster.
+            </p>
+            <ul>
+              <li>Grow from chasing people and cars to chomping tanks and fighter jets</li>
+              <li>Smash buildings, collect powerups, and survive the military&rsquo;s counterattack</li>
+              <li>Unlock more kaiju and evolve to unleash abilities like Atomic Breath and Missile Volley</li>
+              <li>Outgrow rival monsters, survive the clock, and take on a giant boss kaiju</li>
+            </ul>
+            <p class="product-note">Currently in development.</p>
+          </div>
+          <div class="product-media">
+            <img
+              src="/products/chomp-chomp-panic.png"
+              alt="Chomp Chomp Panic! title artwork with yellow and red lettering and a blue kaiju chomping a person"
+              loading="lazy"
+              width="640"
+              height="427"
+            />
+          </div>
         </div>
       </section>
     </div>
