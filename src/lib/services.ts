@@ -35,20 +35,20 @@ export const serviceCategories: ServiceCategory[] = [
     slug: "design-development",
     name: "Design & Development",
     icon: "lucide:layout-template",
-    summary: "Websites, online stores, and custom software built around your business.",
+    summary: "Help customers learn about your business, buy online, or get in touch. Build software for your team's daily work.",
     title: "Web Design & App Development in Sandusky, OH",
     description:
       "Custom websites, eCommerce, landing pages, client portals, internal tools, and API integrations built for speed and reliability by Stone Dragon Media in Sandusky, Ohio.",
     h1: "Web Design & Application Development in Sandusky, Ohio",
     intro:
       "Help visitors understand your business, shop online, or contact you. We build custom websites and applications with attention to speed, accessibility, and maintenance. We work in person across Erie County and northern Ohio, and remotely with clients anywhere.",
-    heroDesc: "Custom websites and business applications built around your customers and your workflow.",
+    heroDesc: "Help customers find information and buy online, and give your team tools for daily work.",
     services: [
       {
         id: "custom-web-solutions",
         name: "Custom Web Solutions",
         icon: "lucide:layout-template",
-        summary: "Custom websites and web systems designed to communicate your value, help visitors take action, and support fast page loads.",
+        summary: "Make it easy for visitors to understand what you offer, find the right information, and buy or contact you.",
         bullets: [
           "eCommerce and informational websites",
           "Landing pages and microsites",
@@ -60,7 +60,7 @@ export const serviceCategories: ServiceCategory[] = [
         id: "application-development",
         name: "Custom Application Development",
         icon: "lucide:cpu",
-        summary: "Custom software for your team's tools, tasks, and workflows.",
+        summary: "Give your team one place to manage daily work, share information with customers, and automate repeated tasks.",
         bullets: [
           "Internal tools and dashboards",
           "Customer and client portals",
@@ -113,7 +113,7 @@ export const serviceCategories: ServiceCategory[] = [
     slug: "hosting-security",
     name: "Hosting & Security",
     icon: "lucide:server",
-    summary: "Website hosting and ongoing maintenance after launch.",
+    summary: "Keep your website cared for after launch with hosting, software updates, monitoring, and backup planning.",
     title: "Website Hosting & Security in Sandusky, OH",
     description:
       "Managed hosting, domain and SSL management, cloud and VPS setup, security hardening, uptime monitoring, backups, and ongoing maintenance plans from Stone Dragon Media in Sandusky, Ohio.",
@@ -126,7 +126,7 @@ export const serviceCategories: ServiceCategory[] = [
         id: "hosting-infrastructure",
         name: "Hosting & Infrastructure",
         icon: "lucide:server",
-        summary: "Hosting setup, domain management, and recovery planning to support your website.",
+        summary: "Set up hosting, manage your domain, or move an existing site. Plan backups and recovery before you need them.",
         bullets: [
           "Domain registration and SSL management",
           "Cloud and VPS server setup",
@@ -152,7 +152,7 @@ export const serviceCategories: ServiceCategory[] = [
     slug: "branding-consulting",
     name: "Branding & Consulting",
     icon: "lucide:palette",
-    summary: "A consistent visual identity across your website and marketing materials, with practical technology advice.",
+    summary: "Give your business a consistent look and get help choosing platforms, planning migrations, or defining your next project.",
     title: "Branding & Digital Strategy in Sandusky, OH",
     description:
       "Logo and brand identity design, style guides, color and typography systems, and help choosing technology and planning projects from Stone Dragon Media in Sandusky, Ohio.",
@@ -177,7 +177,7 @@ export const serviceCategories: ServiceCategory[] = [
         id: "consulting-strategy",
         name: "Consulting & Strategy",
         icon: "lucide:compass",
-        summary: "Help choosing technology, improving processes, and planning your next project.",
+        summary: "Choose platforms that fit your business, plan a migration, or work out what your next software project needs.",
         bullets: [
           "Technology and platform selection",
           "Planning technology changes for your business",

@@ -8,9 +8,6 @@ import { socialProfileUrls } from "../lib/social";
 
 export const prerender = true;
 
-const currentYear = new Date().getFullYear();
-const codingStartYear = 1998;
-const yearsExperience = currentYear - codingStartYear;
 ---
 
 <BaseLayout
@@ -98,6 +95,18 @@ const yearsExperience = currentYear - codingStartYear;
         gap: 1.25rem;
       }
 
+      .hero-note {
+        flex-basis: 100%;
+        margin: 0.5rem 0 0;
+        font-size: 0.95rem;
+        color: #dfe7ed;
+      }
+
+      .hero-note span {
+        display: block;
+        max-width: 34rem;
+      }
+
       .areas-list {
         columns: 5 11rem;
         column-gap: 2rem;
@@ -142,7 +151,7 @@ const yearsExperience = currentYear - codingStartYear;
       image="/header-bg.webp"
       alt="Stone Dragon Media — custom web design and digital strategy agency based in Sandusky, Ohio"
       title="Sandusky, Ohio web design for your business"
-      desc={`Custom websites, business applications, and ongoing support built around your goals. Based in Sandusky, Ohio, with ${yearsExperience} years of IT and development experience.`}
+      desc="Make it easy for customers to understand what you offer and get in touch. We build custom websites and business applications, with ongoing support after launch."
       position="center 35%"
     >
       <a class="button button-primary" href="/contact/">
@@ -150,6 +159,10 @@ const yearsExperience = currentYear - codingStartYear;
         Discuss Your Project
       </a>
       <a class="button button-secondary" href="/services/">View Services</a>
+      <p class="hero-note">
+        <span>IT and development experience since 1998.</span>
+        <span>Free consultations. We reply within one business day.</span>
+      </p>
     </PageHero>
 
     <div class="page">
@@ -167,7 +180,7 @@ const yearsExperience = currentYear - codingStartYear;
             <Icon class="icon" name="lucide:cpu" aria-hidden="true" />
             <h3><a href="/services/design-development/#application-development">Custom Application Development</a></h3>
             <p>
-              Internal tools, customer portals, and workflow automation built around your day-to-day operations.
+              Give your team one place to manage daily work, share information with customers, and automate repeated tasks.
             </p>
           </article>
           <article class="card">
@@ -209,7 +222,7 @@ const yearsExperience = currentYear - codingStartYear;
             <Icon class="icon" name="lucide:compass" aria-hidden="true" />
             <h3><a href="/services/branding-consulting/#consulting-strategy">Consulting &amp; Strategy</a></h3>
             <p>
-              Help choosing technology, planning projects, and moving data as your business changes.
+              Choose platforms that fit your business, plan a migration, or work out what your next software project needs.
             </p>
           </article>
         </div>
@@ -227,18 +240,22 @@ const yearsExperience = currentYear - codingStartYear;
           <a class="shot" href="/work/#simon-rook">
             <img src="/work/simonrook.webp" alt="Simon Rook author website" loading="lazy" width="1180" height="615" />
             <span class="shot-name">Simon Rook</span>
+            <span class="shot-desc">Author website with book details and purchase links.</span>
           </a>
-          <a class="shot" href="/work/#dorian-black">
-            <img src="/work/dorianblack.webp" alt="Dorian Black synth-pop artist website" loading="lazy" width="1180" height="615" />
-            <span class="shot-name">Dorian Black</span>
+          <a class="shot" href="/work/#firelands-current">
+            <img src="/work/firelands-current.webp" alt="Firelands Current homepage with its teal masthead and local news headlines" loading="lazy" width="1180" height="615" />
+            <span class="shot-name">Firelands Current</span>
+            <span class="shot-desc">Our local newspaper with events, reader discussions, and newsroom tools.</span>
           </a>
           <a class="shot" href="/work/#pneumaris">
             <img src="/work/pneumaris.webp" alt="Pneumaris band website" loading="lazy" width="1180" height="615" />
             <span class="shot-name">Pneumaris</span>
+            <span class="shot-desc">Band website with music players and a contact form.</span>
           </a>
           <a class="shot" href="/work/#tagstash">
             <img src="/work/tagstash.webp" alt="Tagstash bookmarking tool" loading="lazy" width="1180" height="615" />
             <span class="shot-name">Tagstash</span>
+            <span class="shot-desc">Our bookmarking application with paid plans and a Firefox extension.</span>
           </a>
         </div>
       </section>
@@ -284,6 +301,13 @@ const yearsExperience = currentYear - codingStartYear;
         </p>
       </div>
     </section>
+    <div class="page">
+      <section class="section">
+        <h2 class="section-title">Tell us about your project</h2>
+        <p>Tell us about your website, application, or the problem you need help solving. We&rsquo;ll follow up within one business day. Consultations are free.</p>
+        <a class="button button-primary" href="/contact/">Discuss Your Project</a>
+      </section>
+    </div>
   </main>
 
   <div class="footer-wrap">
