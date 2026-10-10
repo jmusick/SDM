@@ -73,13 +73,13 @@ const statusSort = sortLink("status", "Status");
       <Icon class="icon" name="lucide:plus" aria-hidden="true" />
       Add Project
     </a>
-    <form method="get" action="/admin/projects" style="display: flex; align-items: center; gap: 0.5rem;">
+    <form method="get" action="/admin/projects" style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
       {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
       {sortKey !== "updated" && <input type="hidden" name="sort" value={sortKey} />}
       {sortDir !== "desc" && <input type="hidden" name="dir" value={sortDir} />}
       <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--ink-soft);">
         Client
-        <select name="client" class="filter-select" style="width: auto;" onchange="this.form.submit()">
+        <select name="client" class="filter-select" style="width: auto;">
           <option value="" selected={!clientFilter}>All Clients</option>
           <option value="internal" selected={clientFilter === "internal"}>Internal</option>
           {clients.map((client) => (
@@ -87,6 +87,7 @@ const statusSort = sortLink("status", "Status");
           ))}
         </select>
       </label>
+      <button type="submit" class="btn btn-secondary">Apply</button>
     </form>
   </div>
 
