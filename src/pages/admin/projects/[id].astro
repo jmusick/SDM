@@ -151,7 +151,8 @@ const taskTypeBadge: Record<TaskType, string> = {
                 <input type="hidden" name="projectId" value={project.id} />
                 <input type="hidden" name="noteId" value={note.id} />
                 <div class="field">
-                  <textarea name="body" required>{note.body}</textarea>
+                  <label class="visually-hidden" for={`project-note-edit-${note.id}`}>Edit note by {note.authorName}</label>
+                  <textarea id={`project-note-edit-${note.id}`} name="body" required>{note.body}</textarea>
                 </div>
                 <div class="form-actions">
                   <button class="btn btn-primary" type="submit">Save</button>
@@ -334,7 +335,8 @@ const taskTypeBadge: Record<TaskType, string> = {
                     <input type="hidden" name="taskId" value={task.id} />
                     <input type="hidden" name="noteId" value={note.id} />
                     <div class="field">
-                      <textarea name="body" required>{note.body}</textarea>
+                      <label class="visually-hidden" for={`task-note-edit-${note.id}`}>Edit note by {note.authorName}</label>
+                      <textarea id={`task-note-edit-${note.id}`} name="body" required>{note.body}</textarea>
                     </div>
                     <div class="form-actions">
                       <button class="btn btn-primary" type="submit">Save</button>
@@ -358,8 +360,8 @@ const taskTypeBadge: Record<TaskType, string> = {
             <input type="hidden" name="projectId" value={project.id} />
             <input type="hidden" name="taskId" value={task.id} />
             <div class="field">
-              <label>Add Note</label>
-              <textarea name="body" required></textarea>
+              <label for={`task-note-new-${task.id}`}>Add Note</label>
+              <textarea id={`task-note-new-${task.id}`} name="body" required></textarea>
             </div>
             <div class="form-actions">
               <button class="btn btn-primary" type="submit">Add Note</button>
@@ -410,23 +412,23 @@ const taskTypeBadge: Record<TaskType, string> = {
             <input type="hidden" name="taskId" value={task.id} />
             <div class="form-grid">
               <div class="field">
-                <label>Date</label>
-                <input name="date" type="date" required />
+                <label for={`time-entry-date-${task.id}`}>Date</label>
+                <input id={`time-entry-date-${task.id}`} name="date" type="date" required />
               </div>
               <div class="field">
-                <label>Amount</label>
-                <input name="amount" type="number" step="0.25" min="0" required />
+                <label for={`time-entry-amount-${task.id}`}>Amount</label>
+                <input id={`time-entry-amount-${task.id}`} name="amount" type="number" step="0.25" min="0" required />
               </div>
               <div class="field">
-                <label>Unit</label>
-                <select name="unit">
+                <label for={`time-entry-unit-${task.id}`}>Unit</label>
+                <select id={`time-entry-unit-${task.id}`} name="unit">
                   <option value="hours">Hours</option>
                   <option value="minutes">Minutes</option>
                 </select>
               </div>
               <div class="field full">
-                <label>Note</label>
-                <input name="note" type="text" />
+                <label for={`time-entry-note-${task.id}`}>Note</label>
+                <input id={`time-entry-note-${task.id}`} name="note" type="text" />
               </div>
             </div>
             <div class="form-actions">
