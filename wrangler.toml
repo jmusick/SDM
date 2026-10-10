@@ -1,4 +1,4 @@
-name = "sdm"
+name = "stone-dragon-media"
 main = "@astrojs/cloudflare/entrypoints/server"
 compatibility_date = "2026-08-13"
 compatibility_flags = ["nodejs_compat"]

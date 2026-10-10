@@ -27,7 +27,7 @@ This repository powers the public-facing Stone Dragon Media site at [stonedragon
 | Analytics | Google Analytics 4 (GA4) — `G-GBG97CSL2Z` via gtag.js |
 | Contact form | Web3Forms API |
 | CAPTCHA | hCaptcha |
-| Hosting | Cloudflare Worker `sdm` with static assets (via `@astrojs/cloudflare`), git-integrated through Workers Builds — pushing to `master` deploys to production |
+| Hosting | Cloudflare Worker `stone-dragon-media` with static assets (via `@astrojs/cloudflare`), git-integrated through Workers Builds — pushing to `master` deploys to production |
 | Database | Cloudflare D1 (`sdm-db`), binding `DB` — client/project/task/note/time-entry/invoice/ticket data |
 | Auth | Cookie-based sessions (`sdm_session`), PBKDF2 password hashing via Web Crypto — no external auth provider. Session tokens are stored in D1 as SHA-256 hashes, login has an 8-attempt / 15-min account lockout (every failed sign-in is logged to Workers Logs), and temp passwords force a change on first login |
 | Security headers | `public/_headers` (`/*` rule: CSP, HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Cross-Origin-Opener-Policy`, `Permissions-Policy`) for prerendered pages; `src/lib/security-headers.ts` applies the same set to portal SSR responses via middleware |
@@ -38,7 +38,7 @@ A handful of clients log in at `/login` to see their own projects, invoices, and
 
 - **First-time setup**: `/admin/setup` requires zero users, `ADMIN_SETUP_ENABLED="true"`, a separately provisioned `ADMIN_SETUP_SECRET` of at least 32 characters, and `ADMIN_SETUP_EXPIRES_AT` within the next 15 minutes. See the bootstrap procedure below; remove all three settings afterward.
 - **Auth model**: `users` table holds both `admin` and `client` roles; `clients` holds the business-facing profile for client accounts. Sessions live in the `sessions` table (14-day expiry), cookie is httpOnly/SameSite=Lax; the `sessions.id` column stores the SHA-256 of the cookie token, not the token itself. Mutating requests are also checked for a same-origin `Origin`/`Referer` (CSRF backstop). Login enforces an 8-failed-attempt / 15-minute account lockout (`users.failed_attempts` / `locked_until`) with atomic counting; blocked requests do not extend the lock, expiry starts a fresh count, and successful login clears failures only if no concurrent lock is active. Login runs a dummy PBKDF2 hash on unknown emails so response time isn't a user-enumeration oracle.
-- **Temporary passwords**: client creation and admin-triggered resets set a temp password that never travels in the URL — the plaintext is written to a one-time `password_flash` row (15-min TTL) and the redirect carries only an opaque id. Temporary login credentials contain 144 random bits in 24 base64url characters and expire after 15 minutes independently of the reveal. Existing temporary accounts expire when migration 0009 is applied and need a deliberate admin reset. Such accounts get `users.must_change_password = 1`; middleware pins them to the settings page until they set a real password.
+- **Temporary passwords**: client creation and admin-triggered resets set a temp password that never travels in the URL — the plaintext is written to a one-time `password_flash` row (15-min TTL) and the redirect carries only an opaque id. The reveal is consumed atomically only for the intended client. Password resets and self-service password changes remove stale reveals; reset and replacement reveal are stored in one transaction. Temporary login credentials contain 144 random bits in 24 base64url characters and expire after 15 minutes independently of the reveal. Existing temporary accounts expire when migration 0009 is applied and need a deliberate admin reset. Such accounts get `users.must_change_password = 1`; middleware pins them to the settings page until they set a real password.
 - **Data model**: see `migrations/*.sql` for the full schema — `users`, `sessions`, `clients`, `projects`, `tasks`, `project_notes`, `task_notes`, `time_entries`, `invoices`, `tickets`, `ticket_messages`, `password_flash`.
 - **Internal projects**: `projects.client_id` is nullable — a project with no client is an internal (Stone Dragon Media's own) project. It's shown with an "Internal" badge in the admin UI and is filtered out of anything client-facing by construction (client pages always query by a specific `clientId`).
 - **Project task board**: each project has a drag-and-drop Kanban board (lanes: planning / to do / in progress / QA / done) on `/admin/projects/[id]`. Every card also has a lane select, so tasks can be moved with a keyboard or screen reader; moves (and failed moves) are announced through a live region in the portal layouts. Tasks carry a type (story/bug/task/chore), priority, and an optional assignee (admin users only). Everything about a task — details, notes, and time entries — is edited in a single modal on that page; there is no separate task page. Projects also have their own notes thread, and time is logged per task as add/delete-only entries (stored in minutes; the form accepts hours or minutes).
@@ -148,7 +148,7 @@ Serves the built worker in workerd against local D1.
 
 ### Deploy
 
-Pushing to `master` deploys via Workers Builds. To deploy manually from a local checkout:
+Pushing to `master` in [jmusick/stone-dragon-media](https://github.com/jmusick/stone-dragon-media) deploys via Workers Builds. To deploy manually from a local checkout:
 
 ```bash
 npm run deploy
@@ -160,6 +160,12 @@ npm run deploy
 npm run d1:migrate:local    # apply to local D1 (used by `npm run dev`)
 npm run d1:migrate:remote   # apply to production D1
 ```
+
+## Workspace locations
+
+- Website source: `C:\Users\JD\source\stone-dragon-media`
+- Project library: `C:\Users\JD\Projects\stone-dragon-media` — original assets, private business records, portfolio captures, and review write-ups.
+- Keep only files that build, test, deploy, or document the code in this repository; keep optimized production images in `public/`. See [AGENTS.md](AGENTS.md) for the detailed boundaries.
 
 ## Project Structure
 
@@ -238,4 +244,3 @@ npm run d1:migrate:remote   # apply to production D1
 ## License
 
 This code is published for transparency and reference only — no commercial use is permitted. See [LICENSE.md](LICENSE.md).
-

@@ -17,6 +17,21 @@ Ohio, live at [stonedragonmedia.com](https://stonedragonmedia.com). It is two th
 Astro 7, TypeScript, `output: 'server'` via `@astrojs/cloudflare` (v14). No UI framework — everything is
 `.astro` with inline `<style>`/`<script>`.
 
+## What belongs in this repo
+
+Only what builds, tests, deploys, or documents the code: `src/`, `public/`, `migrations/`, `scripts/`,
+config, generated types, `README.md`/`AGENTS.md`/`CLAUDE.md`/`LICENSE.md`, and `docs/` for notices
+that must ship with bundled data. Everything else goes in the local project library at
+`C:\Users\JD\Projects\stone-dragon-media`, not here:
+
+- `Assets/` — original and large images, design files, marketing and social graphics. Only
+  optimized production copies go in `public/` (see Images).
+- `Documents/Reviews/` — copy reviews, audits, and other write-ups, named `YYYY-MM-DD <Title>.md`.
+- `portfolio/` — dated screenshots and review captures.
+- `Business Records/` — private legal and tax documents. Never copy their contents into this repo.
+
+Don't commit review reports, scratch notes, or source artwork here. Write them to the project library.
+
 ## Commands
 
 ```bash
@@ -47,7 +62,7 @@ v2.19.0 kept the v6 behaviour (prerendered text verified identical) rather than 
 
 ## Deployment
 
-- Cloudflare **Worker** `sdm` (Workers Builds), git-integrated with GitHub `jmusick/SDM` — pushing
+- Cloudflare **Worker** `stone-dragon-media` (Workers Builds), git-integrated with GitHub `jmusick/stone-dragon-media` — pushing
   to `master` builds (`npm run build`) and deploys (`npx wrangler deploy`). Migrated from a Pages
   project in v2.17.0; `@astrojs/cloudflare` v13+ doesn't support Pages for SSR.
 - **`wrangler.toml` is the source of truth for bindings and runtime config** (D1 `DB`, compatibility
@@ -124,8 +139,8 @@ v2.19.0 kept the v6 behaviour (prerendered text verified identical) rather than 
   users to `/admin/settings`. A password change/reset evicts the account's other sessions
   (`updateUserPassword`/`resetClientPassword`).
 - **Temporary passwords** (client create + admin reset) never travel in the URL — the plaintext is
-  written to `password_flash` (one-time read, 15-min TTL) and the redirect carries only an opaque
-  `?pwflash=<id>`, consumed on render in `admin/clients/[id].astro`. Temporary credentials use 24 base64url characters (144 bits) and expire after 15 minutes; migration 0009 expires legacy temporary accounts until admin reset. Such accounts get
+  written to `password_flash` (atomic one-time read for the intended client, 15-min TTL) and the redirect carries only an opaque
+  `?pwflash=<id>`, consumed on render in `admin/clients/[id].astro`. Password resets and self-service password changes remove stale reveals; reset and replacement reveal are stored in one transaction. Temporary credentials use 24 base64url characters (144 bits) and expire after 15 minutes; migration 0009 expires legacy temporary accounts until admin reset. Such accounts get
   `users.must_change_password = 1`; middleware pins them to `/dashboard/settings?mustchange=1` (or
   `/admin/settings`) until they set a real password, which clears the flag.
 
@@ -267,7 +282,7 @@ Compress/resize with `sharp` (transitive Astro dependency at `node_modules/sharp
 palette-compressed `.png` (lossy WebP blurs flat-color edges). Target well under 200 KB per hero image
 and 100 KB per logo/favicon — this site had a real page-speed problem from multi-MB PNGs. Portfolio
 thumbnails in `public/work/` are 1180×615 WebP, ~30–40 KB. New `<img>` tags need real descriptive
-`alt`. Originals and design files live in `C:\Users\JD\Projects\Stone Dragon Media`, not this repo.
+`alt`. Originals and design files live in the project library's `Assets/`, not this repo.
 
 ## Business content — don't invent it
 
@@ -287,4 +302,3 @@ collected, changed retention), update the policy and its effective date together
 
 This code is public for transparency and reference only — no commercial use. See `LICENSE.md`. Don't
 add an OSS license badge, contribution guide, or anything implying this project accepts contributions.
-

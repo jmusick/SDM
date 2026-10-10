@@ -25,7 +25,7 @@ const [projects, invoices, tickets] = await Promise.all([
 ]);
 
 const flashId = Astro.url.searchParams.get("pwflash");
-const tempPassword = flashId ? await consumePasswordFlash(Astro.locals, flashId) : null;
+const tempPassword = flashId ? await consumePasswordFlash(Astro.locals, flashId, client.userId) : null;
 const errorParam = Astro.url.searchParams.get("error");
 const errorMessage =
   errorParam === "invalid" ? "Company name is required." : errorParam === "password" ? "Incorrect password. Client was not deleted." : null;

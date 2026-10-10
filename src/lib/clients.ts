@@ -88,34 +88,20 @@ function generateTempPassword(): string {
 
 const PASSWORD_FLASH_TTL_MS = 1000 * 60 * 15;
 
-/**
- * Stores a temporary password for a single later reveal on the client page,
- * returning an opaque id to carry in the redirect URL instead of the plaintext
- * credential. The row is deleted the first time it's read (`consumePasswordFlash`)
- * and expires after {@link PASSWORD_FLASH_TTL_MS} regardless.
- */
-async function createPasswordFlash(db: D1Database, userId: string, tempPassword: string): Promise<string> {
-  const id = crypto.randomUUID();
-  await db
-    .prepare("INSERT INTO password_flash (id, user_id, temp_password, expires_at) VALUES (?, ?, ?, ?)")
-    .bind(id, userId, tempPassword, Date.now() + PASSWORD_FLASH_TTL_MS)
-    .run();
-  return id;
-}
-
-/** Reads and deletes a one-time temp-password flash. Returns null if missing or expired. */
-export async function consumePasswordFlash(locals: App.Locals, id: string): Promise<string | null> {
+/** Atomically reveals an unexpired flash only on its intended client's page. */
+export async function consumePasswordFlash(
+  locals: App.Locals,
+  id: string,
+  userId: string
+): Promise<string | null> {
   const db = ensureDB(locals);
   const now = Date.now();
   const row = await db
-    .prepare("SELECT temp_password, expires_at FROM password_flash WHERE id = ? LIMIT 1")
-    .bind(id)
-    .first<{ temp_password: string; expires_at: number }>();
-  await db.batch([
-    db.prepare("DELETE FROM password_flash WHERE id = ?").bind(id),
-    db.prepare("DELETE FROM password_flash WHERE expires_at < ?").bind(now),
-  ]);
-  return row && row.expires_at > now ? row.temp_password : null;
+    .prepare("DELETE FROM password_flash WHERE id = ? AND user_id = ? AND expires_at > ? RETURNING temp_password")
+    .bind(id, userId, now)
+    .first<{ temp_password: string }>();
+  await db.prepare("DELETE FROM password_flash WHERE expires_at <= ?").bind(now).run();
+  return row?.temp_password ?? null;
 }
 
 export async function createClient(
@@ -128,6 +114,7 @@ export async function createClient(
   const passwordHash = await hashPassword(temporaryPassword);
   const userId = crypto.randomUUID();
   const clientId = crypto.randomUUID();
+  const flashId = crypto.randomUUID();
   const now = Date.now();
 
   await db.batch([
@@ -137,9 +124,9 @@ export async function createClient(
     db
       .prepare("INSERT INTO clients (id, user_id, company_name, contact_name, phone, created_at) VALUES (?, ?, ?, ?, ?, ?)")
       .bind(clientId, userId, input.companyName.trim(), input.contactName?.trim() || null, input.phone?.trim() || null, now),
+    db.prepare("INSERT INTO password_flash (id, user_id, temp_password, expires_at) VALUES (?, ?, ?, ?)")
+      .bind(flashId, userId, temporaryPassword, now + PASSWORD_FLASH_TTL_MS),
   ]);
-
-  const flashId = await createPasswordFlash(db, userId, temporaryPassword);
   return { clientId, flashId };
 }
 
@@ -187,13 +174,18 @@ export async function resetClientPassword(locals: App.Locals, userId: string): P
   const db = ensureDB(locals);
   const temporaryPassword = generateTempPassword();
   const passwordHash = await hashPassword(temporaryPassword);
+  const flashId = crypto.randomUUID();
+  const expiresAt = Date.now() + PASSWORD_FLASH_TTL_MS;
   // Kill every session for this account — an admin reset is a response to a lost
   // or compromised credential, so any existing login must not survive it. The
   // client must set a new password on their next login.
   await db.batch([
     db.prepare("UPDATE users SET password_hash = ?, must_change_password = 1, temporary_password_expires_at = ?, failed_attempts = 0, locked_until = NULL WHERE id = ?")
-      .bind(passwordHash, Date.now() + PASSWORD_FLASH_TTL_MS, userId),
+      .bind(passwordHash, expiresAt, userId),
     db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(userId),
+    db.prepare("DELETE FROM password_flash WHERE user_id = ?").bind(userId),
+    db.prepare("INSERT INTO password_flash (id, user_id, temp_password, expires_at) VALUES (?, ?, ?, ?)")
+      .bind(flashId, userId, temporaryPassword, expiresAt),
   ]);
-  return createPasswordFlash(db, userId, temporaryPassword);
+  return flashId;
 }
